@@ -85,4 +85,21 @@
 	<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particlesapp.js"></script>
 </body>
+<script>
+  $(function(){
+    $("#Footer").load("/Web/Footer/index.html");
+  });
+  
+  $(document).ready(function() {
+    $("#arrow").click(function() {
+      $('html, body').animate({
+        scrollTop: $(document).height() - $(window).height()
+      }, 1000);
+    });
+  });
+</script>
+<footer><div id="Footer"></div>
+</footer>
+
+
 </html>
