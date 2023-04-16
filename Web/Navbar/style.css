@@ -28,6 +28,9 @@
 	height: 40px; /* Change this to the height of your logo */
 	border-radius: 25px;
 	opacity: 1;
+}
+
+.logo.normal img {
 	animation: fade-in-navbar 1s ease-in;
 }
 
@@ -44,6 +47,8 @@
 	display: flex;
 	align-items: flex-start;
 	margin-left: 3%;
+}
+.nav-buttons.normal{
 	animation: fade-in-navbar 1.5s ease-in-out;
 }
 
