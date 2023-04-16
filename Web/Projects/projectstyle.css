@@ -151,15 +151,29 @@ html {
       20px 20px rgba(145, 156, 196, 0.1), 25px 25px rgba(145, 156, 196, 0.05);
   }
   
-  .tile-link:hover .tile-img9 {
-    box-shadow: 5px 5px rgba(188, 97, 129, 0.4), 10px 10px rgba(188, 97, 129, 0.3),
-      15px 15px rgba(188, 97, 129, 0.2), 20px 20px rgba(188, 97, 129, 0.1),
-      25px 25px rgba(188, 97, 129, 0.05);
+  .panel {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.95);
+    overflow-y: scroll;
+    z-index: 9999;
+    cursor: pointer;
   }
   
-  .tile-link:hover .tile-img10 {
-    box-shadow: 5px 5px rgba(4, 140, 231, 0.4), 10px 10px rgba(4, 140, 231, 0.3),
-      15px 15px rgba(4, 140, 231, 0.2), 20px 20px rgba(4, 140, 231, 0.1),
-      25px 25px rgba(4, 140, 231, 0.05);
+  .panel h2 {
+    margin-top: 0;
   }
+  
+  .panel iframe,
+  .panel img {
+    display: block;
+    max-width: 100%;
+    margin: 20px 0;
+  }
+  
   
