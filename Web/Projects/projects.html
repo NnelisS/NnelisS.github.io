@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>Projects Page</title>
+	<title>Projects</title>
 	<link rel="stylesheet" type="text/css" href="/Web/Projects/projectstyle.css">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script>
@@ -23,7 +23,7 @@
 	  
 		<div class="grid-block">
 		  <div class="tile">
-			<a class="tile-link" href="#">
+			<a class="tile-link" href="/Web/Projects/Keep The Lights On/keepthelighton.html">
 			  <img class="tile-img tile-img2" src="/Pictures/Screenshot 2022-04-11 173554.png" alt="Image">
 			</a>
 		  </div>
@@ -79,4 +79,18 @@
 	  
 	  </div>
   </body>
+  <script>
+	$(function(){
+	  $("#Footer").load("/Web/Footer/index.html");
+	});
+	
+	$(document).ready(function() {
+	  $("#arrow").click(function() {
+		$('html, body').animate({
+		  scrollTop: $(document).height() - $(window).height()
+		}, 1000);
+	  });
+	});
+  </script>
+  <footer><div id="Footer"></div>
 </html>
