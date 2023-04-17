@@ -1,6 +1,6 @@
 body{
-    background-color: rgb(0, 0, 0);
-    color: white;
+    background-color: #18222d;
+        color: white;
     position: absolute;
     overflow-y: scroll;
 }
@@ -15,6 +15,7 @@ body{
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    box-shadow: 3px 3px 5px #888888;
   }
   
   .video-container {
