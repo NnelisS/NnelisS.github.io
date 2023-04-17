@@ -15,7 +15,21 @@ var toggleBtn = document.getElementById("toggle-btn");
           toggleBtn.disabled = false;
         }
       });  
-      
+
       panel.addEventListener("click", function(event) {
         event.stopPropagation();
       });    
+
+      var playButton = document.getElementById("play-button");
+var videoContainer = document.getElementById("video-container");
+var videos = videoContainer.getElementsByClassName("video");
+
+playButton.addEventListener("click", function() {
+  // Hide the play button
+  playButton.style.display = "none";
+  
+  // Show each video iframe
+  for (var i = 0; i < videos.length; i++) {
+    videos[i].style.display = "block";
+  }
+});
