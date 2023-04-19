@@ -81,9 +81,9 @@
     position: absolute;
 	border-radius: 2%;
     z-index: 1;
-	background: transparent;
+	background: rgba(0, 0, 0, 0.384);
     min-width: 200px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.555);
 }
 
 .dropdown-content .row {

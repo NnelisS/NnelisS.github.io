@@ -53,10 +53,101 @@
                     <p>I've improved a lot over the past years so if I would recreate this I would change the health icon list, because now they are all dragged in individually.
                        I would now create and array that just enters [child] and would indicate current health to the child position in the array.
                        But since I was still learning when this project was created this is a good working script for a health manager.</p>
-                    <pre><code></code></pre>
+<pre><code>using UnityEngine.SceneManagement;
+
+  public class PlayerHealth : MonoBehaviour
+  {
+  
+      public int maxHealth = 100;
+      public int currentHealth;
+  
+      public int maxArmor = 100;
+      public int currentArmor;
+  
+      public HealthBar healthBar;
+      public ArmorBar armorBar;
+  
+      public bool hasArmor;
+  
+      public GameObject lastHitter;
+      Statistieken statistieken;
+  
+      private void Start()
+      {
+          maxHealth = maxHealth + PlayerPrefs.GetInt("Healt", 0);
+          maxArmor = maxArmor + PlayerPrefs.GetInt("Armor", 0);
+          statistieken = FindObjectOfType&lt;Statistieken&gt;();
+  
+          armorBar.setMaxArrmor(maxArmor);
+  
+          armorBar.SetArrmor(0);
+  
+          currentHealth = maxHealth;
+          currentArmor = 0;
+  
+          hasArmor = true;
+      }
+  
+      public void TakeDamage(int damage)
+      {
+          if (hasArmor == true)
+          {
+              currentArmor -= damage;
+              armorBar.SetArrmor(currentArmor);
+              CheckArmor();
+          }
+          else
+          {
+              currentHealth -= damage;
+              healthBar.Sethealth(currentHealth);
+              CheckHealth();
+          }
+      }
+  
+      public void ChangeHealth(int amount)
+      {
+          currentHealth += amount;
+          healthBar.Sethealth(currentHealth);
+          CheckHealth();
+      }
+  
+      public void AdArmor(int amount)
+      {
+          hasArmor = true;
+          currentArmor += amount;
+          armorBar.setMaxArrmor(currentArmor);
+          CheckArmor();
+      }
+  
+      private void CheckHealth()
+      {
+          if (currentHealth >= 100)
+          {
+              currentHealth = 100;
+          }
+          if (currentHealth &lt;= 0)
+          {
+              statistieken.Killer = lastHitter;
+              SceneManager.LoadScene("Game Over");
+              currentHealth = 0;
+          }
+      }
+      private void CheckArmor()
+      {
+          if (currentArmor >= 100)
+          {
+              currentArmor = 100;
+          }
+          if (currentArmor &lt;= 0)
+          {
+              currentArmor = 0;
+              hasArmor = false;
+          }
+      }
+  }</code></pre>
 
 
-                    <p><br><br><br><br><br><br>Cutscenes and animation down here.</p>
+                    <p><br><br>Cutscenes and animation down here.</p>
                     <p><br><br>In this project i went all in on the look of the game. cutscenes, animation, pickups, level design and Particles.</p>
                         <img src="/Pictures/Untitled (32).png" alt="Random Image">
 
@@ -98,6 +189,7 @@
     <script src="/Web/Projects/projectpanels.js"></script>
     <div class="box">
                 <div class="text">
+            <h2>Date: Jul 5, 2021</h2>
             <h1>– Project: Twin Stick Shooter</h1>
             <h1>– Duration: 6 Week</h1>
             <h1>– Team: 2 Devs, 2 Artists</h1>

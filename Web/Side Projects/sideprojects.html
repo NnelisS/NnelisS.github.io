@@ -12,6 +12,38 @@
   </head>
   <body>
 	<div id="navbar"></div>
-	  
+	<div class="container">
+		<div class="box">
+		  <img src="/Pictures/Third-Person-Movement.gif">
+		  <span>Third Person Controller</span>
+		</div>
+		<div class="box">
+		  <img src="/Pictures/AI.gif" class="flipped-gif">
+		  <span>Image</span>
+		</div>
+		<div class="box">
+		  <img src="https://source.unsplash.com/1000x804">
+		  <span>Hover</span>
+		</div>
+		<div class="box">
+		  <img src="https://source.unsplash.com/1000x806">
+		  <span>Effect</span>
+		</div>
+	  </div>
   </body>
+  <script>
+	$(function(){
+	  $("#Footer").load("/Web/Footer/index.html");
+	});
+	
+	$(document).ready(function() {
+	  $("#arrow").click(function() {
+		$('html, body').animate({
+		  scrollTop: $(document).height() - $(window).height()
+		}, 1000);
+	  });
+	});
+  </script>
+  <footer><div id="Footer"></div>
+  </footer>
 </html>

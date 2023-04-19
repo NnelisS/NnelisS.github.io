@@ -42,54 +42,665 @@
             <button id="toggle-btn">Click to see code</button>
                 <div id="panel">
                 <div class="panel-content">
-                    <p>I started this project making an really smooth controlled pickup system, I achieved this by adding damping, jiggle effect, rotation and throwing.
+                    <p>I started this project making an really smooth controlled pickup system, 
+                      I achieved this by adding damping, jiggle effect, rotation and throwing.
 
                         <br>Together it looks like this:</p>
                         <video width="640" height="360" controls>
                             <source src="/Videos/2022-09-12-15-32-27.mp4" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
-                    <pre><code>CODE!!</code></pre>
+<pre><code>using Cinemachine;
+
+  public class Pickup : MonoBehaviour
+  {
+      [Header("Pickup Settings")]
+      [SerializeField] private float pickupRange = 5;
+      [SerializeField] private float moveForce = 1;
+      [SerializeField] private Transform middlePos;
+      [SerializeField] private float rotationSpeed = 5;
+  
+      [Header("Pickup Info")]
+      [SerializeField] private PlayerLook playerL;
+      [SerializeField] private CinemachineVirtualCamera vCam;
+      [SerializeField] private LayerMask pickupLayer;
+      private PullObject PullObjScript;
+      private LineRenderer line;
+  
+      [Header("Throw Settings")]
+      [SerializeField] private float timer = 1;
+      private bool throwIt = false;
+      private bool letGo = false;
+      public bool IsThrowing = false;
+  
+      [HideInInspector] public GameObject heldObject;
+      private float currentMass = 1;
+  
+      private Vector3 turn;
+      public bool RotateEnabled = false;
+  
+      private void Start()
+      {
+          line = middlePos.gameObject.GetComponent&lt;LineRenderer&gt;();
+          PullObjScript = GetComponent&lt;PullObject&gt;();
+      }
+  
+      void Update()
+      {
+          // move picked object to hold position and keep moving it towards
+          if (heldObject != null && RotateEnabled == false)
+          {
+              line.positionCount = 0;
+  
+              if (Vector3.Distance(heldObject.transform.position, middlePos.position) > 0.0f)
+              {
+                  Vector3 moveDiretion = (middlePos.position - heldObject.transform.position);
+                  heldObject.GetComponent&lt;Rigidbody&gt;().AddForce(moveDiretion * moveForce);
+                  heldObject.GetComponent&lt;Rigidbody&gt;().AddForce(-transform.up * heldObject.GetComponent&lt;Rigidbody&gt;().mass * 35);
+              }
+  
+              if (heldObject.GetComponent&lt;Rigidbody&gt;().mass &lt; 3)
+              {
+                  if (Input.GetKeyDown(KeyCode.R))
+                  {
+                      RotateEnabled = true;
+                      playerL.ChangeMovement();
+                      heldObject.GetComponent&lt;Rigidbody&gt;().constraints = RigidbodyConstraints.FreezeRotation;
+                  }
+              }
+          }
+  
+          // enable object rotation while holding it
+          if (RotateEnabled)
+          {
+              Vector3 moveDiretion = (middlePos.position - heldObject.transform.position);
+              heldObject.GetComponent&lt;Rigidbody&gt;().AddForce(moveDiretion * moveForce);
+  
+              RotateObject();
+          }
+  
+          // pickup object when pressing e
+          if (Input.GetKeyDown(KeyCode.E))
+          {
+              if (heldObject == null)
+              {
+                  RaycastHit hit;
+                  if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, pickupRange, pickupLayer))
+                      PickupUpObject(hit.transform.gameObject);
+              }
+              else if (throwIt == false)
+              {
+                  DropObject();
+                  playerL.ChangeMovement();
+              }
+          }
+  
+          if (heldObject != null)
+          {
+              heldObject.GetComponentInChildren&lt;PickupGlow&gt;().On();
+  
+              line.positionCount = 2;
+              line.SetPosition(0, middlePos.position);
+              line.SetPosition(1, heldObject.transform.position);
+  
+              float _distanceBetweenObj = Vector3.Distance(middlePos.transform.position, heldObject.transform.position);
+              if (_distanceBetweenObj > 1.4f)
+                  DropObject();
+              else
+              {
+                  if (heldObject.GetComponent&lt;Rigidbody&gt;().mass &lt; 3)
+                  {
+                      // if mouse is being hold, fov goes up and you throw harder the longer you hold it
+                      if (Input.GetKey(KeyCode.Mouse0) && PullObjScript.HasObj == false)
+                      {
+                          if (_distanceBetweenObj > 1.4f)
+                          {
+                              DropObject();
+                              letGo = true;
+                              throwIt = false;
+                              vCam.m_Lens.FieldOfView = Mathf.MoveTowards(vCam.m_Lens.FieldOfView, 60, 10 * Time.maximumDeltaTime);
+                          }
+                          else
+                          {
+                              IsThrowing = true;
+                              vCam.m_Lens.FieldOfView += 5 * Time.deltaTime;
+                              timer -= 0.1f * Time.deltaTime;
+                              heldObject.GetComponent&lt;Rigidbody&gt;().mass = timer;
+                              throwIt = true;
+                          }
+                      }
+                  }
+              }
+  
+              if (Input.GetKeyDown(KeyCode.E))
+                  RotateEnabled = false;
+          }
+          else if (heldObject == null)
+              playerL.movementOn = true;      
+  
+          // throw the object and throw fov back to default
+          if (letGo)
+          {
+              IsThrowing = false;
+              vCam.m_Lens.FieldOfView = Mathf.MoveTowards(vCam.m_Lens.FieldOfView, 60, 10 * Time.maximumDeltaTime);
+              if (vCam.m_Lens.FieldOfView == 60)
+                  letGo = false;
+          }
+  
+          // let go off object and throw it with the force it has
+          if (throwIt)
+          {
+              if (letGo == false && Input.GetKeyUp(KeyCode.Mouse0))
+              {
+                  if (RotateEnabled)
+                      playerL.ChangeMovement();
+  
+                  heldObject.GetComponentInChildren&lt;PickupGlow&gt;().Off();
+                  heldObject.GetComponent&lt;Rigidbody&gt;().mass += currentMass * 1.5f;
+                  line.positionCount = 0;
+                  letGo = true;
+                  RotateEnabled = false;
+                  timer = 1;
+                  ThrowObject();
+                  heldObject = null;
+                  throwIt = false;
+                  vCam.GetCinemachineComponent&lt;CinemachineBasicMultiChannelPerlin&gt;().m_FrequencyGain = 1;
+              }
+          }
+  
+          // if your on full force for throwing the frequency of the camera shake spikes up
+          if (timer &lt;= 0.3f)
+          {
+              timer = 0.3f;
+              vCam.GetCinemachineComponent&lt;CinemachineBasicMultiChannelPerlin&gt;().m_FrequencyGain = 10;
+              vCam.m_Lens.FieldOfView = 86.6f;
+          }
+      }
+  
+      private void RotateObject()
+      {
+          if (Input.GetKeyUp(KeyCode.R))
+          {
+              RotateEnabled = false;
+              playerL.ChangeMovement();
+          }
+  
+          if (Input.GetKeyDown(KeyCode.E))
+              RotateEnabled = false;
+  
+          // rotate object with mouse movement
+          float xInput = Input.GetAxis("Mouse X");
+          float yInput = Input.GetAxis("Mouse Y");
+          turn.x += xInput * rotationSpeed;
+          turn.y += yInput * rotationSpeed;
+  
+          Transform cameraTransform = Camera.main.transform;
+  
+  #pragma warning disable CS0618 // Type or member is obsolete
+          heldObject.transform.RotateAround(cameraTransform.up, xInput * Time.deltaTime * rotationSpeed);
+          heldObject.transform.RotateAround(cameraTransform.right, -yInput * Time.deltaTime * rotationSpeed);
+  #pragma warning restore CS0618 // Type or member is obsolete
+      }
+  
+      /// &lt;summary&gt;
+      /// get information on picked object
+      /// &lt;/summary&gt;
+      /// <param name="pickObj"></param>
+      private void PickupUpObject(GameObject pickObj)
+      {
+          if (pickObj.GetComponent&lt;Rigidbody&gt;())
+          {
+              pickObj.GetComponent&lt;Rigidbody&gt;().constraints = RigidbodyConstraints.None;
+              Rigidbody objRig = pickObj.GetComponent&lt;Rigidbody&gt;();
+              objRig.useGravity = false;
+              objRig.drag = 10;
+              heldObject = pickObj;
+          }
+      }
+  
+      /// &lt;summary&gt;
+      /// throw object with information from mouse hold
+      /// &lt;/summary&gt;
+      private void ThrowObject()
+      {
+          heldObject.GetComponentInChildren&lt;PickupGlow&gt;().Off();
+          Rigidbody heldRig = heldObject.GetComponent&lt;Rigidbody&gt;();
+          heldObject.GetComponent&lt;Rigidbody&gt;().useGravity = true;
+          heldRig.drag = 1;
+  
+          heldObject.transform.parent = null;
+          heldObject.GetComponent&lt;Rigidbody&gt;().constraints = RigidbodyConstraints.None;
+          heldObject.GetComponent&lt;Rigidbody&gt;().AddForce(transform.forward * 1000);
+          heldObject = null;
+      }
+  
+      /// &lt;summary&gt;
+      /// when holding the object press e and it drops normal on the ground
+      /// &lt;/summary&gt;
+      private void DropObject()
+      {
+          heldObject.GetComponentInChildren&lt;PickupGlow&gt;().Off();
+          line.positionCount = 0;
+          Rigidbody heldRig = heldObject.GetComponent&lt;Rigidbody&gt;();
+          heldObject.GetComponent&lt;Rigidbody&gt;().useGravity = true;
+          heldRig.drag = 1;
+  
+          heldObject.transform.parent = null;
+          heldObject.GetComponent&lt;Rigidbody&gt;().constraints = RigidbodyConstraints.None;
+          heldObject = null;
+  
+          if (RotateEnabled)
+          {
+              playerL.ChangeMovement();
+              RotateEnabled = false;
+          }
+      }
+  
+      public void DropObj()
+      {
+          heldObject.GetComponentInChildren&lt;PickupGlow&gt;().Off();
+          line.positionCount = 0;
+          heldObject.GetComponent&lt;Rigidbody&gt;().useGravity = true;
+  
+          heldObject.transform.parent = null;
+          heldObject.GetComponent&lt;Rigidbody&gt;().constraints = RigidbodyConstraints.None;
+          heldObject = null;
+  
+          if (RotateEnabled)
+              playerL.ChangeMovement();
+      }
+  }
+  </code></pre>
 
                     <p><br><br>Besides the pickup system I created Puzzles/MiniGames designed by the artists, for the player to solve also using the pickup and throwing mechanic.</p>
                     <p><br>I created scripts for the buttons used in the minigames to connect to that minigame.</p>
-                    <pre><code>CODE!!</code></pre>
-                    <pre><code>CODE!!</code></pre>
+<pre><code>public class PlateDown : MonoBehaviour
+  {
+      private Vector3 upPos;
+      private Vector3 downPos;
+  
+      public bool On = false;
+  
+      void Start()
+      {
+          upPos = transform.position;
+          downPos = transform.position -= new Vector3(0, 0.1f, 0);
+      }
+  
+      void Update()
+      {
+          if (On)
+              transform.position = Vector3.Lerp(transform.position, downPos, 1 * Time.deltaTime);
+          else if (On == false)
+              transform.position = Vector3.Lerp(transform.position, upPos, 1 * Time.deltaTime);
+      }
+  
+      private void OnTriggerEnter(Collider other)
+      {
+          if (other.gameObject.CompareTag("Player"))
+              EffectManager.instance.ScreenShake(1.3f, 4f, .5f);
+  
+          if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Clone") || other.gameObject.CompareTag("CubeNormal"))
+              AudioManager.instance.Play("PressurePlate");
+      }
+  
+      private void OnTriggerStay(Collider other)
+      {
+          if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Clone") || other.gameObject.CompareTag("CubeNormal"))
+              On = true;
+      }
+  
+      private void OnTriggerExit(Collider other)
+      {
+          if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Clone") || other.gameObject.CompareTag("CubeNormal"))
+              On = false;
+      }
+  }
+  </code></pre>
+<pre><code>public class LiftDoorPlate : MonoBehaviour
+  {
+      public Transform Plate;
+      public Transform BackPos;
+      public Transform Pos;
+  
+      private bool On = false;
+  
+      void Update()
+      {
+          if (On)
+              Plate.transform.position = Vector3.MoveTowards(Plate.transform.position, Pos.position, 1 * Time.deltaTime);
+          else
+              Plate.transform.position = Vector3.MoveTowards(Plate.transform.position, BackPos.position, 1 * Time.deltaTime);
+      }
+  
+      private void OnTriggerStay(Collider other)
+      {
+          ReliableOnTriggerExit.NotifyTriggerEnter(other, gameObject, OnTriggerExit);
+  
+          if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Clone") || other.gameObject.CompareTag("CubeNormal"))
+              On = true;
+      }
+  
+      private void OnTriggerExit(Collider other)
+      {
+          ReliableOnTriggerExit.NotifyTriggerExit(other, gameObject);
+  
+          if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Clone") || other.gameObject.CompareTag("CubeNormal"))
+              On = false;
+      }
+  }</code></pre>
                     <img src="/Pictures/Screenshot-2022-09-12-155551.png" alt="Random Image">
-                    <pre><code>CODE!!</code></pre>
+<pre><code>public class BridgePuzzle : MonoBehaviour
+  {
+      public Transform Bridge;
+      public Transform GoTo;
+      public Transform GoToBack;
+      public bool ClonePuzzle = false;
+  
+      private bool activated = false;
+  
+      public AudioSource Ending;
+  
+      private void Update()
+      {
+          if (activated)
+          {
+              if (ClonePuzzle)
+                  Bridge.transform.localPosition = Vector3.MoveTowards(Bridge.transform.localPosition, GoTo.transform.localPosition, 0.5f * Time.deltaTime);
+              else
+                  Bridge.transform.localPosition = Vector3.MoveTowards(Bridge.transform.localPosition, GoTo.transform.localPosition, 1 * Time.deltaTime);
+          }
+          else
+          {
+              if (ClonePuzzle == false)
+                  Bridge.transform.localPosition = Vector3.MoveTowards(Bridge.transform.localPosition, GoToBack.transform.localPosition, 1 * Time.deltaTime);
+          }
+      }
+  
+      private void OnTriggerEnter(Collider other)
+      {
+          if (Ending != null)
+          {
+              if (other.gameObject.CompareTag("Clone"))
+              {
+                  if (ClonePuzzle)
+                      Ending.enabled = true;
+              }
+          }
+      }
+  
+      private void OnTriggerStay(Collider other)
+      {
+          ReliableOnTriggerExit.NotifyTriggerEnter(other, gameObject, OnTriggerExit);
+  
+          if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Clone") || other.gameObject.CompareTag("CubeNormal"))
+              activated = true;
+      }
+  
+      private void OnTriggerExit(Collider other)
+      {
+          ReliableOnTriggerExit.NotifyTriggerExit(other, gameObject);
+  
+          if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Clone") || other.gameObject.CompareTag("CubeNormal"))
+              activated = false;
+      }
+  }
+  </code></pre>
                     <img src="/Pictures/Screenshot-2022-09-12-155622.png" alt="Random Image">
-                    <pre><code>CODE!!</code></pre>
+<pre><code>using Cinemachine;
+
+  public class BridgePuzzle : MonoBehaviour
+  {
+      public Transform Bridge;
+      public Transform GoTo;
+      public Transform GoToBack;
+      public bool ClonePuzzle = false;
+  
+      private bool activated = false;
+  
+      public AudioSource Ending;
+  
+      private void Update()
+      {
+          if (activated)
+          {
+              if (ClonePuzzle)
+                  Bridge.transform.localPosition = Vector3.MoveTowards(Bridge.transform.localPosition, GoTo.transform.localPosition, 0.5f * Time.deltaTime);
+              else
+                  Bridge.transform.localPosition = Vector3.MoveTowards(Bridge.transform.localPosition, GoTo.transform.localPosition, 1 * Time.deltaTime);
+          }
+          else
+          {
+              if (ClonePuzzle == false)
+                  Bridge.transform.localPosition = Vector3.MoveTowards(Bridge.transform.localPosition, GoToBack.transform.localPosition, 1 * Time.deltaTime);
+          }
+      }
+  
+      private void OnTriggerEnter(Collider other)
+      {
+          if (Ending != null)
+          {
+              if (other.gameObject.CompareTag("Clone"))
+              {
+                  if (ClonePuzzle)
+                      Ending.enabled = true;
+              }
+          }
+      }
+  
+      private void OnTriggerStay(Collider other)
+      {
+          ReliableOnTriggerExit.NotifyTriggerEnter(other, gameObject, OnTriggerExit);
+  
+          if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Clone") || other.gameObject.CompareTag("CubeNormal"))
+              activated = true;
+      }
+  
+      private void OnTriggerExit(Collider other)
+      {
+          ReliableOnTriggerExit.NotifyTriggerExit(other, gameObject);
+  
+          if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Clone") || other.gameObject.CompareTag("CubeNormal"))
+              activated = false;
+      }
+  }</code></pre>
                     <img src="/Pictures/Screenshot-2022-09-12-155640.png" alt="Random Image">    
 
                     <p><br><br>For easier gameplay I created the checkpoint system. 
                         By entering a level you enter a collider that lets you respawn at the beginning of the level also resetting every object in the level.
                      Also added a fade-in so it's smoother</p>
-                     <pre><code>CODE!!</code></pre>
                      <video width="640" height="360" controls>
-                        <source src="/Videos/" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
+                      <source src="/Videos/2023-04-19 21-19-28.mp4" type="video/mp4">
+                      Your browser does not support the video tag.
+                  </video> 
+<pre><code>public class CheckPointManager : MonoBehaviour
+  {
+      public CheckPointItems[] CheckPoints;
+  
+      public Transform spawnPoint;
+  
+      [SerializeField] private CharacterController characterCont;
+      private UnityEngine.CharacterController characterController;
+  
+      [SerializeField] private PlayerLook playerL;
+      [SerializeField] private GameObject player;
+      [SerializeField] private Animator fade;
+      [SerializeField] private Transform cam;
+      [SerializeField] private Transform oldCam;
+      [SerializeField] private DialogueSystem dialogue;
+  
+      private bool kill = false;
+  
+      private void Start()
+      {
+          cam.transform.localRotation = Quaternion.Euler(90, transform.localRotation.y, transform.localRotation.z);
+          characterController = FindObjectOfType&lt;UnityEngine.CharacterController&gt;();
+      }
+  
+      private void Update()
+      {
+          if (kill)
+              cam.position = Vector3.Lerp(cam.position, new Vector3(cam.position.x, cam.position.y + 5, cam.position.z), 0.3f * Time.deltaTime);
+  
+          if (Input.GetKeyDown(KeyCode.L))
+          {
+              Respawn();
+          }
+      }
+  
+      public void Respawn()
+      {
+          StartCoroutine(RespawnAtCheckPoint(oldCam));
+      }
+  
+      public void AddCheckPoint(Transform _checkPointPos)
+      {
+          spawnPoint = _checkPointPos;
+      }
+  
+      private IEnumerator RespawnAtCheckPoint(Transform _OldPos)
+      {
+          kill = true;
+          playerL.enabled = false;
+          cam.transform.localRotation = Quaternion.Euler(0, transform.localRotation.y, transform.localRotation.z);
+          dialogue.PlayRandomDialogue();
+          characterCont.enabled = false;
+          characterController.enabled = false;
+          fade.Play("Eyes");
+          yield return new WaitForSeconds(2);
+          kill = false;
+          cam.transform.localRotation = Quaternion.Euler(0, 0, 0);
+          player.transform.position = spawnPoint.position;
+          cam.position = _OldPos.position;
+          ResetRoom();
+          yield return new WaitForSeconds(1);
+          playerL.enabled = true;
+          characterCont.enabled = true;
+          characterController.enabled = true;
+      }
+  
+      private void ResetRoom()
+      {
+          FindObjectOfType&lt;Controller&gt;().DestroyClone();
+          int _roomCode = -1;
+  
+          for (int i = 0; i &lt; CheckPoints.Length; i++)
+          {
+              if (spawnPoint == CheckPoints[i].CheckPoint.spawnPos)
+                  _roomCode = i;
+          }
+  
+          if (CheckPoints[_roomCode].ObjectsToReset.Length > 0 && _roomCode >= 0)
+          {
+              foreach (GameObject roomItem in CheckPoints[_roomCode].ObjectsToReset)
+              {
+                  if (roomItem.TryGetComponent(out ObjectRespawn objectRespawn))
+                  {
+                      objectRespawn.ResetObject();
+                  }
+                  else if (roomItem.GetComponentInChildren&lt;PlateDown&gt;())
+                  {
+                      roomItem.GetComponentInChildren&lt;PlateDown&gt;().On = false;
+                  }
+              }
+          }
+      }
+  }
+  
+  [System.Serializable]
+  public class CheckPointItems
+  {
+      public CheckPoint CheckPoint;
+  
+      public GameObject[] ObjectsToReset;
+  }
+  </code></pre>
+<pre><code>public class Kill : MonoBehaviour
+  {
+      private CheckPointManager checkPointManager;
+      private Controller cont;
+  
+      void Start()
+      {
+          cont = FindObjectOfType&lt;Controller&gt;();
+          checkPointManager = FindObjectOfType<CheckPointManager>();    
+      }
+  
+      private void OnTriggerEnter(Collider other)
+      {
+          if (other.gameObject.CompareTag("Player"))
+              checkPointManager.Respawn();
+  
+          if (other.gameObject.CompareTag("Clone"))
+              cont.DestroyClone();
+      }
+  }</code></pre>
 
                     <p><br><br>As extra I created a transition between levels using an elevator</p>
-                    <pre><code>CODE!!</code></pre>
                     <video width="640" height="360" controls>
-                        <source src="/Videos/" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
+                      <source src="/Videos/2023-04-19 21-18-56.mp4" type="video/mp4">
+                      Your browser does not support the video tag.
+                  </video>
+
+<pre><code>using Cinemachine;
+
+  public class Elevator : MonoBehaviour
+  {
+      public GameObject Player;
+      public Transform ElevatorPos;
+  
+      private UnityEngine.CharacterController characterCont;
+  
+      private Animator elevatorAnim;
+  
+      CinemachineVirtualCamera vCam;
+  
+      private void Start()
+      {
+          vCam = FindObjectOfType&lt;PlayerRecorder&gt;().gameObject.GetComponentInChildren&lt;CinemachineVirtualCamera&gt;();
+          characterCont = FindObjectOfType&lt;UnityEngine.CharacterController&gt;();
+          elevatorAnim = GetComponentInChildren&lt;Animator&gt;();
+      }
+  
+      public IEnumerator ElevatorChange()
+      {
+          AudioManager.instance.Play("ElevatorOpen");
+          elevatorAnim.Play("ElevatorClose");
+          yield return new WaitForSeconds(2);
+          AudioManager.instance.Play("ElevatorMusic");
+          vCam.GetCinemachineComponent&lt;CinemachineBasicMultiChannelPerlin&gt;().m_FrequencyGain = 8;
+          characterCont.enabled = false;
+          Player.transform.SetParent(this.transform);
+          yield return new WaitForSeconds(0.01f);
+          if (ElevatorPos != null)
+          {
+              transform.position = ElevatorPos.position;
+              transform.rotation = ElevatorPos.rotation;
+          }
+          yield return new WaitForSeconds(0.01f);
+          Player.transform.SetParent(null);
+          characterCont.enabled = true;
+          yield return new WaitForSeconds(10);
+          vCam.GetCinemachineComponent&lt;CinemachineBasicMultiChannelPerlin&gt;().m_FrequencyGain = 1;
+          yield return new WaitForSeconds(1);
+          AudioManager.instance.Play("ElevatorEnd");
+          elevatorAnim.Play("ElevatorOpen");
+      }
+  }</code></pre>
 
                     <p><br><br>And ofcourse I added cutscenes to the game for getting more feeling into it.</p>
                     <video width="640" height="360" controls>
-                        <source src="/Videos/" type="video/mp4">
+                        <source src="/Videos/2022-09-12 15-25-06 - Trim.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
                     <video width="640" height="360" controls>
-                        <source src="/Videos/" type="video/mp4">
+                        <source src="/Videos/2022-06-17 20-58.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
 
                     <p><br><br>And The last thing I worked on is the main menu. Having a background music, working button and a moving background</p>
                     <video width="640" height="360" controls>
-                        <source src="/Videos/" type="video/mp4">
+                        <source src="/Videos/2023-04-19 21-31-35.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
 
@@ -102,6 +713,7 @@
     <script src="/Web/Projects/projectpanels.js"></script>
     <div class="box">
                 <div class="text">
+            <h2>Date: Jun 27, 2022</h2>
             <h1>– Project: Shortburn</h1>
             <h1>– Duration: 6 Week</h1>
             <h1>– Team: 2 Devs, 3 Artists</h1>

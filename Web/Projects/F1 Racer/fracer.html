@@ -209,23 +209,297 @@
       }
   }
   </code></pre>
-                    <img src="https://picsum.photos/200" alt="Random Image">
-
+                    <img src="/Pictures/Screenshot 2023-04-19 183712.png" alt="Random Image">
+                    <p>It's a lot of public variables but that's mainly because debugging purpose and lack of time we had for the project and the to do list for me.</p>
+                    
                     <p><br><br>I also added the option to change the camera of the car to 3 position: third person view, car camera(slighlty above the player) and player point of view.</p>
-                    <pre><code>CODE!!</code></pre>
-                    <img src="https://picsum.photos/200" alt="Random Image">
+<pre><code>public class Formula : MonoBehaviour
+  {
+      [Header("Car Cams")]
+      public GameObject cameraOne;
+      public GameObject cameraTwo;
+      public GameObject cameraThree;
+  
+      public bool camOne;
+      public bool camTwo;
+      public bool camThree;
+  
+      void Update()
+      {
+          CamChange();
+      }
+  
+      public void CamChange()
+      {
+          if (Input.GetKeyUp(KeyCode.C))
+          {
+              if (camOne == true)
+              {
+                  cameraThree.SetActive(false);
+                  cameraTwo.SetActive(false);
+                  cameraOne.SetActive(true);
+                  
+                  camOne = false;
+                  camTwo = true;
+                  camThree = false;
+              }
+              else if (camTwo == true)
+              {
+                  cameraThree.SetActive(false);
+                  cameraTwo.SetActive(true);
+                  cameraOne.SetActive(false);
+                  camOne = false;
+                  camTwo = false;
+                  camThree = true;
+              }
+              else if (camThree == true)
+              {
+                  cameraTwo.SetActive(false);
+                  cameraThree.SetActive(true);
+                  cameraOne.SetActive(false);
+                  camOne = true;
+                  camTwo = false;
+                  camThree = false;
+              }
+              Debug.Log($" {camOne} {cameraTwo} {cameraThree}");
+          }
+  
+          if (Input.GetKeyUp(KeyCode.Alpha1))
+          {
+              cameraThree.SetActive(false);
+              cameraTwo.SetActive(false);
+              cameraOne.SetActive(true);
+          }
+  
+          if (Input.GetKeyUp(KeyCode.Alpha2))
+          {
+              cameraOne.SetActive(false);
+              cameraThree.SetActive(false);
+              cameraTwo.SetActive(true);
+          }
+  
+          if (Input.GetKeyUp(KeyCode.Alpha3))
+          {
+              cameraTwo.SetActive(false);
+              cameraThree.SetActive(true);
+              cameraOne.SetActive(false);
+          }
+        }
+  }
+  </code></pre>
+                    <p>It's not the greatest system I created I know that but like I said because the lack of time we had I went for this system.
+                      if I would have changed it I would've changed it to an enum that has 3 state(3 cam positions) and have a function where the states are being switched by key input. 
+                      <br>For example:</p>
+<pre><code>public enum CamState
+  {
+      camOne = 1
+      camTwo,
+      camThree
+  }
+
+  public class Formula : MonoBehaviour
+  {
+      [SerializeField] private CamState state;
+      private int exampleNumber = 1;
+
+      private void Update()
+      {
+          if (Input.GetKeyDown(KeyCode.C))
+              ExampleFunction();
+      }
+
+      private void ExampleFunction ()
+      {
+        exampleNumber++;
+        state = (CamState)exampleNumber;
+
+        cameraOne.SetActive(false);
+        cameraTwo.SetActive(false);
+        cameraThree.SetActive(false);
+        
+          Switch(state)
+          {
+              case CamOne:
+                cameraOne.SetActive(true);
+              break:
+
+              case CamTwo:
+              cameraTwo.SetActive(true);
+              break:
+
+              case CamThree:
+              cameraThree.SetActive(true);
+              break:
+          }
+      }
+  }
+</code></pre>
+                    <p>Much less space then before. But after the project we didn't continue developing it but if we did that was the first on my list.</p>
 
                     <p><br><br>After the car was working properly I went after the second most important thing in the game: Laptime.
                     I created a script that doesn't only saves the laptimes but also converts them to minutes, seconds and milliseconds.
                     As extra I created the function to add all times together into one final game time.</p>
-                    <pre><code>CODE!!</code></pre>
+<pre><code>using UnityEngine.UI;
+  using TMPro;
+  
+  public class GameUI : MonoBehaviour
+  {
+      public TextMeshProUGUI lapOne;
+      public TextMeshProUGUI lapTwo;
+      public TextMeshProUGUI lapThree;
+      public TextMeshProUGUI totalTime;
+  
+      public float timerLapOne = 0;
+      public float timerLapTwo = 0;
+      public float timerLapThree = 0;
+      public float totalTimer = 0;
+  
+      public bool timerOneActivate = false;
+      public bool timerTwoActivate = false;
+      public bool timerThreeActivate = false;
+      public bool calculateTotaleTime = false;
+  
+      private BoxCollider boxCol;
+      public GameObject finish;
+      public GameObject speedoMeter;
+      public GameObject speedOmeter;
+  
+      public Animator panel;
+      public Animator laps;
+  
+      public GameObject finishCam;
+  
+      private float timerForScale = 0.5f;
+      private bool activateIt = false;
+  
+      private void Start()
+      {
+          boxCol = GetComponent<BoxCollider>();
+      }
+  
+      public void Update()
+      {
+          Debug.Log(timerForScale);
+  
+          if (activateIt)
+          {
+              timerForScale -= Time.deltaTime;
+              if (timerForScale <= 0)
+              {
+                  Time.timeScale = 1;
+                  Time.fixedDeltaTime = Time.timeScale * 1f;
+              }
+          }
+  
+  
+          if (timerOneActivate)
+          {
+              lapOne.gameObject.SetActive(true);
+  
+              timerLapOne += Time.deltaTime;
+  
+              lapOne.text = string.Format("" + TimeString(timerLapOne, lapOne));
+          }
+          else if (timerTwoActivate)
+          {
+              lapTwo.gameObject.SetActive(true);
+  
+              timerLapTwo += Time.deltaTime;
+              lapTwo.text = string.Format("" + TimeString(timerLapTwo, lapTwo));
+          }
+          else if (timerThreeActivate)
+          {
+              lapThree.gameObject.SetActive(true);
+  
+              timerLapThree += Time.deltaTime;
+              lapThree.text = string.Format("" + TimeString(timerLapThree, lapThree));
+          }
+          else if (calculateTotaleTime)
+          {
+              totalTime.gameObject.SetActive(true);
+  
+              totalTimer = timerLapOne + timerLapTwo + timerLapThree;
+              totalTime.text = string.Format("" + TimeString(totalTimer, totalTime));
+  
+              PlayerPrefs.SetFloat("RaceTime", totalTimer);
+          }
+      }
+  
+      public string TimeString(float lapTime, TextMeshProUGUI laptimer)
+      {
+          float mSec = (int)((lapTime - (int)lapTime) * 100);
+          float sec = (int)(lapTime % 60);
+          float min = (int)(lapTime / 60 % 60);
+          return laptimer.text = string.Format("{0:00}:{1:00}:{2:00}", min, sec, mSec);
+      }
+  
+      private void OnTriggerEnter(Collider other)
+      {
+          if (other.gameObject.CompareTag("FirstLap"))
+          {
+              if (timerOneActivate == false && timerTwoActivate == false && timerThreeActivate == false)
+              {
+                  Debug.Log("on");
+                  timerOneActivate = true;
+                  other.gameObject.SetActive(false);
+              }
+          }
+          if (other.gameObject.CompareTag("NewLap"))
+          {
+              if (timerOneActivate)
+              {
+                  StartCoroutine(ColliderOn(other.gameObject));
+                  timerOneActivate = false;
+                  timerTwoActivate = true;
+              }
+              else if (timerTwoActivate)
+              {
+                  timerTwoActivate = false;
+                  timerThreeActivate = true;
+                  StartCoroutine(ColliderOff(other.gameObject));
+              }
+              else if (timerThreeActivate)
+              {
+                  totalTime.enabled = true;
+                  timerThreeActivate = false;
+                  calculateTotaleTime = true;
+              }
+          }
+          if (other.gameObject.CompareTag("finish"))
+          {
+              calculateTotaleTime = true;
+              timerThreeActivate = false;
+              speedoMeter.SetActive(false);
+              speedOmeter.SetActive(false);
+              panel.Play("Panel");
+              laps.Play("Laps");
+              activateIt = true;
+              finishCam.gameObject.SetActive(true);
+              Time.timeScale = 0.05f;
+              Time.fixedDeltaTime = Time.timeScale * 0.02f;
+          }
+      }
+  
+      public IEnumerator ColliderOn(GameObject trigger)
+      {
+          trigger.gameObject.SetActive(false);
+          yield return new WaitForSeconds(2);
+          trigger.gameObject.SetActive(true);
+      }
+      public IEnumerator ColliderOff(GameObject trigger)
+      {
+          trigger.gameObject.SetActive(false);
+          yield return new WaitForSeconds(2);
+          finish.gameObject.SetActive(true);
+      }
+  }</code></pre>
+                    <p>Again a lot of spaghetti copy paste code. I would have changed almost all variables to lists since the variables are also to much.</p>
                     <video width="640" height="360" controls>
-                        <source src="/Videos/2021-07-01_16-03-37.mp4" type="video/mp4">
+                        <source src="/Videos/2022-01-30-19-2.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
                     
                     <p><br><br>I added the speedometer to the game with the asset the artists provided me that indicates realtime speed in km/h, throttle and brake.</p>
-                    <pre><code>CODE!!</code></pre>
                     <video width="640" height="360" controls>
                         <source src="/Videos/2022-01-30-19-41-46-1.mp4" type="video/mp4">
                         Your browser does not support the video tag.
@@ -234,10 +508,6 @@
                     <p><br><br>After all important mechanics were finished I used my spare time to create some animations for the game and main menu and also creating a short cutscene for when u finish the race and a starting screen showcasing some racing moments from formula 1.</p>
                     <video width="640" height="360" controls>
                         <source src="/Videos/2022-01-30-18-54-50-1.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <video width="640" height="360" controls>
-                        <source src="/Videos/" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
                     <video width="640" height="360" controls>
@@ -258,6 +528,7 @@
     <script src="/Web/Projects/projectpanels.js"></script>
     <div class="box">
                 <div class="text">
+            <h2>Date: Jan 28, 2022</h2>
             <h1>– Project: Night Racer</h1>
             <h1>– Duration: 2 Week</h1>
             <h1>– Team: 1 Dev, 2 Artists</h1>

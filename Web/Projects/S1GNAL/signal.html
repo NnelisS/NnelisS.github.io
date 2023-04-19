@@ -63,7 +63,95 @@
                         I then duplicated that same UI and reversed it. so the effect of seing the map gets reversed to also getting hidden.
                      This gives out a low poly radar that works perfect for the genre of our game. I then turned on the cam from above that follows the player.
                      Then I assigned all the object i want to see on the rader to the radar cam layer.</p>
-                    <pre><code>CODE!!</code></pre>
+<pre><code>public class PhoneRadar : MonoBehaviour
+    {
+        private Animator phone;
+    
+        public GameObject radarCanvas;
+        public GameObject informationCanvas;
+    
+        public Camera cameraOne;
+        public Camera cameraTwo;
+    
+        public GameObject camera;
+    
+        private Movement playerMovement;
+    
+        private bool inOut = false;
+        private bool usable = true;
+        private float timer = 2.75f;
+    
+    
+        private void Start()
+        {
+            playerMovement = GetComponent&lt;Movement&gt;();
+    
+            radarCanvas.SetActive(false);
+            inOut = false;
+            cameraTwo.enabled = false;
+            phone = GetComponentInChildren&lt;Animator&gt;();
+        }
+    
+        private void Update()
+        {
+            if (usable)
+            {
+                if (inOut == true)
+                {
+                    if (Input.GetKeyDown(KeyCode.Q))
+                    {
+                        phone.Play("Phone Flip In");
+                        cameraTwo.enabled = !cameraTwo.enabled;
+                        cameraOne.enabled = !cameraOne.enabled;
+                        playerMovement.enabled = true;
+                        radarCanvas.SetActive(false);
+                        informationCanvas.SetActive(true);
+                        usable = false;
+                    }
+                }
+    
+                if (inOut == false)
+                {
+                    if (Input.GetKeyDown(KeyCode.Q))
+                    {
+                        camera.transform.rotation = Quaternion.Euler(0, transform.rotation.y, transform.rotation.z);
+                        playerMovement.enabled = false;
+                        phone.Play("Phone Flip Out");
+                        StartCoroutine(OpenRader());
+                        usable = false;
+                    }
+                }
+            }
+    
+            if (usable == false)
+            {
+                timer -= Time.deltaTime;
+                if (timer &lt;= 0)
+                {
+                    if (inOut == false)
+                    {
+                        inOut = true;
+                    }
+                    else if (inOut == true)
+                    {
+                        inOut = false;
+                    }
+                    timer = 2.75f;
+                    usable = true;
+                }
+            }
+        }
+    
+        private IEnumerator OpenRader()
+        {
+            yield return new WaitForSeconds(2.75f);
+            cameraOne.enabled = !cameraOne.enabled;
+            cameraTwo.enabled = !cameraTwo.enabled;
+            radarCanvas.SetActive(true);
+            informationCanvas.SetActive(false);
+        }
+    }
+    </code></pre>
 
                     <p><br><br>I also added a material that projects out a tv white noise screen.</p>
                     <video width="640" height="360" controls>
@@ -168,6 +256,7 @@
     <script src="/Web/Projects/projectpanels.js"></script>
     <div class="box">
                 <div class="text">
+            <h2>Date: Jun 27, 2022</h2>
             <h1>– Project: GameJam (Theme: Signal)</h1>
             <h1>– Duration: 1 Week</h1>
             <h1>– Team: 2 Devs, 3 Artists</h1>
