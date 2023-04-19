@@ -1,0 +1,121 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          /* styles for desktop screens */
+          body {
+            width: 1920px; /* adjust this value as needed */
+            margin: 0 auto;
+          }
+          
+          /* styles for phone screens */
+          @media only screen and (max-width: 600px) {
+            body {
+              width: 100%; /* adjust this value as needed */
+              margin-left: 1%;
+            }
+          }
+        </style>
+      </head>
+<head>
+	<title>Twin Stick Shooter</title>
+	<link rel="stylesheet" type="text/css" href="/Web/Projects/Twin Stick Shooter/twinstickshooter.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+	  $(function(){
+		$("#navbar").load("/Web/Navbar/index.html");
+	  });
+	</script>
+  </head>
+  <body>
+	<div id="navbar"></div>
+    <body>
+        <div class="overlay"></div>
+
+        <div class="container">
+            <div class="video-container">
+                <div class="video">
+                  <iframe width="854" height="480" src="https://www.youtube.com/embed/V6QBoULDRK4" frameborder="0" allowfullscreen></iframe>
+                </div>
+              </div>
+
+            <button id="toggle-btn">Click to see code</button>
+                <div id="panel">
+                <div class="panel-content">
+                    <p>CODE!!!!</p>
+
+                    
+                    <p><br><br>I created a health manager for the player so the UI can indicate the players health.</p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2021-06-23_19-28-01.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                      </video>
+                    <p>I've improved a lot over the past years so if I would recreate this I would change the health icon list, because now they are all dragged in individually.
+                       I would now create and array that just enters [child] and would indicate current health to the child position in the array.
+                       But since I was still learning when this project was created this is a good working script for a health manager.</p>
+                    <pre><code></code></pre>
+
+
+                    <p><br><br><br><br><br><br>Cutscenes and animation down here.</p>
+                    <p><br><br>In this project i went all in on the look of the game. cutscenes, animation, pickups, level design and Particles.</p>
+                        <img src="/Pictures/Untitled (32).png" alt="Random Image">
+
+                    <p><br><br>I recreated the tutorial level first for the first level with an intro cutscene, informational cutscene and outro cutscene.</p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2021-06-24_16-39-14.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                      </video>
+
+                    <p><br><br>I also polished some door by creating animations for it when you get close so the game gives more feeling when playing it.
+                        I made an ontrigger collider on the door that when the player enters the animation state would turn true and open.
+                        Ever since this animation I also found out that animation work in the global world of the scene, what I mean with this is that I made multiple animation for doors since some door where in different positions and rotations.
+                        I found out that by creating the animation inside the child of an parent it would use the local space the parent provides.
+                        this fixed a lot since you only have to move or rotate the parent and the child will always stay the same as it's local animation/position/rotation.
+                    </p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2021-06-24_17-06-58.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                      </video>
+
+                    <p><br><br>I created some particles and lights around the map an the player since we've chosen a darker theme for the map
+                               I gave the player to have the ability to look around with a flashlight.
+                               Also I gave the player bullets a small particle explosion to indicate that the bullet had collision.</p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2021-07-01_16-03-37.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+                    <p><br><br>Last I created a cutscene for the final boss indicating you entered the final area and a showcase of the boss and it's weapon.</p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2021-07-02_13-51-20.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+                    <p><br><br><br><br></p>
+                </div>
+            </div>
+
+    <script src="/Web/Projects/projectpanels.js"></script>
+    <div class="box">
+                <div class="text">
+            <h1>– Project: Twin Stick Shooter</h1>
+            <h1>– Duration: 6 Week</h1>
+            <h1>– Team: 2 Devs, 2 Artist</h1>
+            <p>My Part: Movement, Camera Movement, Health Manager, Mini Games, Boss Level Shields, Animations, Cutscenes, Level Design, Particles, Pickups</p>
+            <h2>Summary:</h2>
+            <p>We made a twin stick shooter for pc as our end project for year 1. 
+                Our idea was to make a game that played in space, you are a little robot stuck in a broken ship. 
+                You make your way thru the ship but are stopped by enemy robots. 
+                Shoot, Move and complete puzzles to make your way to an escape pod<br><br></p>
+            </div>
+              </div>   
+                    
+            <div class="itchpage">
+                <button class="itch-page" onclick="window.open('https://trangn.itch.io/shop-n-zombies')">Itch.io Page</button>
+            </div>    
+
+
+        </div>
+      </body>
+  </body>
+</html>

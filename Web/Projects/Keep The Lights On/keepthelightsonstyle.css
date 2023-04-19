@@ -31,14 +31,6 @@ body{
   padding: 0 10px;
   margin-bottom: 20px;
   }
-
-  #play-button {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    cursor: pointer;
-  }
      
   /* Style the text div */
   .text {
@@ -67,9 +59,11 @@ body{
     border-radius: 10px;
     border-color: white;
     transition: border-radius .2s ease-out;
+    z-index: 999;
   }
 
   .itchpage .itch-page:hover{
+    cursor: pointer;
     border-radius: 0px;
     background-color: rgba(255, 0, 0, 0.512);
     transition: border-radius .2s ease-out;
@@ -80,6 +74,10 @@ body{
     padding-right: 10px;
     width: 1500px;
   }
+
+  .box .text{
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  }
   
   #panel {
     opacity: 0;
@@ -88,12 +86,14 @@ body{
     left: 15%;
     padding-top: 2%;
     padding-left: 2%;
+    padding-right: 2%;
     width: 70%;
     height: 90%;
     display: none;
     background-color: #343434;
     z-index: 9999;
     overflow-y: scroll;
+    border-radius: 1%;
   }
 
   .panel-content {
@@ -101,6 +101,10 @@ body{
     max-width: 100%;
     max-height: 100%;
     animation: scale-up .5s forwards ease-in-out;
+  }
+
+  .panel-content p{
+    font-size: larger;
   }
   
   #toggle-btn {
@@ -121,7 +125,7 @@ body{
   }
 
   #toggle-btn:hover{
-    background-color: #4caf4f7a;
+    background-color: #337f35ca;
   }
   
   #toggle-btn:focus + #panel {
@@ -142,6 +146,23 @@ body{
     justify-content: center;
     animation: scale-up .5s forwards ease;
     transition: opacity .5s ease-in-out;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0);
+    transition: background-color .5s ease-in-out;
+    z-index: -2;
+  }
+
+  .overlay.opened {
+    background-color: rgba(0, 0, 0, 0.5);
+    transition: background-color .5s ease-in-out;
+    z-index: 999;
   }
 
   @keyframes text-scale{
