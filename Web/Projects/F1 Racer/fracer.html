@@ -50,11 +50,165 @@
                     Wheel colliders have lots of potential to good physics on a car movement mechanic, such as friction, suspension and stiffness.</p>
 
                     <p><br><br>I created a script for all 4 wheels assigning: TurnAngle, WheelCollider, Mesh and Powered(if the wheel uses acceleration or only rolls).</p>
-                    <pre><code>CODE!!</code></pre>
-                    <img src="https://picsum.photos/200" alt="Random Image">
+<pre><code>public class Wheel : MonoBehaviour
+  {
+      public bool powered = false;
+      public float maxAngle = 90f;
+      public float offset = 0f;
+      public float rotationOffset = 90;
+  
+      private float turnAngle;
+      private WheelCollider wcol;
+      private Transform wmesh;
+  
+  
+      private void Start()
+      {
+          wcol = GetComponentInChildren<WheelCollider>();
+          wmesh = transform.Find("Wheel_Mesh");
+      }
+  
+      private void Update()
+      {
+          Debug.Log(wcol.brakeTorque);
+      }
+  
+      public void Steer(float steerInput)
+      {
+          turnAngle = steerInput * maxAngle + offset;
+          wcol.steerAngle = turnAngle;
+          wcol.motorTorque = 1000;
+      }
+  
+      public void Accelerate(float powerInput)
+      {
+          if (powered)
+              wcol.motorTorque = powerInput;
+          else
+              wcol.motorTorque = 0f;
+
+      }
+  
+      public void UpdatePosition()
+      {
+          Vector3 pos = transform.position;
+          Quaternion rot = transform.rotation;
+  
+          wcol.GetWorldPose(out pos, out rot);
+          wmesh.transform.position = pos;
+          wmesh.transform.rotation = rot *= Quaternion.Euler(0, rotationOffset, 0);
+      }
+  }
+  </code></pre>
+                    <img src="/Pictures/Screenshot 2023-04-19 174801.png" alt="Random Image">
 
                     <p><br><br>Then I created a script for the main body of the car where input is added and also the wheels are attached to.</p>
-                    <pre><code>CODE!!</code></pre>
+<pre><code>public class Formula : MonoBehaviour
+  {
+      [Header("Car Info")]
+      public Transform gravityTarget;
+      public Vector3 currentVelocity;
+      public GameObject steeringWheel;
+      public Transform speedOmeter;
+      public GameObject throttle;
+      public GameObject brakee;
+      
+      public float power = 15000f;
+      public float torque = 500f;
+      public float gravity = 9.81f;
+      public float breakForce = 1f;
+  
+      [Header("UI")]
+      public TextMeshProUGUI speedLabel;
+      public float maxSpeed = 0.0f;
+      private float speed = 0.0f;
+  
+      [Header("Car Cams")]
+      public GameObject cameraOne;
+      public GameObject cameraTwo;
+      public GameObject cameraThree;
+  
+      private float fall = -0.2f;
+  
+      [Header("Car Orientation")]
+      public bool autoOrient = false;
+      public float autoOrientSpeed = 1f;
+  
+      private float horInput;
+      private float verInput;
+      private float brakeInput;
+      private float steerAngle;
+    
+      [Header("Wheels")]
+      public Wheel[] wheels;
+  
+      private Rigidbody rb;
+  
+      void Start()
+      {
+          throttle.SetActive(false);
+          brakee.SetActive(false);
+          rb = GetComponent<Rigidbody>();
+      }
+  
+      void Update()
+      {
+          Cursor.visible = false;
+  
+          speed = rb.velocity.magnitude * 3.0f;
+          speedLabel.text = ((int)speed + " km/h");
+  
+          ProcessInput();
+          Vector3 diff = transform.position - gravityTarget.position;
+          if (autoOrient) { AutoOrient(-diff); }
+  
+          speedOmeter.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(180, -90, speed / 300));
+        }
+  
+      void FixedUpdate()
+      {
+          rb.centerOfMass = new Vector3(0, fall, 0);
+  
+          ProcessForces();
+          ProcessGravity();
+      }
+  
+      void ProcessInput()
+      {
+          verInput = Input.GetAxis("Vertical");
+          horInput = Input.GetAxis("Horizontal");
+          brakeInput = Input.GetAxis("Jump");
+      }
+  
+      void ProcessForces()
+      {
+          Vector3 force = new Vector3(0f, 0f, verInput * power);
+          rb.AddRelativeForce(force);
+    
+          if (Input.GetKey(KeyCode.Space))
+              rb.velocity = Vector3.Lerp(rb.velocity, Vector3.zero, Time.fixedDeltaTime * 1.0f);
+  
+          foreach (Wheel w in wheels)
+          {
+              w.Steer(horInput);
+              w.Accelerate(verInput * power);
+              w.UpdatePosition();
+          }
+      }
+  
+      void ProcessGravity()
+      {
+          Vector3 diff = transform.position - gravityTarget.position;
+          rb.AddForce(-diff.normalized * gravity * (rb.mass));
+      }
+  
+      void AutoOrient(Vector3 down)
+      {
+          Quaternion orientationDirection = Quaternion.FromToRotation(-transform.up, down) * transform.rotation;
+          transform.rotation = Quaternion.Slerp(transform.rotation, orientationDirection, autoOrientSpeed * Time.deltaTime);
+      }
+  }
+  </code></pre>
                     <img src="https://picsum.photos/200" alt="Random Image">
 
                     <p><br><br>I also added the option to change the camera of the car to 3 position: third person view, car camera(slighlty above the player) and player point of view.</p>
