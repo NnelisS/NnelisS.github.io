@@ -1,0 +1,189 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          /* styles for desktop screens */
+          body {
+            width: 1920px; /* adjust this value as needed */
+            margin: 0 auto;
+          }
+          
+          /* styles for phone screens */
+          @media only screen and (max-width: 600px) {
+            body {
+              width: 100%; /* adjust this value as needed */
+              margin-left: 1%;
+            }
+          }
+        </style>
+      </head>
+<head>
+	<title>S1GN4L</title>
+	<link rel="stylesheet" type="text/css" href="/Web/Projects/S1GNAL/signal.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+	  $(function(){
+		$("#navbar").load("/Web/Navbar/index.html");
+	  });
+	</script>
+  </head>
+  <body>
+	<div id="navbar"></div>
+    <body>
+        <div class="overlay"></div>
+
+        <div class="container">
+            <div class="video-container">
+                <div class="video">
+                    <iframe width="640" height="360" src="https://www.youtube.com/embed/mAWngscA190" frameborder="0" allowfullscreen></iframe>
+                  </div>
+                  <div class="video">
+                    <iframe width="640" height="360" src="https://www.youtube.com/embed/Y19P5hTyWD4" frameborder="0" allowfullscreen></iframe>
+                  </div>
+                </div>
+    
+
+
+            <button id="toggle-btn">Click to see code</button>
+                <div id="panel">
+                <div class="panel-content">
+                    <p>I started with the main mechanic, something that has to do with the theme signal. 
+                        We chose the radar signal theme to create a large size map with 1 enemy where you have to find objectives to repair your ship that has crashed.</p>
+                    <p><br>So I created a radar that shows on a tv screen. what this radar can see is: walls(map), objectives and the enemy.</p>
+                        <video width="640" height="360" controls>
+                            <source src="/Videos/2022-03-01-13-45-18.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    <p><br>I created this by using the UI in Unity, camchanges and also layermask to have certain object that the radar cam can see.</p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2022-03-01-13-45-18.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p><br>As you can see I use the unity.UI slider and changed the slider from left-to-right to radial 360 degrees. 
+                        I then duplicated that same UI and reversed it. so the effect of seing the map gets reversed to also getting hidden.
+                     This gives out a low poly radar that works perfect for the genre of our game. I then turned on the cam from above that follows the player.
+                     Then I assigned all the object i want to see on the rader to the radar cam layer.</p>
+                    <pre><code>CODE!!</code></pre>
+
+                    <p><br><br>I also added a material that projects out a tv white noise screen.</p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2022-03-01-13-47-21.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+                    <p><br><br>I then created our objective of the game, the spaceship part pickups and a small and basic inventory system.</p>
+<pre><code>using UnityEngine.SceneManagement;
+    
+    public class Inventory : MonoBehaviour
+    {
+        public List&lt;GameObject&gt; items = new List&lt;GameObject&gt;(); 
+        public List&lt;GameObject&gt; objectives = new List&lt;GameObject&gt;();
+        
+        private void Start()
+        {
+            for(int i = 0; i &lt; objectives.count; i++)
+            {
+                objectives[i].SetActive(true);
+            }
+        }
+
+        private void Update()
+        {
+            if (items.Count &gt;= 5)
+                SceneManager.LoadScene("YouWin");
+        }
+
+        public void UpdateUI()
+        {
+            for (int i = objectives.Count - items.Count; i &lt; objectives.Count; i++)
+            {
+                objectives[i]SetActive(false);
+            }
+        }
+    }</code></pre>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2022-03-01-13-34-40.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+                    <p><br><br>I also created a bit of optimization for the playerhealth when u get hit. 
+                        This creates a blood splatter on your scren where the alpha of the image gets higher so it really gives the feeling of losing all your health</p>
+<pre><code>Using UnityEngine.SceneManagement;
+    
+    public class PlayerHealth : MonoBehaviour
+    {
+        [SerializeField]
+        private Image healthImage;
+        [SerializeField]
+        private float currentHealth;
+        
+        private void Start()
+        {
+            currentHealth = 100;
+        }
+
+        private void Update()
+        {
+            timer += Time.deltaTime;
+            if(currenHealth &gt; 100)
+                currenhealth = 100;
+            
+            if(timer &gt; 3 && currenHealth &lt; 100)
+                currenHealth += Time.deltaTime * 5;
+
+            healthImage.color = new color(1, 1, 1, (1 - currenHealth/100) * 1f);
+
+            if (currentHealth &lt;= 0)
+                SceneManagement.LoadScene("YouLose");
+        }
+
+        public void TakeDamage(float damage)
+        {
+            currenHealth -= damage;
+            timer = 0;
+        }
+    }</code></pre>
+
+                    <p><br><br>And as last thing to do on my list is making cutscenes for the game. (The videos are very dark so in light rooms it's hard to see)</p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2022-03-01-13-58-23.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2022-03-01-14-00-33.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2022-03-01-14-01-58.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+
+                    
+
+                    <p><br><br><br><br></p>
+                </div>
+            </div>
+
+    <script src="/Web/Projects/projectpanels.js"></script>
+    <div class="box">
+                <div class="text">
+            <h1>– Project: GameJam (Theme: Signal)</h1>
+            <h1>– Duration: 1 Week</h1>
+            <h1>– Team: 2 Devs, 3 Artists</h1>
+            <p>My Part: Map Radar, Pick Ups, Animations, Cutscenes</p>
+            <h2>Summary:</h2>
+            <p>We made a game for the <a href="https://itch.io/jam/international-educations-game-jam-2022">International Educational Game Jam 2022</a> our game needed some mechanic that followed the theme Signal. 
+                Our mechanic would be a radar that shows the map you move on and shows you the objectives and the enemy.<br><br></p>
+            </div>
+              </div>   
+                    
+            <div class="itchpage">
+                <button class="itch-page" onclick="window.open('https://lucq22.itch.io/signal')">Itch.io</button>
+            </div>    
+
+
+        </div>
+      </body>
+  </body>
+</html>

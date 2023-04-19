@@ -268,6 +268,7 @@ body{
   }
   
   .projectbutton:hover {
+    cursor: pointer;
     letter-spacing: 0.2rem;
     padding: 1.1rem 3.1rem;
     background: var(--clr);

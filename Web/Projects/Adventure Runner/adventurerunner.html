@@ -1,0 +1,120 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          /* styles for desktop screens */
+          body {
+            width: 1920px; /* adjust this value as needed */
+            margin: 0 auto;
+          }
+          
+          /* styles for phone screens */
+          @media only screen and (max-width: 600px) {
+            body {
+              width: 100%; /* adjust this value as needed */
+              margin-left: 1%;
+            }
+          }
+        </style>
+      </head>
+<head>
+	<title>Adventure Runner</title>
+	<link rel="stylesheet" type="text/css" href="/Web/Projects/Adventure Runner/adventurerunner.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+	  $(function(){
+		$("#navbar").load("/Web/Navbar/index.html");
+	  });
+	</script>
+  </head>
+  <body>
+	<div id="navbar"></div>
+    <body>
+        <div class="overlay"></div>
+
+        <div class="container">
+            <div class="video-container">
+                <div class="video">
+                    <iframe width="854" height="480" src="https://www.youtube.com/embed/ouIBgr5AXtU" frameborder="0" allowfullscreen></iframe>
+                  </div>
+                </div>
+
+            <button id="toggle-btn">Click to see code</button>
+                <div id="panel">
+                <div class="panel-content">
+                    <p>For this project we had 2 weeks to finish.
+
+                        I mainly worked on the coolness of the game so: Player animations, animations, cutscenes, effect, transitions, scenes switches and the camera movement (cinemachine).</p>
+                    
+                        <p><br><br>I first started the most important thing in the game, the checkpoint system.
+                        I created this by putting ontrigger around the map where you can die.
+                        Then I put transform inside those triggers where the player should spawn back to.
+                        And best for last I added a fade-in-out when u fall out of the map so it respawns exactly when the screen turns black.</p>
+                        <pre><code>CODE!!</code></pre>
+                        <video width="640" height="360" controls>
+                            <source src="/Videos/2021-11-26-17-01-53.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+    
+                    <p><br><br>We start the game with a cutscene that I made myself with the camera(cine machine).
+
+                        After the cutscene you will see the option play and if you click on that it will go to the next scene, 
+                        the game scene. you will see the same image again as when you ended on the cutscene and you can click on start. 
+                        What happens then is the camera flies towards the player, 
+                        the player gets up from his sitting position and can start walking. 
+                        I made this myself with animation and cinemachine.</p>
+                        <video width="640" height="360" controls>
+                            <source src="/Videos/2021-11-26-16-46-33.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+
+                    <p><br><br>Next on the list was the first puzzle animation/cutscene. 
+                        When Pushing the box onto the pressure plate the gate opens up a bit and u can use the slide mechanic to continue.
+                        When the gate open I used cinemachine transitions to show the play what u just achieved.</p>
+                     <video width="640" height="360" controls>
+                        <source src="/Videos/2021-11-26-17-22-26.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+                    <p><br><br>Next thing was the stairs transition. 
+                        I create a cinematic transition in the screen and the camera to make the walk extra cinematic.
+                    It gives a lot of feeling to the game since it's the first and only different camera view we have in the game.</p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2021-11-26-17-22-48.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+                    <p><br><br>And then the last thing I did to make the game end is making a cutscene that makes it look like there is way more to explore then just this level by showing a monster and the world out there.</p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2021-11-26-17-17-47.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+
+                    <p><br><br><br><br></p>
+                </div>
+            </div>
+
+    <script src="/Web/Projects/projectpanels.js"></script>
+    <div class="box">
+                <div class="text">
+            <h1>– Project: Endless Runner</h1>
+            <h1>– Duration: 2 Week</h1>
+            <h1>– Team: 2 Devs, 2 Artists</h1>
+            <p>My Part: Camera Movement, CheckPoint + Death, Platforms, Animations, Cutscenes</p>
+            <h2>Summary:</h2>
+            <p>The idea of this project to make an endless runner. 
+                we had an idea to scrap the endless runner and make it a adventure runner so you really looked at the cutscenes, animations, visuals, art, particles and sounds. 
+                To show what we can do.<br><br></p>
+            </div>
+              </div>   
+                    
+            <div class="githubpage">
+                <button class="git-page" onclick="window.open('https://github.com/NnelisS/Endless-Runner')">Github</button>
+            </div>    
+
+
+        </div>
+      </body>
+  </body>
+</html>

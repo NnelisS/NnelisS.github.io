@@ -26,7 +26,6 @@ body{
   /* Style the video div */
   .video {
     margin-top: 1%;
-
     display: inline-block;
   width: 50%;
   box-sizing: border-box;
