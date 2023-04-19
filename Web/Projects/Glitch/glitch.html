@@ -1,0 +1,110 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          /* styles for desktop screens */
+          body {
+            width: 1920px; /* adjust this value as needed */
+            margin: 0 auto;
+          }
+          
+          /* styles for phone screens */
+          @media only screen and (max-width: 600px) {
+            body {
+              width: 100%; /* adjust this value as needed */
+              margin-left: 1%;
+            }
+          }
+        </style>
+      </head>
+<head>
+	<title>Mimeo Labs</title>
+	<link rel="stylesheet" type="text/css" href="/Web/Projects/Glitch/glitch.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+	<script>
+	  $(function(){
+		$("#navbar").load("/Web/Navbar/index.html");
+	  });
+	</script>
+  </head>
+  <body>
+	<div id="navbar"></div>
+    <body>
+        <div class="overlay"></div>
+
+        <div class="container">
+            <div class="video-container">
+                <canvas id="myCanvas"></canvas>
+    <script>
+      // Create a WebGL renderer
+      var renderer = new THREE.WebGLRenderer({canvas: document.getElementById("myCanvas")});
+
+      // Create a scene
+      var scene = new THREE.Scene();
+
+      // Create a camera
+      var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 5;
+
+      // Create a cube
+      var geometry = new THREE.BoxGeometry();
+      var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+      var cube = new THREE.Mesh(geometry, material);
+      scene.add(cube);
+
+      // Render the scene
+      function render() {
+        requestAnimationFrame(render);
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+        renderer.render(scene, camera);
+      }
+      render();
+    </script>
+                <div class="video">
+                    <img src="/Pictures/Screenshot 2022-04-24 211714.png" width="700px" alt="Random Image">
+                  </div>
+                </div>
+
+            <button id="toggle-btn">Click to see code</button>
+                <div id="panel">
+                <div class="panel-content">
+                    <p>text</p>
+                        <video width="640" height="360" controls>
+                            <source src="/Videos/2022-09-12-15-32-27.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                   
+                    <pre><code>CODE!!</code></pre>
+                    <img src="/Pictures/Screenshot-2022-09-12dw-155551.png" alt="Random Image">
+
+                    <p><br><br><br><br></p>
+                </div>
+            </div>
+
+    <script src="/Web/Projects/projectpanels.js"></script>
+    <div class="box">
+                <div class="text">
+            <h1>– Project: Shortburn</h1>
+            <h1>– Duration: 6 Week</h1>
+            <h1>– Team: 2 Devs, 3 Artists</h1>
+            <p>My Part: Pickup, PlayerRespawn, Cutscenes, Animations, Puzzles, UI, Object Reset, VideoPlayers, Pause, CheckpointSystem, ElevatorTransition, PressurePlates</p>
+            <h2>Summary:</h2>
+            <p>In project Short Burn, me and a small group tried to achieve the highest possible quality in an indie First Person Puzzler. Our core mechanic is to record your movement(Movement, Rotation) and spawn a clone that does that exact movement.
+
+                we made this game with the following game design patterns:
+                
+                Flow, Pacing, Cells, Portals, Pick ups, Lay-out<br><br></p>
+            </div>
+              </div>   
+                    
+            <div class="itchpage">
+                <button class="itch-page" onclick="window.open('https://nneliss.itch.io/bullet-hell-glitch')">Itch.io</button>
+            </div>    
+
+
+        </div>
+      </body>
+  </body>
+</html>
