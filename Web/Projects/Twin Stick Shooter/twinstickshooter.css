@@ -6,7 +6,7 @@ body{
 }
 
 .container {
-    background: linear-gradient(#01125d, rgb(37, 94, 116));
+    background: linear-gradient(#01125d, rgb(0, 0, 0));
     border-radius: 2%;
     margin-left: 5%;
     margin-right: 5%;
@@ -25,6 +25,7 @@ body{
 
   /* Style the video div */
   .video {
+  margin-top: 1%;
   justify-content: center;
   display: inline-block;
   box-sizing: border-box;
@@ -37,7 +38,7 @@ body{
     margin-bottom: 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-  
+
   /* Add some extra styles for the text div */
   .text h2 {
     font-size: 24px;
@@ -46,26 +47,6 @@ body{
   .text p {
     font-size: 16px;
     line-height: 1.5;
-  }
-
-  .itchpage .itch-page{
-    position: fixed;
-    right: 20%;
-    bottom: 10%;
-    font-size: 2em;
-    background-color: rgb(146, 5, 5);
-    color: white;
-    border-radius: 10px;
-    border-color: white;
-    transition: border-radius .2s ease-out;
-    z-index: 999;
-  }
-
-  .itchpage .itch-page:hover{
-    cursor: pointer;
-    border-radius: 0px;
-    background-color: rgba(255, 0, 0, 0.512);
-    transition: border-radius .2s ease-out;
   }
 
   .box{

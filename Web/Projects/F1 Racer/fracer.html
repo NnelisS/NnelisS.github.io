@@ -1,0 +1,125 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          /* styles for desktop screens */
+          body {
+            width: 1920px; /* adjust this value as needed */
+            margin: 0 auto;
+          }
+          
+          /* styles for phone screens */
+          @media only screen and (max-width: 600px) {
+            body {
+              width: 100%; /* adjust this value as needed */
+              margin-left: 1%;
+            }
+          }
+        </style>
+      </head>
+<head>
+	<title>F1 Racer</title>
+	<link rel="stylesheet" type="text/css" href="/Web/Projects/F1 Racer/fracer.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+	  $(function(){
+		$("#navbar").load("/Web/Navbar/index.html");
+	  });
+	</script>
+  </head>
+  <body>
+	<div id="navbar"></div>
+    <body>
+        <div class="overlay"></div>
+
+        <div class="container">
+            <div class="video-container">
+                <div class="video">
+                    <iframe width="854" height="480" src="https://www.youtube.com/embed/Kss4foj9o2U" frameborder="0" allowfullscreen></iframe>
+                  </div>
+                </div>
+
+            <button id="toggle-btn">Click to see code</button>
+                <div id="panel">
+                <div class="panel-content">
+                    <p>In this project I made a game as solo developer with 2 game artists and made an amazing formula 1 replica game in 2 weeks.
+                       because I was a solo developer I had to do a lot of work to get the work done.</p>
+
+                    <p><br><br>I first started creating the most important mechanic in the game: Movement. 
+                        I brainstormed about what car mechanics I wanted to use and chose for a challenge with wheel colliders. 
+                    Wheel colliders have lots of potential to good physics on a car movement mechanic, such as friction, suspension and stiffness.</p>
+
+                    <p><br><br>I created a script for all 4 wheels assigning: TurnAngle, WheelCollider, Mesh and Powered(if the wheel uses acceleration or only rolls).</p>
+                    <pre><code>CODE!!</code></pre>
+                    <img src="https://picsum.photos/200" alt="Random Image">
+
+                    <p><br><br>Then I created a script for the main body of the car where input is added and also the wheels are attached to.</p>
+                    <pre><code>CODE!!</code></pre>
+                    <img src="https://picsum.photos/200" alt="Random Image">
+
+                    <p><br><br>I also added the option to change the camera of the car to 3 position: third person view, car camera(slighlty above the player) and player point of view.</p>
+                    <pre><code>CODE!!</code></pre>
+                    <img src="https://picsum.photos/200" alt="Random Image">
+
+                    <p><br><br>After the car was working properly I went after the second most important thing in the game: Laptime.
+                    I created a script that doesn't only saves the laptimes but also converts them to minutes, seconds and milliseconds.
+                    As extra I created the function to add all times together into one final game time.</p>
+                    <pre><code>CODE!!</code></pre>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2021-07-01_16-03-37.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    
+                    <p><br><br>I added the speedometer to the game with the asset the artists provided me that indicates realtime speed in km/h, throttle and brake.</p>
+                    <pre><code>CODE!!</code></pre>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2022-01-30-19-41-46-1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+                    <p><br><br>After all important mechanics were finished I used my spare time to create some animations for the game and main menu and also creating a short cutscene for when u finish the race and a starting screen showcasing some racing moments from formula 1.</p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2022-01-30-18-54-50-1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2022-01-30-19-56-56-1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/2022-01-30-20-01-00-1-1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+
+
+                    <p><br><br><br><br></p>
+                </div>
+            </div>
+
+    <script src="/Web/Projects/projectpanels.js"></script>
+    <div class="box">
+                <div class="text">
+            <h1>– Project: Night Racer</h1>
+            <h1>– Duration: 2 Week</h1>
+            <h1>– Team: 1 Dev, 2 Artists</h1>
+            <p>My Part: Car Controller, Camera Changer, Wheel physics, Lap system, Menu Scroller, Speedometer, Cutscene.</p>
+            <h2>Summary:</h2>
+            <p>Good controllable vehicle, Full Gameplay loop, Time trials must be able to be saved. 
+                A round lasts a maximum of 2 minutes, Working User Interface, Countdown / traffic light, before you can race, Speedometer, lap time, fastest time achieved on your computer, overview screen achieved times.<br><br></p>
+            </div>
+              </div>   
+                    
+            <div class="githubpage">
+                <button class="git-page" onclick="window.open('https://github.com/NnelisS/Race-Game')">Github</button>
+            </div>    
+
+
+        </div>
+      </body>
+  </body>
+</html>
