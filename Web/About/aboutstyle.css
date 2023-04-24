@@ -13,7 +13,6 @@ body{
 .context {
     width: 100%;
     position: absolute;
-    top:50vh;
     
 }
 
@@ -30,7 +29,7 @@ body{
 }
 
 .circles{
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -369,6 +368,15 @@ p {
     font-family: "Audiowide", cursive;
   }
 
+  .area{
+    width: 100%;
+    height: 400%;
+  }
+
+  .circles li{
+    bottom: -150px;
+  }  
+
   .text-container{
     margin-left: -300px;
     margin-top: -140px;
@@ -392,55 +400,47 @@ p {
     left: 10%;
     top: 90%;
     width: 40;
-    animation-delay: 0s;
   }
   
   .float:nth-child(2) {
     top: 90%;
     width: 35;
     left: 20%;
-    animation-delay: -2s;
   }
   
   .float:nth-child(3) {
     top: 90%;
     width: 35;
     left: 30%;
-    animation-delay: -4s;
   }
   
   .float:nth-child(4) {
     top: 90%;
     width: 30;
     left: 40%;
-    animation-delay: -6s;
   }
   
   .float:nth-child(5) {
     top: 90%;
     width: 30;
     left: 50%;
-    animation-delay: -8s;
   }
   
   .float:nth-child(6) {
     top: 90%;
     width: 60;
     left: 60%;
-    animation-delay: -10s;
   }
   
   .float:nth-child(7) {
     top: 90%;
     width: 60;
     left: 70%;
-    animation-delay: -12s;
   }
   
   .float:nth-child(8) {
     top: 90%;
     width: 40;
     left: 80%;
-    animation-delay: -14s;
   }
 }
