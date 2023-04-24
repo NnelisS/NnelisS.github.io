@@ -37,6 +37,13 @@ html {
     flex-direction: row;
     flex-wrap: wrap;
   }
+
+  @media only screen and (max-width: 1600){
+    .grid { 
+      width: 40%;
+    }
+  }
+
   
   .grid-block {
     width: 50%;
