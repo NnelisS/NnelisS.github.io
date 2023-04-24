@@ -217,6 +217,51 @@ span:nth-child(1) {
 body{
 	background: linear-gradient(to bottom, #ffffff,#ffffff,#ffffff, #b2cdf6, #3586ff);
 }
+@media only screen and (max-height: 1080px) {    
+  body{
+    background: linear-gradient(to bottom, #ffffff,#ffffff,#ffffff, #b2cdf6, #3586ff);
+  }
+
+  #left-column .video {
+    margin-bottom: 30px;
+  }  
+}
+
+@media only screen and (max-height: 720px) {    
+  body{
+    background: linear-gradient(to bottom, #ffffff,#ffffff,#ffffff, #b2cdf6, #3586ff);
+  }
+
+  #right-column h2{
+      bottom: 100px;
+      left: 100px;
+  }
+
+  #left-column .video{
+    margin-bottom: -120px;
+  }
+
+  .projectbutton{
+    margin-top: 180px;
+    margin-bottom: -10000px;
+  }
+}
+
+@media only screen and (max-width: 1170px) and (max-height: 2532px){
+  body{
+    background: linear-gradient(to bottom, #ffffff,#ffffff,#ffffff, #ffffff, #3586ff);
+  }
+
+  #left-column .video{
+    margin-bottom: -120px;
+  }
+
+  .projectbutton{
+    margin-top: 180px;
+    margin-bottom: -10000px;
+  }
+}
+
 
 #main {
 	display: flex;
@@ -233,12 +278,7 @@ body{
     font-family: Rockwell, "Courier New", Courier, Georgia,
                  Times, "Times New Roman", serif;
 	margin-bottom: 20px;
-    margin-left: -00px;
     color: #007bff;
-}
-
-#left-column .video {
-	margin-bottom: 30px;
 }
 
 #left-column iframe {
@@ -266,6 +306,8 @@ body{
     right: -10px;
     transition: 0.2s;
   }
+
+
   
   .projectbutton:hover {
     cursor: pointer;
@@ -353,15 +395,12 @@ body{
       box-shadow: #27272c;
     }
   }
-  
-  
 
 #right-column {
 	width: 40%;
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
-	align-items: center;
 }
 
 #right-column h2 {
