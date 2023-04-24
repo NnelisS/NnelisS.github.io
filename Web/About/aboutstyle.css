@@ -22,6 +22,11 @@ body{
     font-size: 50px;
 }
 
+@media only screen and (max-height: 30000px) {
+  .area{
+    height: 500%;
+  }
+}
 
 .area{
     background: #4e54c8;  
@@ -442,5 +447,13 @@ p {
     top: 90%;
     width: 40;
     left: 80%;
+  }
+}
+
+
+@media only screen and (max-width: 428px) and (max-height: 926px){
+  body,
+  html {
+    font-family:'Courier New', Courier, monospace;
   }
 }
