@@ -37,15 +37,15 @@ html {
     flex-wrap: wrap;
   }
 
-  @media only screen and (max-width: 1920){
+  @media only screen and (min-resolution: 192dpi) and (min-width: 1920px) and (min-height: 1080px) {
     .grid { 
       width: 100%;
 
     }
   }
-  @media only screen and (max-width: 1600){
+  @media only screen and (min-resolution: 160dpi) and (min-width: 1600px) and (min-height: 900) {
     .grid { 
-      width: 40%;
+      width: 10%;
     }
   }
 
