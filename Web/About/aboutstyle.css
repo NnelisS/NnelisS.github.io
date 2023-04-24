@@ -131,8 +131,6 @@ body{
   animation-duration: 11s;
 }
 
-
-
 @keyframes animate {
 
   0%{
@@ -504,7 +502,7 @@ p {
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif, Courier, monospace;
     position: absolute;
     top: 5%;
-    right: 25%;
+    right: 20%;
     display: block;
     font-size: larger;
     border-radius: 5%;
