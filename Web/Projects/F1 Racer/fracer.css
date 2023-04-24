@@ -104,6 +104,14 @@ body{
     animation: scale-up .5s forwards ease-in-out;
   }
 
+  @media only screen and (max-height: 720px){
+    .panel-content{
+      height: 100%;
+      width: 100%;
+      font-size: smaller;
+    }
+  }
+
   .panel-content p{
     font-size: larger;
   }
