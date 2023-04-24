@@ -26,7 +26,7 @@ html {
   }
   
   .grid {
-    max-width: 60rem;
+    max-width: 100%;
     margin-left: auto;
     margin-right: auto;
   
@@ -36,26 +36,26 @@ html {
     flex-direction: row;
     flex-wrap: wrap;
   }
-
-  @media only screen and (min-resolution: 192dpi) and (min-width: 1920px) and (min-height: 1080px) {
-    .grid { 
-      width: 100%;
-
+  
+  @media only screen and (max-height: 1080px) {    
+    .grid {
+      width: 50%;
     }
   }
-  @media only screen and (min-resolution: 160dpi) and (min-width: 1600px) and (min-height: 900) {
-    .grid { 
-      width: 10%;
+  
+  @media only screen and (max-height: 720px) {    
+    .grid {
+      width: 50%;
     }
   }
-
   
   .grid-block {
     width: 50%;
     min-height: 11.25rem;
     padding: 1rem;
   }
-  
+
+
   .image-grid {
     -webkit-transform: rotateX(45deg) rotateZ(45deg);
     transform: rotateX(45deg) rotateZ(45deg);
