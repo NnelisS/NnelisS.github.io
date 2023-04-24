@@ -8,7 +8,6 @@
 
 body{
     font-family: 'Exo', sans-serif;
-    height: 2540px;
 }
 
 .context {
@@ -459,6 +458,10 @@ p {
     font-size: 1.6em;
   }
 
+  .body{
+    height: 2550px;
+  }
+
   .text-container{
     margin-top: 10%;
     flex-basis: 150%;
@@ -471,6 +474,15 @@ p {
 
   .image-container img{
     width: 5em;
+  }
+
+  .download-btn{
+    position: absolute;
+    top: 5%;
+    right: 25%;
+    display: block;
+    font-size: larger;
+    border-radius: 5%;
   }
 
   .area{
