@@ -7,6 +7,7 @@
 }
 
 body{
+  background-color: #4e54c8;
     font-family: 'Exo', sans-serif;
 }
 
@@ -164,6 +165,30 @@ body{
     border-radius: 50%;
     border-style: dotted;
     border-color: white;
+    animation: rotatingBorder forwards 2s ease-in-out;
+  }
+
+  @keyframes rotatingBorder{
+    0%{
+      opacity: 0;
+      scale: 0;
+      transform: rotate(0deg);
+    }
+    40%{
+      opacity: 1;
+      scale: 1.2;
+      transform: rotate(36deg);
+    }
+    60%{
+      scale: 1;
+      transform: rotate(-12deg);
+    }
+    70%{
+      transform:rotate(6deg);
+    }
+    85%{
+      transform: rotate(-1deg);
+    }
   }
   
   .text-container {
@@ -234,55 +259,55 @@ p {
 .float:nth-child(1) {
 	left: 10%;
   top: 80%;
-  width: 90;
+  width: 120;
 	animation-delay: 0s;
 }
 
 .float:nth-child(2) {
   top: 80%;
-  width: 80;
+  width: 100;
 	left: 20%;
 	animation-delay: -2s;
 }
 
 .float:nth-child(3) {
   top: 80%;
-  width: 80;
+  width: 100;
 	left: 30%;
 	animation-delay: -4s;
 }
 
 .float:nth-child(4) {
   top: 80%;
-  width: 60;
+  width: 80;
 	left: 40%;
 	animation-delay: -6s;
 }
 
 .float:nth-child(5) {
   top: 80%;
-  width: 70;
+  width: 90;
 	left: 50%;
 	animation-delay: -8s;
 }
 
 .float:nth-child(6) {
   top: 80%;
-  width: 120;
+  width: 140;
 	left: 60%;
 	animation-delay: -10s;
 }
 
 .float:nth-child(7) {
   top: 80%;
-  width: 120;
+  width: 140;
 	left: 70%;
 	animation-delay: -12s;
 }
 
 .float:nth-child(8) {
   top: 80%;
-  width: 80;
+  width: 100;
 	left: 80%;
 	animation-delay: -14s;
 }
@@ -459,7 +484,7 @@ p {
   }
 
   .body{
-    height: 2550px;
+    height: fit-content;
   }
 
   .text-container{
@@ -476,6 +501,7 @@ p {
   }
 
   .download-btn{
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif, Courier, monospace;
     position: absolute;
     top: 5%;
     right: 25%;
@@ -519,7 +545,7 @@ p {
   
   .float:nth-child(5) {
     left: 5%;
-    top: 52%;
+    top: 53%;
     width: 90;
     animation-delay: -1.2s;
   }
