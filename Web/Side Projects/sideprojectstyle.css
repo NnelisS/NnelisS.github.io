@@ -30,6 +30,13 @@ body{
     object-fit: cover; 
     transition: .5s;
   }
+
+  .box > video{
+    width: 200%;
+    height: calc(100% - 10vh);
+    object-fit: cover; 
+    transition: .5s;
+  }
   
   .box > span {
     font-size: 3.8vh;
@@ -41,6 +48,12 @@ body{
   
   .box:hover { flex: 1 1 50%; }
   .box:hover > img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .box:hover { flex: 1 1 50%; }
+  .box:hover > video {
     width: 100%;
     height: 100%;
   }
