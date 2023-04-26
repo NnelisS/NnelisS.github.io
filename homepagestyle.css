@@ -425,14 +425,17 @@ body{
 	position: relative;
 }
 
-.button-with-image img {
+.button-with-image video {
 	border-radius: 5px;
   margin-bottom: 00px;
+  transform: scale(1);
+  transition: transform .2s ease-out;
 }
 
 .button-with-image p {
 	margin-top: 10px;
 	font-size: 18px;
+  transition: font-size .2s ease-in-out;
 }
 
 .button-with-image:before {
@@ -444,17 +447,19 @@ body{
 	bottom: 0;
 	background-color: rgba(0,0,0,0.5);
 	opacity: 0;
+  font-size: large;
 	transition: opacity 0.3s ease;
 }
 
-.button-with-image:hover:before {
-	opacity: 1;
-}
+
 
 .button-with-image:hover p {
 	color: #fff;
+  font-size: 1.5em;
+  transition: font-size .2s ease-in-out;
 }
 
-.button-with-image:hover img {
+.button-with-image:hover video {
 	transform: scale(1.1);
+  transition: transform .2s ease-out;
 }

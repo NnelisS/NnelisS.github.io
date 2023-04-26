@@ -171,7 +171,14 @@
     font-weight: bolder;
 }
 
-.dropdown-content button:hover {
-    background-color: red;
+.dropdown-content video:hover {
+	border-style: solid;
+	border-color: red;
+    background-color: rgb(255, 0, 0);
+    cursor: pointer;
+}
+
+.dropdown-content button:hover{
+    background-color: rgb(255, 0, 0);
     cursor: pointer;
 }
