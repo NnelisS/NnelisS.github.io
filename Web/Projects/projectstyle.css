@@ -48,6 +48,12 @@ html {
       width: 50%;
     }
   }
+
+  @media only screen and (max-width: 1170px) and (max-height: 2532px){
+    .grid{
+      width: 50%;
+    }
+  }
   
   .grid-block {
     width: 50%;
