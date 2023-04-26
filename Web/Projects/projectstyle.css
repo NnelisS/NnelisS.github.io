@@ -51,7 +51,7 @@ html {
 
   @media only screen and (max-width: 1170px) and (max-height: 2532px){
     .grid{
-      width: 50%;
+      width: 100%;
     }
   }
   
@@ -67,6 +67,19 @@ html {
     transform: rotateX(45deg) rotateZ(45deg);
     -webkit-perspective: 1000px;
     perspective: 1000px;
+  }
+
+  @media only screen and (max-width: 1170px) and (max-height: 2532px){
+    .grid{
+      margin-top: 10%;
+    }
+    
+    .image-grid {
+      -webkit-transform: rotateX(0deg) rotateZ(0deg);
+      transform: rotateX(0deg) rotateZ(0deg);
+      -webkit-perspective: 1000px;
+      perspective: 1000px;
+    }  
   }
   
   .image-grid .tile-link:hover .tile-img {
