@@ -121,8 +121,6 @@ body{
     border: none;
     border-radius: 5px;
     cursor: pointer;
-
-    animation: text-scale 1s forwards infinite ease-in-out;
   }
 
   #toggle-btn:hover{
@@ -185,15 +183,6 @@ body{
     }
     100%{
         scale: 1;
-    }
-  }
-
-  @keyframes slideIn {
-    from {
-      transform: translateY(-100%);
-    }
-    to {
-      transform: translateY(0);
     }
   }
 

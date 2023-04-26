@@ -6,6 +6,8 @@ body{
 }
 
 .container {
+    width: fit-content;
+    max-width: 90%;
     background: linear-gradient(#ff0000, rgb(59, 9, 9));
     border-radius: 2%;
     margin-left: 5%;
@@ -28,7 +30,7 @@ body{
   margin-top: 1%;
   justify-content: center;
   display: inline-block;
-  width: 40%;
+  width: fit-content;
   box-sizing: border-box;
   margin-bottom: 20px;
   }
@@ -150,6 +152,7 @@ body{
     opacity: 1;
     z-index: 1000000;
     display: flex;
+    flex-wrap: wrap;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -173,6 +176,8 @@ body{
     transition: background-color .5s ease-in-out;
     z-index: 999;
   }
+
+
 
   @keyframes text-scale{
     0%{
@@ -203,11 +208,6 @@ body{
     to {
       transform: translateY(0);
     }
-  }
-
-  body.panel-open {
-    position: sticky;
-    overflow: hidden;
   }
 
   #panel .panel-content pre{

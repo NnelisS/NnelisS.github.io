@@ -429,6 +429,11 @@ p {
     top: 90%;
     width: 40;
   }
+
+  img:hover {
+    transform: translateY(10px);
+  }
+
   
   .float:nth-child(2) {
     top: 90%;
