@@ -284,4 +284,8 @@ margin-bottom: 20px;
     border-style: solid;
     background-color: rgb(46, 46, 46);
   }
+  
+  #panel .panel-content video{
+    width:auto;
+  }
 }
