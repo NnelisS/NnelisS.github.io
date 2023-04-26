@@ -20,6 +20,39 @@ body{
     box-shadow: 6px 6px 10px #ff3030;
   }
   
+  @media only screen and (max-height: 1080px){
+    .container{
+      width: fit-content;
+      max-width: 90%;
+      margin-left: 5%;
+      margin-right: 5%;
+      margin-top: 5%;
+      margin-bottom: 10%;    
+    }
+  }
+
+  @media only screen and (max-height: 720px){
+    .container{
+      width: fit-content;
+      max-width: 80%;
+      margin-left: 2%;
+      margin-right: 5%;
+      margin-top: 5%;
+      margin-bottom: 10%;    
+    }
+  }
+
+  @media only screen and (max-width: 1170px) and (max-height: 2532px){
+    .container{
+      width: fit-content;
+      max-width: 90%;
+      margin-left: 5%;
+      margin-right: 5%;
+      margin-top: 5%;
+      margin-bottom: 10%;    
+    }
+  }
+  
   .video-container {
     display: flex;
     flex-wrap: wrap;
@@ -37,7 +70,7 @@ body{
      
   /* Style the text div */
   .text {
-    width: 100%;
+    width: fit-content;
     margin-bottom: 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -64,6 +97,13 @@ body{
     transition: border-radius .2s ease-out;
     z-index: 999;
   }
+
+  @media only screen and (max-width: 1170px) and (max-height: 2532px){
+    .githubpage .git-page{
+      position: absolute;
+      bottom: -2%;
+    }
+  } 
 
   .githubpage .git-page:hover{
     cursor: pointer;
@@ -133,6 +173,13 @@ body{
     cursor: pointer;
 
     animation: text-scale 1s forwards infinite ease-in-out;
+  }
+
+  @media only screen and (max-width: 1170px) and (max-height: 2532px){
+    #toggle-btn{
+      position: absolute;
+      margin-top: 10%;
+    }
   }
 
   #toggle-btn:hover{
@@ -213,7 +260,22 @@ body{
   #panel .panel-content pre{
     padding-top: 10px;
     padding-bottom: 10px;
+    overflow: auto;
+    margin: 0;
+    white-space: pre-wrap;
     width: 70%;
     border-style: solid;
     background-color: rgb(46, 46, 46);
+  }
+
+  @media only screen and (max-width: 1170px) and (max-height: 2532px){
+    #panel .panel-content p{
+      font-size: 2em;
+    }
+
+    #panel .panel-content pre{
+      width: 90%;
+      border-style: solid;
+      background-color: rgb(46, 46, 46);
+    }
   }
