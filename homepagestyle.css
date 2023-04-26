@@ -315,7 +315,7 @@ body{
 	padding-right: 30px;
 }
 
-#left-column h1 {
+#left-column h {
 	font-size: 24px;
     font-family: Rockwell, "Courier New", Courier, Georgia,
                  Times, "Times New Roman", serif;
@@ -348,8 +348,6 @@ body{
     right: -10px;
     transition: 0.2s;
   }
-
-
   
   .projectbutton:hover {
     cursor: pointer;

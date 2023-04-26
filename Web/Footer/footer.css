@@ -17,10 +17,10 @@
 }
 
 .wrapper {
-  display: flex;
+  display: inline-flex;
   flex-direction: row;
   justify-content: flex-start;
-  min-height: 100vh;
+  min-height: auto;
   margin-top: auto;
   list-style: none;
 }
