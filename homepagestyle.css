@@ -9,7 +9,33 @@
 	height: 100vh;
 	background: #3586ff;
 	overflow: hidden;
+  animation: color_Lerp 50s infinite ease;
   }
+
+  @keyframes color_Lerp{
+    0%{
+      background: #3586ff;
+    }
+    15%{
+      background: darkred;
+    }
+    30%{
+      background: darkgreen;
+    }    
+    45%{
+      background: darkcyan;
+    }
+    60%{
+      background: darkorchid;
+    }
+    85%{
+      background: darkgoldenrod;
+    }
+    100%{
+      background: #3586ff;
+    }
+  }
+
   section .air{
 	position: absolute;
 	bottom: 0;
