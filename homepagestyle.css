@@ -315,7 +315,7 @@ body{
 	padding-right: 30px;
 }
 
-#left-column h {
+#left-column h1 {
 	font-size: 24px;
     font-family: Rockwell, "Courier New", Courier, Georgia,
                  Times, "Times New Roman", serif;
@@ -445,9 +445,12 @@ body{
 }
 
 #right-column h2 {
-	font-size: 24px;
+	font-size: 34px;
 	margin-bottom: 20px;
 	width: 100%;
+  color: #007bff;
+  font-family: Rockwell, "Courier New", Courier, Georgia,
+  Times, "Times New Roman", serif;
 }
 
 .button-with-image {

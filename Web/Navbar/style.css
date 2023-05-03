@@ -19,7 +19,7 @@
   
 .navbar:hover {
 	opacity: 1;
-	background-color: #22222241;
+	background-color: #222222b3;
 	transition: background-color 0.5s ease-in-out;
 }
 
