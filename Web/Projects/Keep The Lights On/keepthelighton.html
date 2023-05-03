@@ -27,21 +27,613 @@
             <button id="toggle-btn">Click to see code</button>
                 <div id="panel">
                 <div class="panel-content">
-                    <p>Here's some hidden content! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vel justo eget massa semper volutpat ac eget purus. Aenean in nisl at dolor tempus interdum. Ut ultricies laoreet enim a aliquet. Nullam vel neque lorem. In hendrerit eget urna eu pellentesque. Quisque faucibus consequat elit in viverra. Fusce placerat euismod est, nec suscipit enim gravida eget.</p>
+                    <p>In this project i've created a lot of various scripts for the mini games and mechanics of the game,
+                       so if you want to see all code created there is a link to the github page on this page.<br><br></p>
+                    <p>Here is a picture for the tooltips in the game how to survive. 
+                      Just to get a bit of understanding how I created some scripts.<br><br></p>
+                    <img src="/Pictures/Tooltips.png" style="width: 800px;" alt="Random Image">
+                    <p><br><br>I first created the path for the room the player can walk on.
+                    This was mainly fun to create because it was my first time using physics.
+                    In this mechanic the player has a flashlight and on the floor of the room there are footsteps where you as player can walk on.
+                    Point the flashlight on the ground to reveal the footstep path. 
+                    What I do in this script is create a local collider array that gets the component in all footstep the flashlight sees.
+                    I then enter the array with a forloop to enter every footsteps FootstepGlow script to set their alpha to 1 and making them reveal themselfs on the ground.
+                    What the FootstepGlow script does on every footstep is automatically fades them to 0 alpha, but when the overlapsphere enters is do that same but faster to 1 alpha.
+                    Because the FootstepGlow script always lerps to 0 alpha it creates an illusion of the footstep glowing up and down because it goes both ways in the lerp.</p>
+<pre><code>using UnityEngine.UI;
+
+  public class FlashlightPathShow : MonoBehaviour
+  {
+      [SerializeField] private LayerMask layerMask;
+  
+      void Update()
+      {
+          RaycastHit hit;
+          if (Physics.SphereCast(transform.position, 0.1f, transform.forward, out hit, 4f, layerMask))
+          {
+              Collider[] hitColliders = Physics.OverlapSphere(hit.transform.position, 1f, layerMask);
+              if (hitColliders != null && hitColliders.Length > 0)
+              {
+                  for (int i = 0; i &lt; hitColliders.Length; i++)
+                  {
+                      FootstepGlow footstep = hitColliders[i].gameObject.GetComponent&lt;FootstepGlow&gt;();
+                      if (footstep != null)
+                      {
+                          footstep.FootstepFade();
+                      }
+                  }
+              }
+          }
+      }
+  
+      private void OnDrawGizmos()
+      {
+          Vector3 forward = transform.TransformDirection(Vector3.forward) * 4;
+          Debug.DrawRay(transform.position, forward, Color.green);
+      }
+  }</code></pre>
+  <pre><code>using UnityEngine.UI;
+
+    public class FootstepGlow : MonoBehaviour
+    {
+        [SerializeField] private RawImage footImage;
+    
+        private float alpha;
+    
+        void Update()
+        {
+            footImage.CrossFadeAlpha(alpha = 255 - 255, 0.1f, false);
+        }
+    
+        public void FootstepFade()
+        {
+            footImage.CrossFadeAlpha(alpha = 0 + 255 * Time.deltaTime, 0.4f, false);
+        }
+    }</code></pre>
+                      <video width="640" height="360" controls>
+                        <source src="/Videos/2022-09-12-15-32-7.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+                    <p><br><br>I Then created the script for the main mechanic of the game and that's the bed.
+                      The goal of the bed is to get as much sleep as possible before 6AM.
+                      How I would change it now is to shorten out the scripts and play less around with bools since I used a lot of booleans to gain info on where the player is at and what the player is able to do.
+                    </p>
+<pre><code>using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using Cinemachine;
+  
+  public class Bed : MonoBehaviour
+  {
+      [Header("eyeClose Info")]
+      public float timeEyesAreClosed;
+      private bool eyesClosed = false;
+  
+      [Header("Side Info")]
+      public InToBed inToBed;
+  
+      [Header("Player Info")]
+      public GameObject flashlight;
+      public PlayerMovement playerMovement;
+      public MouseLook mouseLook;
+      public GameObject furLight;
+      public AudioSource footstep;
+  
+      [Header("Camera Info")]
+      public Camera mainCamera;
+      public Animator fade;
+      public Animator cameraChanger;
+  
+      [Header("Bed")]
+      public Animator eyes;
+      public Animator bedSheet;
+      public float timeUnderBlanket;
+  
+      [Header("Canvas")]
+      public GameObject bedIcon;
+      public GameObject underBlanketP;
+      public Animator underBlanketAnim;
+  
+      [Header("Sounds")]
+      public AudioSource blanketBreath;
+      public AudioSource lastBreath;
+      public AudioSource underBlanketAudio;
+      public Animator ambient;
+  
+      [Header("Jumpscare")]
+      public GameObject jumpscare;
+      public GameObject maincamera;
+      public CinemachineBrain maincameraBrain;
+  
+      [Header("Controls")]
+      public GameObject controlText;
+  
+      private bool getIntoBed = false;
+      private bool inBed = false;
+      private bool cantGetOut = false;
+      private bool closing = false;
+      private bool opening = true;
+      public bool underBlanket = false;
+      private bool usable = true;
+  
+      private BoxCollider boxCol;
+  
+  
+      private void Start()
+      {
+          boxCol = GetComponent&lt;BoxCollider&gt;();
+          StartCoroutine(InBed());
+      }
+      private void Update()
+      {
+          CloseEyes();
+          OpenEyes();
+          UnderBlanket();
+          BreathingUnderBlanket();
+  
+          if (underBlanket == true)
+          {
+              timeUnderBlanket += Time.deltaTime;
+              underBlanketP.SetActive(true);
+              blanketBreath.enabled = true;
+              underBlanketAnim.Play("UnderBlanketPanel");
+              underBlanketAnim.Play("UnderBlanketPanel");
+          }
+          else if (underBlanket == false)
+          {
+              timeUnderBlanket -= Time.deltaTime;
+              underBlanketP.SetActive(false);
+              underBlanketAnim.Play("New State");
+          }
+          if (timeUnderBlanket &gt;= 9)
+          {
+              StartCoroutine(BlanketKill());
+              blanketBreath.enabled = false;
+              Debug.Log("Ur DED blanket");
+              usable = false;
+  
+          }
+          if (timeUnderBlanket &lt;= 0)
+          {
+              timeUnderBlanket = 0;
+              blanketBreath.enabled = false;
+          }
+  
+          if (eyesClosed == true)
+              timeEyesAreClosed += Time.deltaTime;
+  
+          if (inToBed.intoBed == true)
+          {
+              getIntoBed = true;
+          }
+          else if (inToBed.intoBed == false)
+          {
+              getIntoBed = false;
+          }
+  
+          if (inBed == true && cantGetOut == false && underBlanket == false)
+          {
+              if (Input.GetKeyDown(KeyCode.Escape))
+              {
+                  StartCoroutine(OutBed());
+              }
+          }
+      }
+  
+      // Creates the illusion of being claustrophobic
+      #region breathing Blanket
+      private void BreathingUnderBlanket()
+      {
+          if (timeUnderBlanket &gt; 1)
+          {
+              blanketBreath.volume = Mathf.Lerp(0.0f, 1.0f, 10 * time.deltaTime);
+          }
+      }
+      #endregion
+  
+      public void OnMouseDown()
+      {
+          if (getIntoBed == true && inBed == false)
+          {
+              if (cantGetOut == false)
+              {
+                  StartCoroutine(InBed());
+              }
+          }
+          else if (getIntoBed == true)
+          {
+  
+          }
+      }
+  
+      // UI icon set to true when in range of bed and looking at it
+      private void OnMouseEnter()
+      {
+          if (getIntoBed == true && inBed == false)
+          {
+              bedIcon.SetActive(true);
+          }
+      }
+  
+      // UI icon set to false when out of range and not looking at it
+      private void OnMouseExit()
+      {
+          if (getIntoBed == true && inBed == false)
+          {
+              bedIcon.SetActive(false);
+          }
+      }
+  
+      // Hiding mechanic for hiding for monster at the door. 
+      #region Blanket state
+      private void UnderBlanket()
+      {
+          if (inBed == true && opening == true)
+          {
+              if (underBlanket == false && usable == true)
+              {
+                  if (Input.GetKeyDown(KeyCode.Space))
+                  {
+                      StartCoroutine(UnderBlanketIn());
+                  }
+              }
+              else if (underBlanket == true && usable == true)
+              {
+                  if (Input.GetKeyDown(KeyCode.Space))
+                  {
+                      StartCoroutine(UnderBlanketOut());
+                  }
+              }
+          }
+      }
+      #endregion
+  
+      // Main mechanic, closes eyes in UI and let's you get some sleep. Can enter this only in bed and is able to do this as long as the player wants.
+      #region eye state
+      private void CloseEyes()
+      {
+          if (inBed && opening == true && underBlanket == false)
+          {
+              if (Input.GetKeyDown(KeyCode.G))
+              {
+                  StartCoroutine(CloseEyesNow());
+                  opening = false;
+              }
+          }
+      }
+  
+      // Opens eyes when player is in bed and has eyes closed.
+      private void OpenEyes()
+      {
+          if (inBed && closing == true)
+          {
+              if (Input.GetKeyUp(KeyCode.G))
+              {
+                  StartCoroutine(OpenEyesNow());
+                  closing = false;
+              }
+          }
+      }
+      #endregion
+  
+      // coroutine for eyes closing to set all states for eyes and plays the animations
+      #region eyes
+      private IEnumerator CloseEyesNow()
+      {
+          cantGetOut = true;
+          eyes.Play("EyesClose");
+          yield return new WaitForSeconds(2f);
+          eyesClosed = true;
+          opening = false;
+          closing = true;
+      }    
+      
+      // coroutine for eyes opening to set all states for eyes and plays the animations.
+      private IEnumerator OpenEyesNow()
+      {
+          eyes.Play("EyesOpen");
+          eyesClosed = false;
+          yield return new WaitForSeconds(2f);
+          closing = false;
+          opening = true;
+          cantGetOut = false;
+      }
+      #endregion
+  
+      // coroutine for entering bed and setting all states and animations.
+      #region bed
+      private IEnumerator InBed()
+      {
+          footstep.enabled = false;
+          boxCol.enabled = false;
+          bedIcon.SetActive(false);
+          cameraChanger.Play("Cam 2");
+          mouseLook.enabled = false;
+          playerMovement.enabled = false;
+          flashlight.SetActive(false);
+          bedSheet.Play("BedSheetClose");
+          cantGetOut = true;
+          inBed = true;
+          fade.Play("Fade");
+          yield return new WaitForSeconds(1f);
+          bedSheet.Play("BedSheetOpenClose");
+          furLight.SetActive(true);
+          yield return new WaitForSeconds(1f);
+          cantGetOut = false;
+      }
+  
+      // coroutine for leaving bed and setting all states and animations.
+      private IEnumerator OutBed()
+      {
+          cameraChanger.Play("CameraChange");
+          bedSheet.Play("BedSheetOpen");
+          inBed = false;
+          fade.Play("Fade");
+          yield return new WaitForSeconds(1f);
+          flashlight.SetActive(true);
+          furLight.SetActive(false);
+          yield return new WaitForSeconds(1f);
+          controlText.SetActive(true);
+          bedSheet.Play("BedSheetOpenUp");
+          playerMovement.enabled = true;
+          mouseLook.enabled = true;
+          boxCol.enabled = true;
+      }
+      #endregion
+  
+      // Coroutine for blanket in bed to cover the player for the hiding mechanic and setting all states and animations.
+      #region blanket
+      private IEnumerator UnderBlanketIn()
+      {
+          bedSheet.Play("UnderBlanket");
+          fade.Play("FastFade");
+          usable = false;
+          underBlanketAudio.enabled = true;
+          yield return new WaitForSeconds(1);
+          underBlanket = true;
+          usable = true;
+          yield return new WaitForSeconds(1);
+          underBlanketAudio.enabled = false;
+      }
+  
+      // Coroutine for blanket in bed to uncover the player for the hiding mechanic and setting all states and animations.
+      private IEnumerator UnderBlanketOut()
+      {
+          bedSheet.Play("UnderBlanketOut");
+          fade.Play("FastFadeOut");
+          usable = false;
+          underBlanketAudio.enabled = true;
+          yield return new WaitForSeconds(1);
+          underBlanket = false;
+          usable = true;
+          yield return new WaitForSeconds(1);
+          underBlanketAudio.enabled = false;
+      }
+  
+      // Coroutine for blanket when player stays under blanket for too long, sets states, animations and death.
+      private IEnumerator BlanketKill()
+      {
+          fade.Play("Dead");
+          ambient.Play("Ambient Fade");
+          playerMovement.enabled = false;
+          mouseLook.enabled = false;
+          yield return new WaitForSeconds(2);
+          maincameraBrain.enabled = false;
+          jumpscare.SetActive(true);
+          maincamera.SetActive(true);
+          yield return new WaitForSeconds(6f);
+          SceneManager.LoadScene("YouLoseBlanket");
+      }
+      #endregion
+  }
+  </code></pre>
+                    <p><br><br>Heres what the bed mechanic looks like in action.</p>
                     <video width="640" height="360" controls>
-                        <source src="myvideo.mp4" type="video/mp4">
+                      <source src="/Videos/2022-09-12-15-32-7.mp4" type="video/mp4">
+                      Your browser does not support the video tag.
+                  </video>
+                    <img src="https://picsum.photos/200" alt="Random Image">
+
+
+                    <p><br><br>I won't show every script of the mini games(mini game videos provided bottom of page) but here is the system to go to these objectives.
+                    What I created here is a system that chooses a random event of happening, such as: <br>- Lamps (on of the four lamps in the rooms will break. Pick up a light bulb on your desk and replace the broken light).<br> 
+                    - Window(One of the 2 windows will open on both sides of the room, when the window is fully opened the monster will come closer to the window, close it before the monster reaches the window).<br>
+                    - Door(the door in front of the bed will open. Your goal is to get in bed as quick as possible and hide under the blanket untill you hear the door closing. don't stay under the blanket for too long or you will have no breath left with your claustrophobia).</p>
+<pre><code>public class RandomizeSytem : MonoBehaviour
+  {
+      [Header("Info")]
+      public int current;
+  
+      public List&lt;Events&gt; events = new List&lt;Events&gt;();
+  
+      public bool chooseEvent= false;
+      public bool chosenEvent = false;
+  
+      public float timerUntillEvent;
+      public float timerUntillDifficultChange;
+      public float timerChange = 50;
+  
+      private void Start()
+      {
+          timerUntillEvent = timerChange;
+      }
+  
+      void Update()
+      {
+          ChangeDifficulties();
+          timerUntillDifficultChange += Time.deltaTime;
+  
+          timerUntillEvent -= Time.deltaTime;
+  
+          if (timerUntillEvent &lt;= 0)
+          {
+              chooseEvent = true;
+              timerUntillEvent = timerChange;
+          }
+  
+          if (chooseEvent)
+          {
+              StartCoroutine(ChooseOutEvent());
+          }
+  
+          if (chosenEvent)
+          {
+              events[current].activateThisEvent = true;
+              events.RemoveAt(current);
+              chosenEvent = false;
+          }
+  
+          if ( timerUntillDifficultChange >= 720)
+          {
+              Debug.Log("End");
+          }
+      }
+  
+      #region Difficulty changer
+      private void ChangeDifficulties()
+      {
+          if (timerUntillDifficultChange == 0)
+          {
+              timerChange = Random.Range(25, 60);
+          }          
+          
+          if (timerUntillDifficultChange == 120)
+          {
+              timerChange = Random.Range(25, 50);
+          }   
+          
+          if (timerUntillDifficultChange == 240)
+          {
+              timerChange = Random.Range(25, 45);
+          } 
+          
+          if (timerUntillDifficultChange == 360)
+          {
+              timerChange = Random.Range(25, 40);
+          }
+          
+          if (timerUntillDifficultChange == 480)
+          {
+              timerChange = Random.Range(25, 35);
+          } 
+          
+          if (timerUntillDifficultChange == 600)
+          {
+              timerChange = Random.Range(25, 30);
+          }
+      }
+      #endregion
+  
+      private IEnumerator ChooseOutEvent()
+      {
+          current = Random.Range(0, events.Count);
+          chooseEvent = false;
+          chosenEvent = true;
+          yield return current;
+      }
+  }</code></pre>
+                    <p>This script chooses a random event from the event list and will activate that event. 
+                       also as times passes by your luck of having an event starting the random time a new event starts also goes down so you need to do everything faster as you progress on learning the game.</p>
+                    <br><br>
+                    <p>As an extra I created realtime clock that show (AM/PM) or (00:00) instead of just one number. 
+                       to that I added the eye closing time for the eyes for the game objective so you have to close your eyes for at least 120 second or 2 minutes.
+                       </p>
+<pre><code>using UnityEngine.SceneManagement;
+using TMPro;
+    
+    public class WorldTime : MonoBehaviour
+    {
+        [Header("Settings")]
+        public float beginTime = 1;
+        public float endTime = 720;
+    
+        [Header("Timer Count Settings")]
+        public bool switchTimer = false;
+        public bool turnOnTimer = true;
+    
+        [Header("info")]
+        public Bed eyeInfo;
+    
+        public TextMeshPro timeText;
+    
+        void Start()
+        {
+            timeText = GetComponent&lt;TextMeshPro&gt;();
+        }
+    
+        void Update()
+        {
+            if (turnOnTimer)
+            {
+                beginTime += Time.deltaTime;
+            }
+            DisplayTime(beginTime, endTime);
+    
+            if (beginTime == endTime)
+            {
+                if (eyeInfo.timeEyesAreClosed &gt;= 120)
+                {
+                    Debug.Log("you win");
+                    PlayerPrefs.SetFloat("TimeEyesAreClosed", eyeInfo.timeEyesAreClosed);
+                    SceneManager.LoadScene("YouWin");
+                }
+                if (eyeInfo.timeEyesAreClosed &lt;= 119.99f)
+                {
+                    Debug.Log("You Lose");
+                    PlayerPrefs.SetFloat("TimeEyesAreClosed", eyeInfo.timeEyesAreClosed);
+                    SceneManager.LoadScene("YouLose");
+                }
+            }
+        }
+    
+        #region Display Time
+        private void DisplayTime(float startTime, float exitTime)
+        {
+            // when time reaches endTime it restart or will end the game
+            if (startTime >= exitTime)
+            {
+                beginTime = 0;
+            }
+    
+            // set time to hours and minutes
+            float hours = Mathf.FloorToInt(startTime / 120);
+            float minutes = Mathf.FloorToInt(startTime % 120);
+    
+            // change timer type with bool
+            if (switchTimer == false)
+            {
+                timeText.text = string.Format("{0:0} AM", hours);
+            }
+            else
+            {
+                timeText.text = string.Format("{0:0}:{1:00}", hours, minutes);
+            }
+        }
+        #endregion
+    
+    }</code></pre>
+                      <video width="640" height="360" controls>
+                        <source src="/Videos/2022-09-12-15-32-7.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                       </video>
-<pre><code>function greeting() {
-    console.log('Hello, world!');
-  }
-  greeting();</code></pre>
-                    <p>Phasellus semper lectus at ipsum ornare vestibulum. Fusce tristique fringilla convallis. Ut viverra mauris ac turpis vehicula, vel tempor nisi finibus. Proin ac leo sit amet velit euismod gravida. Donec ullamcorper suscipit mauris euismod egestas. Sed porta gravida commodo. Nulla euismod eget lacus a bibendum.</p>
-                    <img src="https://picsum.photos/200" alt="Random Image">
-                    <p>Here's some hidden content! Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vel justo eget massa semper volutpat ac eget purus. Aenean in nisl at dolor tempus interdum. Ut ultricies laoreet enim a aliquet. Nullam vel neque lorem. In hendrerit eget urna eu pellentesque. Quisque faucibus consequat elit in viverra. Fusce placerat euismod est, nec suscipit enim gravida eget.</p>
-                    <img src="https://picsum.photos/200" alt="Random Image">
-                    <p>Phasellus semper lectus at ipsum ornare vestibulum. Fusce tristique fringilla convallis. Ut viverra mauris ac turpis vehicula, vel tempor nisi finibus. Proin ac leo sit amet velit euismod gravida. Donec ullamcorper suscipit mauris euismod egestas. Sed porta gravida commodo. Nulla euismod eget lacus a bibendum.</p>
-                    <img src="https://picsum.photos/200" alt="Random Image">
+
+                        <p><br><br>Beside a lot of scripting i had a lot of time for animation, vfx, sound, physics, light and cutscenes.</p>
+                        <video width="640" height="360" controls>
+                          <source src="/Videos/2022-09-12-15-32-7.mp4" type="video/mp4">
+                          Your browser does not support the video tag.
+                        </video>
+                        <video width="640" height="360" controls>
+                          <source src="/Videos/2022-09-12-15-32-7.mp4" type="video/mp4">
+                          Your browser does not support the video tag.
+                      </video>
+                        <video width="640" height="360" controls>
+                          <source src="/Videos/2022-09-12-15-32-7.mp4" type="video/mp4">
+                          Your browser does not support the video tag.
+                      </video>
+
                 </div>
             </div>
 
@@ -117,9 +709,10 @@
                     
             <div class="itchpage">
                 <button class="itch-page" onclick="window.open('https://nneliss.itch.io/keep-the-lights-on')">Itch.io</button>
-            </div>    
-
-
+            </div>          
+            <div class="githubpage">
+              <button class="git-page" onclick="window.open('https://github.com/NnelisS/Keep-The-Lights-On')">Github</button>
+          </div>
         </div>
       </body>
   </body>

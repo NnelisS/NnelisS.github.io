@@ -131,7 +131,7 @@
       {
           throttle.SetActive(false);
           brakee.SetActive(false);
-          rb = GetComponent<Rigidbody>();
+          rb = GetComponent&lt;Rigidbody&gt;();
       }
   
       void Update()
@@ -357,7 +357,7 @@
   
       private void Start()
       {
-          boxCol = GetComponent<BoxCollider>();
+          boxCol = GetComponent&lt;BoxCollider&gt;();
       }
   
       public void Update()
@@ -367,7 +367,7 @@
           if (activateIt)
           {
               timerForScale -= Time.deltaTime;
-              if (timerForScale <= 0)
+              if (timerForScale &lt;= 0)
               {
                   Time.timeScale = 1;
                   Time.fixedDeltaTime = Time.timeScale * 1f;

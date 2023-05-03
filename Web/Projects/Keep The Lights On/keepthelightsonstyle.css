@@ -70,6 +70,26 @@ body{
     transition: border-radius .2s ease-out;
   }
 
+  .githubpage .git-page{
+    position: fixed;
+    right: 30%;
+    bottom: 10%;
+    font-size: 2em;
+    background-color: #92058b;
+    color: white;
+    border-radius: 10px;
+    border-color: white;
+    transition: border-radius .2s ease-out;
+    z-index: 999;
+  }
+
+  .githubpage .git-page:hover{
+    cursor: pointer;
+    border-radius: 0px;
+    background-color: #62045dca;
+    transition: border-radius .2s ease-out;
+  }
+
   .box{
     padding-left: 10px;
     padding-right: 10px;
@@ -205,7 +225,7 @@ body{
   #panel .panel-content pre{
     padding-top: 10px;
     padding-bottom: 10px;
-    width: 60%;
+    width: fit-content;
     border-style: solid;
     background-color: rgb(46, 46, 46);
   }
