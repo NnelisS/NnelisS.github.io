@@ -184,7 +184,7 @@ body{
   #panel .panel-content pre{
     padding-top: 10px;
     padding-bottom: 10px;
-    width: 60%;
+    width: fit-content;
     border-style: solid;
     background-color: rgb(46, 46, 46);
   }

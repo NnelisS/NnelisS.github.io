@@ -32,13 +32,176 @@
                         <p><br><br>I first started the most important thing in the game, the checkpoint system.
                         I created this by putting ontrigger around the map where you can die.
                         Then I put transform inside those triggers where the player should spawn back to.
-                        And best for last I added a fade-in-out when u fall out of the map so it respawns exactly when the screen turns black.</p>
-                        <pre><code>CODE!!</code></pre>
+                        And best for last I added a fade-in-out when u fall out of the map so it respawns exactly when the screen turns black.
+                        If I would change this script I would change the bools for wich checkpoint your at to one int variable with every checkpoint as +int.
+                        and also instead of a timer that runs out for the player to spawn back at the checkpoint I would change it to 1 coroutine with an if statement that goes to a function that checks with checkpoint to spawn at with the int variable.</p>
+<pre><code>using UnityEngine.Animations;
+
+    public class Death : MonoBehaviour
+    {
+        public Animator closeScene;
+    
+        public AudioSource deathFall;
+    
+        private bool timerOn = false;
+        private float spawnTimer = 1.0f;
+        public GameObject player;
+    
+        public bool checkPointOneOn = true;
+        public bool spawnOnCheckPoint = true;
+        public GameObject checkPointOne;   
+        
+        public bool checkPointTwoOn = false;
+        public bool spawnOnCheckPointTwo = false;
+        public GameObject checkPointTwo;
+    
+        private void Update()
+        {
+            if (timerOn)
+            {
+                spawnTimer -= Time.deltaTime;
+                if (spawnTimer &lt;= 0f)
+                {
+                    timerOn = false;
+                    spawnTimer = 1.0f;
+    
+                    closeScene.Play("OpenScene");
+    
+                    //checks what checkpoint it's on and then chooses that one to spawn to after he dies
+                    if (spawnOnCheckPoint)
+                    {
+                        player.transform.position = checkPointOne.transform.position;
+                        player.transform.localRotation = Quaternion.Euler(transform.rotation.x, -90f, transform.rotation.z);
+                    }
+                    if (spawnOnCheckPointTwo)
+                    {
+                        player.transform.position = checkPointTwo.transform.position;
+                        player.transform.rotation = Quaternion.Euler(transform.rotation.x, -90f, transform.rotation.z);
+                    }
+                }
+            }
+        }
+    
+        private void OnTriggerEnter(Collider other)
+        {
+            // if the player falls off the map into the death collider it plays the death animation and spawn at the last checkpoint it got to
+            if (other.gameObject.CompareTag("Death"))
+            {
+                deathFall.Play(0);
+                closeScene.Play("CloseScene");
+
+                if (checkPointOneOn)
+                    timerOn = true;
+                if (checkPointTwoOn)
+                    timerOn = true;
+            }
+    
+            // if the player goes into checkpoint 2 it changes death respawn position
+            if (other.gameObject.CompareTag("CheckPointTwo"))
+            {
+                spawnOnCheckPoint = false;
+                spawnOnCheckPointTwo = true;
+                checkPointOneOn = false;
+                checkPointTwoOn = true;
+            }
+        }
+    }</code></pre>
                         <video width="640" height="360" controls>
                             <source src="/Videos/2021-11-26-17-01-53.mp4" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
+                    
+                    <p><br><br>I thought of something new to learn and I thought to myself for a fun way of switching scenes.
+                    So I created a script that needs an int(build scene list) that switches to that scene.
+                    this script basically works as a tool for buttons or events to switch the scene to the right one.</p>
+<pre><code>using UnityEngine.SceneManagement;
+using UnityEngine.UI;
     
+    public class SceneSwitch : MonoBehaviour
+    {
+        public GameObject LoadingScreen;
+        public Slider loadingBar;
+    
+        public void PlayGame(int levelIndex)
+        {
+            StartCoroutine(LoadSceneAsynchronously(levelIndex));
+        }
+    
+        //change the first scene with a loading screen
+        IEnumerator LoadSceneAsynchronously(int levelIndex)
+        {
+            AsyncOperation operation = SceneManager.LoadSceneAsync(levelIndex);
+            LoadingScreen.SetActive(true);
+            while (!operation.isDone)
+            {
+                loadingBar.value = operation.progress;
+                yield return null;
+            }
+    
+        }
+    }</code></pre>
+
+                    <p><br><br>while this switching happens a different script for the scenemanager is turned on for the update of the sceneloading.
+                    what this does is that it loads a scene above another scene for seemless switching of gamescenes with a loadingscreen in between.
+                    Then when the next scene that needs to be loaded in is fully loaded the scene from before unloads and the loadingscreen is set to false/off.</p>
+<pre><code>using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+    
+    public class LoadingsSceneManager : MonoBehaviour
+    {
+        public static LoadingsSceneManager instance;
+        public GameObject loadingScreen;
+    
+        private void Awake()
+        {
+            instance = this;
+    
+            SceneManager.LoadSceneAsync((int)SceneIndexes.TITLE_SCREEN, LoadSceneMode.Additive);
+        }
+    
+        List&lt;AsyncOperation> sceneLoading = new List&lt;AsyncOperation>();
+    
+        public void LoadGame()
+        {
+            loadingScreen.gameObject.SetActive(true);
+    
+            // all scenes it needs to load or unload
+            sceneLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.TITLE_SCREEN));
+            sceneLoading.Add(SceneManager.LoadSceneAsync((int)SceneIndexes.MAP, LoadSceneMode.Additive));
+            sceneLoading.Add(SceneManager.LoadSceneAsync((int)SceneIndexes.ENDCUTSCENE));
+    
+            StartCoroutine(GetSceneLoadProgress());
+        }
+    
+        public IEnumerator GetSceneLoadProgress()
+        {
+            // scene changer with loading screen
+            for (int i = 0; i &lt; sceneLoading.Count; i++)
+            {
+                while (!sceneLoading[i].isDone)
+                {
+                    yield return null;
+                }
+            }
+    
+            loadingScreen.gameObject.SetActive(false);
+        }
+    }</code></pre>
+<pre><code>
+    //indexes the scene changer uses for loading screen.
+    public enum SceneIndexes
+    {
+        MANAGER = 0,
+        TITLE_SCREEN = 1,
+        MAP = 2,
+        ENDCUTSCENE = 3,
+    } </code></pre>
+                    
+
+                    
+
                     <p><br><br>We start the game with a cutscene that I made myself with the camera(cine machine).
 
                         After the cutscene you will see the option play and if you click on that it will go to the next scene, 
@@ -66,6 +229,39 @@
                         <source src="/Videos/2021-11-26-17-22-48.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
+<pre><code>using UnityEngine.Animations;
+
+    public class Transitioner : MonoBehaviour
+    {
+        public Animator cineChange;
+        public Animator scene;
+    
+        //Starts the animation for a camera transition
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.gameObject.CompareTag("TransitionStair"))
+            {
+                cineChange.Play("Stair");
+                scene.Play("Scene");
+            }
+    
+            if (other.gameObject.CompareTag("Transition"))
+                cineChange.Play("ChangeBody");
+        }
+    
+        //exits the animation and puts it back to the normal camera position
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.gameObject.CompareTag("TransitionStair"))
+            {
+                cineChange.Play("Stair Back");
+                scene.Play("SceneBack");
+            }
+    
+            if (other.gameObject.CompareTag("Transition"))
+                cineChange.Play("ChangeBodyBack");
+        }
+    }</code></pre>
 
                     <p><br><br>And then the last thing I did to make the game end is making a cutscene that makes it look like there is way more to explore then just this level by showing a monster and the world out there.</p>
                     <video width="640" height="360" controls>
@@ -81,6 +277,7 @@
     <script src="/Web/Projects/projectpanels.js"></script>
     <div class="box">
                 <div class="text">
+            <h2>Date: Nov 16, 2021</h2>
             <h1>– Project: Endless Runner</h1>
             <h1>– Duration: 2 Week</h1>
             <h1>– Team: 2 Devs, 2 Artists</h1>
@@ -95,8 +292,6 @@
             <div class="githubpage">
                 <button class="git-page" onclick="window.open('https://github.com/NnelisS/Endless-Runner')">Github</button>
             </div>    
-
-
         </div>
       </body>
   </body>

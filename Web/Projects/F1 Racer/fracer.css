@@ -277,7 +277,7 @@ margin-bottom: 20px;
   }
 
   #panel .panel-content pre{
-    width: 90%;
+    width: fit-content;
     border-style: solid;
     background-color: rgb(46, 46, 46);
   }
