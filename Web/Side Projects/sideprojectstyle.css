@@ -37,7 +37,7 @@ body{
     transition: .5s;
   }
 
-  .box > video{
+  .box > a video{
     width: 140%;
     height: calc(100% - 10vh);
     object-fit: cover; 
