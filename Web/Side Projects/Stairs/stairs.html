@@ -1,0 +1,33 @@
+<html>
+<head>
+	<link rel="icon" type="image/png" sizes="32x32" href="/Pictures/favicon-32x32.png">
+
+	<title>Stairs</title>
+	
+	<link rel="stylesheet" type="text/css" href="/Web/Side Projects/Stairs/stairs.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+	  $(function(){
+		$("#navbar").load("/Web/Navbar/index.html");
+	  });
+	</script>
+  </head>
+  <body>
+	<div id="navbar"></div>
+  </body>
+  <script>
+	$(function(){
+	  $("#Footer").load("/Web/Footer/index.html");
+	});
+	
+	$(document).ready(function() {
+	  $("#arrow").click(function() {
+		$('html, body').animate({
+		  scrollTop: $(document).height() - $(window).height()
+		}, 1000);
+	  });
+	});
+  </script>
+  <footer><div id="Footer"></div>
+  </footer>
+</html>
