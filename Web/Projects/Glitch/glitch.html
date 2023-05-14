@@ -1,5 +1,7 @@
 <html>
 <head>
+  <meta charset="UTF-8">
+
   <link rel="icon" type="image/png" sizes="32x32" href="/Pictures/Screenshot 2022-04-24 211714.png">
 	<title>Glitch</title>
 	<link rel="stylesheet" type="text/css" href="/Web/Projects/Glitch/glitch.css">
@@ -12,7 +14,8 @@
 	</script>
   </head>
   <body>
-	<div id="navbar"></div>
+    <iframe src="/Web/Projects/Glitch/index.html" width="100%" height="700"></iframe>
+    <div id="navbar"></div>
     <body>
         <div class="overlay"></div>
 
@@ -26,15 +29,837 @@
             <button id="toggle-btn">Click to see code</button>
                 <div id="panel">
                 <div class="panel-content">
-                    <p>text</p>
+                    <p>I first created the shooting for the player with mouse input. 
+                       Fully Customizeable with damage, fire rate, lifetime, speed and particles.</p>
+                       <img src="/Pictures/Screenshot 2023-05-14 205525.png" alt="Random Image">
+                       <video width="640" height="360" controls>
+                        <source src="/Videos/Glitch shooting.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+<pre><code>public class LookAt : MonoBehaviour
+  {
+      [Header("Info")]
+      public Transform firePoint;
+  
+      [Header("Shoot Info")]
+      public float damage = 5;
+      public float fireRate = 0;
+      public LayerMask Enemy; 
+      public float offset;
+      public bool shootAble = true;
+  
+      [Header("Bullet")]
+      public GameObject projectilePrefab;
+      public float projectileSpeed = 30f;
+      public float lifeTime = 3f;
+  
+      private float timeToFire = 0;
+  
+      void Update()
+      {
+          Aim();
+          Vector3 difference = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+          float rotZ = Mathf.Atan2(difference.y, difference.x) * Mathf.Rad2Deg;
+          transform.rotation = Quaternion.Euler(0f, 0f, rotZ + offset);
+  
+          if (shootAble)
+          {
+              if (fireRate == 0)
+              {
+                  if (Input.GetMouseButtonDown(0))
+                  {
+                      Fire();
+                      Aim();
+                  }
+              }
+              else
+              {
+                  if (Input.GetMouseButton(0) && Time.time > timeToFire)
+                  {
+                      Fire();
+                      timeToFire = Time.time + 1 / fireRate;
+                      Aim();
+                  }
+              }
+          }
+          else
+          {
+  
+          }
+      }
+  
+      public void Aim()
+      {
+          Vector2 mousePosition = new Vector2(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y);
+          Vector2 firePointPosition = new Vector2(firePoint.position.x, firePoint.position.y);
+      }
+  
+      private void Fire()
+      {
+          GameObject projectile = Instantiate(projectilePrefab, firePoint.position, transform.rotation);
+          projectile.GetComponent&lt;Rigidbody2D&gt;().AddForce(transform.up * projectileSpeed);
+          StartCoroutine(DestroyProjectile(projectile, lifeTime));
+      }
+  
+      private IEnumerator DestroyProjectile(GameObject projectile, float delay)
+      {
+          yield return new WaitForSeconds(delay);
+          Destroy(projectile);
+      }
+  }</code></pre>
+
+                    <p><br><br>I then added an extra bullet but for the enemy, the homing bullet. 
+                        This bullet follow the player for as long as it's in it's view so if u move slighly past the bullet the bullet stops following the player and moves forward.
+                        This bullet makes the player always move even if your able to find a save spot in the field.
+                        in the video you can see slight movement but it's enough or it would be too powerfull to dodge</p>
+                        <img src="/Pictures/Screenshot 2023-05-14 213111.png" alt="Random Image">
                         <video width="640" height="360" controls>
-                            <source src="/Videos/2022-09-12-15-32-7.mp4" type="video/mp4">
+                            <source src="/Videos/Glitch homing bullet.mp4" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
-                   
-                    <pre><code>CODE!!</code></pre>
-                    <img src="/Pictures/Screenshot-2022-09-12dw-155551.png" alt="Random Image">
+<pre><code>using Cinemachine;
+    
+    public class HomingBullet : MonoBehaviour
+    {
+        private GameObject player;
+    
+        [Header("Bullet Info")]
+        public float waitTime = 0;
+        private CinemachineVirtualCamera vCam;
+        public ParticleSystem explosion;
+        private int songChoose;
+        public AudioSource hitSoundOne;
+        public AudioSource hitSoundTwo;
+    
+        public float rotationSpeed;
+    
+        void Start()
+        {
+            player = GameObject.Find("Player");
+            StartCoroutine(PastPlayer(2));
+            vCam = FindObjectOfType&lt;CinemachineVirtualCamera>();
+        }
+    
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (collision.gameObject.CompareTag("Player"))
+            {
+                collision.GetComponentInChildren&lt;Animator>().Play(0);
+                collision.GetComponent&lt;PlayerHealth>().TakeDamage(Random.Range(5, 15));
+                StartCoroutine(Shake());
+            }
+        }
+    
+        private IEnumerator PastPlayer(float timeItTakes)
+        {
+            float startTime = Time.time;
+            while (Time.time &lt; startTime + timeItTakes)
+            {
+                Vector2 distance = transform.position - player.transform.position;
+                distance.Normalize();
+                float value = Vector3.Cross(distance, transform.up).z;
+    
+                if (value > 0)
+                    GetComponent&lt;Rigidbody2D>().angularVelocity = rotationSpeed;
+                else if (value &lt; 0)
+                    GetComponent&lt;Rigidbody2D>().angularVelocity = -rotationSpeed;
+                else
+                    rotationSpeed = 0;
+    
+                GetComponent&lt;Rigidbody2D>().velocity = transform.up * 5;
+                yield return null;
+            }
+            while (true)
+            {
+                GetComponent&lt;Rigidbody2D>().angularVelocity = 0;
+                yield return null;
+            }
+        }
+    
+        private IEnumerator Shake()
+        {
+            vCam.GetCinemachineComponent&lt;CinemachineBasicMultiChannelPerlin>().m_FrequencyGain = 10000;
+            yield return new WaitForSeconds(0.1f);
+            vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>().m_FrequencyGain = 0.5f;
+            StartCoroutine(BulletExplode(waitTime));
+        }
+    
+        private IEnumerator BulletExplode(float time)
+        {
+            songChoose = Random.Range(0, 2);
+            Destroy(this.gameObject);
+            if (songChoose == 0)
+            {
+                AudioSource hitsound = Instantiate(hitSoundOne, transform.position, transform.rotation);
+            }
+            else if (songChoose == 1)
+            {
+                AudioSource hitsound = Instantiate(hitSoundTwo, transform.position, transform.rotation);
+            }
+            ParticleSystem explodeParticle = Instantiate(explosion, transform.position, transform.rotation);
+            yield return new WaitForSeconds(time);
+            Destroy(explodeParticle);
+        }
+    }
+    </code></pre>
 
+                   <p><br><br>I then went coding for the boss fight the main objective in this game. 
+                    I got challenged by a friend to use no animation in the whole project so I used lerps and positions to complete this.
+                    All tho the script has a lot of code I seperated all things such as attacks and states in regions to easily find and change them.
+                    Also this is customizable inside the inspector</p>
+                    <img src="/Pictures/Screenshot 2023-05-14 210629.png" alt="Random Image">
+                    <p>Boss move 1</p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/Glitch Boss move 1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p>Boss move 2</p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/Glitch Boss move 2.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p>Boss move 3 (faster fire rate)</p>
+                    <video width="640" height="360" controls>
+                        <source src="/Videos/Glitch Boss move 3.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+<pre><code>using UnityEngine.UI;
+
+    public enum EnemyStates
+    {
+        normal = 0,
+        medium,
+        hard,
+        extreme,
+    }
+    
+    public class Enemy : MonoBehaviour
+    {
+        [Header("Player Info")]
+        public Transform player;
+    
+        [Header("Enemy State")]
+        public EnemyStates enemyState;
+        public bool enemyTwo = false;
+    
+        [Header("Enemy Health")]
+        public Health healthObj;
+    
+        [Header("Enemy Died")]
+        public Transform targett;
+        public AnimationCurve curve;
+        [SerializeField] private float duration, heightY;
+    
+        [Header("Gun Info")]
+        public List&lt;Transform> firePoints = new List&lt;Transform>();
+        public List&lt;GameObject> bullets = new List&lt;GameObject>();
+        public float bulletSpeed = 20f;
+    
+        [Header("Phase 1")]
+        public AudioSource spinning;
+        public AudioSource wooshOne;
+        public AudioSource wooshTwo;
+    
+        private float attackTimer = 10;
+        public Transform[] attackPosition;
+    
+        [Header("Phase 2")]
+        private bool cornerAttackDone = false;
+        private Vector3 positionRN;
+        private bool goBack = false;
+        private int currentCorner;
+        private bool startCo = false;
+        public List&lt;Transform> corners = new List&lt;Transform>();
+    
+        [Header("Phase 3")]
+        public GameObject secondEnemy;
+    
+        private float timeToFire;
+        private float timeToFireTwo;
+    
+        private float timerUntillAttack = 10;
+        private bool inAttack = false;
+    
+        private bool enemyTwoUsed = true;
+        private bool used = true;
+    
+        public int chooseAttack;
+    
+        void Update()
+        {
+            if (inAttack == false)
+            {
+                spinning.enabled = false;
+                wooshOne.enabled = false;
+                wooshTwo.enabled = false;
+            }
+            AttackUpdate();
+    
+            switch (enemyState)
+            {
+                case EnemyStates.normal:
+                    Normal();
+                    if (healthObj.health == 750)
+                        enemyState = EnemyStates.medium;
+                    break;
+                case EnemyStates.medium:
+                    Medium();
+                    if (healthObj.health == 500)
+                        enemyState = EnemyStates.hard;
+                    break;
+                case EnemyStates.hard:
+                    Hard();
+                    if (healthObj.health == 250)
+                        enemyState = EnemyStates.extreme;
+                    break;
+                case EnemyStates.extreme:
+                    Extreme();
+                    if (healthObj.health == 0)
+                    {
+                        Dead();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    
+        public void HealthUpdate(float damage)
+        {
+            healthObj.health -= damage;
+        }
+    
+        #region Normal
+        private void Normal()
+        {
+            Debug.Log("Normal");
+            if (inAttack == false)
+            {
+                timerUntillAttack -= Time.deltaTime;
+                IdleMovement();
+            }
+    
+            if (timerUntillAttack >= 0.1f)
+            {
+                timeToFireTwo -= Time.deltaTime;
+                if (timeToFireTwo &lt;= 0)
+                {
+                    for (int i = 0; i &lt; firePoints.Count; i++)
+                    {
+                        GameObject bullet = Instantiate(bullets[1], firePoints[i].position, firePoints[i].rotation);
+                        StartCoroutine(DestroyProjectile(bullet, 4f));
+                    }
+                    timeToFireTwo = 2f;
+                }
+    
+                timeToFire -= Time.deltaTime;
+                if (timeToFire &lt;= 0)
+                {
+                    for (int i = 0; i &lt; firePoints.Count; i++)
+                    {
+                        GameObject bullet = Instantiate(bullets[0], firePoints[i].position, firePoints[i].rotation);
+                        bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                        StartCoroutine(DestroyProjectile(bullet, 4f));
+                    }
+                    timeToFire = 0.2f;
+                }
+            }
+            if (timerUntillAttack &lt;= 0)
+            {
+                inAttack = true;
+                used = true;
+                chooseAttack = Random.Range(1, 3);
+                timerUntillAttack = Random.Range(10,30);
+            }
+        }
+        #endregion
+    
+        #region Medium
+        private void Medium()
+        {
+            if (inAttack == false)
+            {
+                cornerAttackDone = false;
+                goBack = false;
+                startCo = false;
+                timerUntillAttack -= Time.deltaTime;
+                IdleMovement();
+            }
+    
+            if (timerUntillAttack >= 0.1f)
+            {
+                timeToFireTwo -= Time.deltaTime;
+                if (timeToFireTwo &lt;= 0)
+                {
+                    for (int i = 0; i &lt; firePoints.Count; i++)
+                    {
+                        GameObject bullet = Instantiate(bullets[1], firePoints[i].position, firePoints[i].rotation);
+                        /*                    bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                        */
+                        StartCoroutine(DestroyProjectile(bullet, 4f));
+                    }
+                    timeToFireTwo = 1f;
+                }
+    
+                timeToFire -= Time.deltaTime;
+                if (timeToFire &lt;= 0)
+                {
+                    for (int i = 0; i &lt; firePoints.Count; i++)
+                    {
+                        GameObject bullet = Instantiate(bullets[0], firePoints[i].position, firePoints[i].rotation);
+                        bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                        StartCoroutine(DestroyProjectile(bullet, 4f));
+                    }
+                    timeToFire = 0.2f;
+                }
+            }
+            if (timerUntillAttack &lt;= 0)
+            {
+                inAttack = true;
+                used = true;
+                chooseAttack = /*Random.Range(1, 4)*/ 3;
+                timerUntillAttack = Random.Range(10, 20);
+            }
+        }
+        #endregion
+    
+        #region Hard
+        private void Hard()
+        {
+            if (secondEnemy != null)
+                secondEnemy.SetActive(true);
+    
+            if (enemyTwo)
+            {
+                if (inAttack == false)
+                {
+                    timerUntillAttack -= Time.deltaTime;
+                    IdleMovement();
+                }
+    
+                if (timerUntillAttack >= 0.1f)
+                {
+                    timeToFireTwo -= Time.deltaTime;
+                    if (timeToFireTwo &lt;= 0)
+                    {
+                        for (int i = 0; i &lt; firePoints.Count; i++)
+                        {
+                            GameObject bullet = Instantiate(bullets[1], firePoints[i].position, firePoints[i].rotation);
+                            /*                    bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                            */
+                            StartCoroutine(DestroyProjectile(bullet, 4f));
+                        }
+                        timeToFireTwo = Random.Range(1.5f, 2f);
+                    }
+    
+                    timeToFire -= Time.deltaTime;
+                    if (timeToFire &lt;= 0)
+                    {
+                        for (int i = 0; i &lt; firePoints.Count; i++)
+                        {
+                            GameObject bullet = Instantiate(bullets[0], firePoints[i].position, firePoints[i].rotation);
+                            bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                            StartCoroutine(DestroyProjectile(bullet, 4f));
+                        }
+                        timeToFire = 0.3f;
+                    }
+                }
+                if (timerUntillAttack &lt;= 0)
+                {
+                    inAttack = true;
+                    used = true;
+                    chooseAttack = 2;
+                    timerUntillAttack = Random.Range(10, 30);
+                }
+            }
+            else if (enemyTwo == false)
+            {
+                if (inAttack == false)
+                {
+                    timerUntillAttack -= Time.deltaTime;
+                    IdleMovement();
+                }
+    
+                if (timerUntillAttack >= 0.1f)
+                {
+                    timeToFireTwo -= Time.deltaTime;
+                    if (timeToFireTwo &lt;= 0)
+                    {
+                        for (int i = 0; i &lt; firePoints.Count; i++)
+                        {
+                            GameObject bullet = Instantiate(bullets[1], firePoints[i].position, firePoints[i].rotation);
+                            /*                    bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                            */
+                            StartCoroutine(DestroyProjectile(bullet, 4f));
+                        }
+                        timeToFireTwo = Random.Range(1.5f, 2f);
+                    }
+    
+                    timeToFire -= Time.deltaTime;
+                    if (timeToFire &lt;= 0)
+                    {
+                        for (int i = 0; i &lt; firePoints.Count; i++)
+                        {
+                            GameObject bullet = Instantiate(bullets[0], firePoints[i].position, firePoints[i].rotation);
+                            bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                            StartCoroutine(DestroyProjectile(bullet, 4f));
+                        }
+                        timeToFire = 0.3f;
+                    }
+                }
+                if (timerUntillAttack &lt;= 0)
+                {
+                    inAttack = true;
+                    used = true;
+                    chooseAttack = 1;
+                    timerUntillAttack = Random.Range(10, 30);
+                }
+            }
+        }
+        #endregion
+    
+        #region Extreme
+        private void Extreme()
+        {
+            if (enemyTwo)
+            {
+                if (inAttack == false)
+                {
+                    timerUntillAttack -= Time.deltaTime;
+                    IdleMovement();
+                }
+    
+                if (timerUntillAttack >= 0.1f)
+                {
+                    timeToFireTwo -= Time.deltaTime;
+                    if (timeToFireTwo &lt;= 0)
+                    {
+                        for (int i = 0; i &lt; firePoints.Count; i++)
+                        {
+                            GameObject bullet = Instantiate(bullets[1], firePoints[i].position, firePoints[i].rotation);
+                            /*                    bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                            */
+                            StartCoroutine(DestroyProjectile(bullet, 4f));
+                        }
+                        timeToFireTwo = 1f;
+                    }
+    
+                    timeToFire -= Time.deltaTime;
+                    if (timeToFire &lt;= 0)
+                    {
+                        for (int i = 0; i &lt; firePoints.Count; i++)
+                        {
+                            GameObject bullet = Instantiate(bullets[0], firePoints[i].position, firePoints[i].rotation);
+                            bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                            StartCoroutine(DestroyProjectile(bullet, 4f));
+                        }
+                        timeToFire = Random.Range(0.2f,0.5f);
+                    }
+                }
+                if (timerUntillAttack &lt;= 0)
+                {
+                    inAttack = true;
+                    used = true;
+                    chooseAttack = Random.Range(1, 4);
+                    timerUntillAttack = Random.Range(10, 30);
+                }
+            }
+            else if (enemyTwo == false)
+            {
+                if (inAttack == false)
+                {
+                    timerUntillAttack -= Time.deltaTime;
+                    IdleMovement();
+                }
+    
+                if (timerUntillAttack >= 0.1f)
+                {
+                    timeToFireTwo -= Time.deltaTime;
+                    if (timeToFireTwo &lt;= 0)
+                    {
+                        for (int i = 0; i &lt; firePoints.Count; i++)
+                        {
+                            GameObject bullet = Instantiate(bullets[1], firePoints[i].position, firePoints[i].rotation);
+                            /*                    bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                            */
+                            StartCoroutine(DestroyProjectile(bullet, 4f));
+                        }
+                        timeToFireTwo = 1f;
+                    }
+    
+                    timeToFire -= Time.deltaTime;
+                    if (timeToFire &lt;= 0)
+                    {
+                        for (int i = 0; i &lt; firePoints.Count; i++)
+                        {
+                            GameObject bullet = Instantiate(bullets[0], firePoints[i].position, firePoints[i].rotation);
+                            bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                            StartCoroutine(DestroyProjectile(bullet, 4f));
+                        }
+                        timeToFire = Random.Range(0.2f, 0.5f);
+                    }
+                }
+                if (timerUntillAttack &lt;= 0)
+                {
+                    inAttack = true;
+                    used = true;
+                    chooseAttack = Random.Range(1, 4);
+                    timerUntillAttack = Random.Range(10, 20);
+                }
+            }
+    
+        }
+        #endregion
+    
+        private void AttackUpdate()
+        {
+            if (chooseAttack == 1 && inAttack == true)
+                SpinnnerAttack();
+    
+            if (chooseAttack == 2 && inAttack == true)
+                GlitchAttack();
+    
+            if (chooseAttack == 3 && inAttack == true)
+                CornerAttack();
+        }
+    
+        #region Attacks
+        private void SpinnnerAttack()
+        {
+            if (transform.position.x &lt;= -12)
+            {
+                used = false;
+                spinning.enabled = true;
+            }
+    
+            if (used == false)
+            {
+                transform.Rotate(0, 0, 360 * Time.deltaTime);
+                transform.position = Vector3.MoveTowards(transform.position, new Vector3(14, transform.position.y, transform.position.z), 8 * Time.deltaTime);
+    
+                timeToFire -= Time.maximumDeltaTime;
+                if (timeToFire &lt;= 0)
+                {
+                    for (int i = 0; i &lt; firePoints.Count; i++)
+                    {
+                        GameObject bullet = Instantiate(bullets[0], firePoints[i].position, firePoints[i].rotation);
+                        bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                        StartCoroutine(DestroyProjectile(bullet, 6f));
+                    }
+                    timeToFire = 10f;
+                }
+                if (transform.position.x >= 13)
+                {
+                    used = true;
+                    chooseAttack = 0;
+                    inAttack = false;
+                }
+    
+            }
+            else if (used)
+                transform.position = Vector3.MoveTowards(transform.position, new Vector3(-14, transform.position.y, transform.position.z), 5 * Time.deltaTime);
+        }
+    
+        private void GlitchAttack()
+        {
+            wooshOne.enabled = true;
+            Physics2D.IgnoreCollision(player.GetComponent&lt;CircleCollider2D>(), GetComponent&lt;BoxCollider2D>());
+    
+            transform.Rotate(0, 0, 360 * Time.deltaTime);
+    
+            if (attackTimer > 0)
+            {
+                timeToFire -= Time.maximumDeltaTime;
+                if (timeToFire &lt;= 0)
+                {
+                    for (int i = 0; i &lt; firePoints.Count; i++)
+                    {
+                        GameObject bullet = Instantiate(bullets[0], firePoints[i].position, firePoints[i].rotation);
+                        bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                        StartCoroutine(DestroyProjectile(bullet, 6f));
+                    }
+                    timeToFire = 6f;
+                }
+                if (transform.position.x >= 13)
+                {
+                    used = true;
+                    chooseAttack = 0;
+                    inAttack = false;
+                }
+    
+                attackTimer -= Time.deltaTime;
+                if (attackTimer &lt; 0)
+                {
+                    chooseAttack = 0;
+                    inAttack = false;
+                    used = true;
+                    attackTimer = Random.Range(10,30);
+                }
+            }
+    
+            if (transform.position.x &lt;= -12)
+                used = false;
+    
+            if (transform.position.x >= 12)
+                used = true;
+    
+            if (used == false)
+                transform.position = Vector3.MoveTowards(transform.position, new Vector3(14, transform.position.y, transform.position.z), 3 * Time.maximumDeltaTime);
+    
+            else if (used)
+                transform.position = Vector3.MoveTowards(transform.position, new Vector3(-14, transform.position.y, transform.position.z), 3 * Time.maximumDeltaTime);
+        }
+    
+        private void CornerAttack()
+        {
+            Physics2D.IgnoreCollision(player.GetComponent&lt;CircleCollider2D>(), GetComponent&lt;BoxCollider2D>());
+    
+            Debug.Log("CornerAttack");
+            transform.Rotate(0, 0, 360 * Time.deltaTime);
+            CornerAttackUpdate();
+    
+            if (startCo == false)
+            {
+                StartCoroutine(Corner());
+                startCo = true;
+            }
+    
+            timeToFire -= Time.maximumDeltaTime;
+            if (timeToFire &lt;= 0)
+            {
+                for (int i = 0; i &lt;firePoints.Count; i++)
+                {
+                    GameObject bullet = Instantiate(bullets[0], firePoints[i].position, firePoints[i].rotation);
+                    bullet.GetComponent&lt;Rigidbody2D&gt;().AddForce(firePoints[i].transform.up * bulletSpeed);
+                    StartCoroutine(DestroyProjectile(bullet, 6f));
+                }
+                timeToFire = 5f;
+            }
+    
+            if (cornerAttackDone == true)
+            {
+                chooseAttack = 0;
+                used = true;
+                inAttack = false;
+                attackTimer = Random.Range(10, 30);
+                timeToFire = 0.2f;
+            }
+        }
+    
+        private void CornerAttackUpdate()
+        {
+            Debug.Log("CornerAttackUpdate");
+            if (goBack == false)
+                transform.position = Vector3.MoveTowards(transform.position, corners[currentCorner].position, 5 * Time.maximumDeltaTime);
+    
+            if (goBack == true)
+                transform.position = Vector3.MoveTowards(transform.position, positionRN, 5 * Time.maximumDeltaTime);
+        }
+        #endregion
+    
+        private void IdleMovement()
+        {
+            transform.Rotate(0, 0, 75 * Time.deltaTime);
+    
+            if (enemyTwo)
+            {
+                if (transform.position.x &lt;= -12)
+                    used = false;
+    
+                if (transform.position.x >= 12)
+                    used = true;
+                Debug.Log("IdleMovement");
+                Debug.Log(used);
+    
+                if (used == false)
+                    transform.position = Vector3.MoveTowards(transform.position, new Vector3(14, transform.position.y, transform.position.z), 5 * Time.deltaTime);
+    
+                else if (used == true)
+                    transform.position = Vector3.MoveTowards(transform.position, new Vector3(-14, transform.position.y, transform.position.z), 5 * Time.deltaTime);
+            }
+            else if (enemyTwo == false)
+            {
+                if (transform.position.x &lt;= -12)
+                    enemyTwoUsed = true;
+    
+                if (transform.position.x >= 12)
+                    enemyTwoUsed = false;
+    
+                if (enemyTwoUsed == false)
+                    transform.position = Vector3.MoveTowards(transform.position, new Vector3(-14, transform.position.y, transform.position.z), 5 * Time.deltaTime);
+    
+                else if (enemyTwoUsed)
+                    transform.position = Vector3.MoveTowards(transform.position, new Vector3(14, transform.position.y, transform.position.z), 5 * Time.deltaTime);
+            }
+        }
+    
+        private IEnumerator DestroyProjectile(GameObject projectile, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            Destroy(projectile);
+        }
+    
+        private IEnumerator Corner()
+        {
+            Debug.Log("InCornerCo");
+            positionRN = transform.position; 
+            yield return new WaitForSeconds(1);
+            wooshTwo.enabled = true;
+            currentCorner = Random.Range(0, 4);
+            wooshTwo.enabled = false;
+            wooshTwo.enabled = true;
+            yield return new WaitForSeconds(1);
+            wooshTwo.enabled = false;
+            wooshTwo.enabled = true;
+            currentCorner = Random.Range(0, 4);
+            yield return new WaitForSeconds(1);
+            wooshTwo.enabled = false;
+            wooshTwo.enabled = true;
+            currentCorner = Random.Range(0, 4);
+            yield return new WaitForSeconds(1);
+            wooshTwo.enabled = false;
+            wooshTwo.enabled = true;
+            currentCorner = Random.Range(0, 4);
+            yield return new WaitForSeconds(1);
+            wooshTwo.enabled = false;
+            wooshTwo.enabled = true;
+            currentCorner = Random.Range(0, 4);
+            yield return new WaitForSeconds(1);
+            wooshTwo.enabled = false;
+            wooshTwo.enabled = true;
+            currentCorner = Random.Range(0, 4);
+            yield return new WaitForSeconds(1);
+            wooshTwo.enabled = false;
+            wooshTwo.enabled = true;
+            currentCorner = Random.Range(0, 4);
+            yield return new WaitForSeconds(1);
+            goBack = true;
+            yield return new WaitForSeconds(1);
+            cornerAttackDone = true;
+        }
+      
+        public IEnumerator Curve(Vector3 start, Vector2 target)
+        {
+            float timePassed = 0;
+            Vector2 end = target;
+    
+            while (timePassed &lt; duration)
+            {
+                timePassed += Time.deltaTime;
+    
+                float linearT = timePassed / duration;
+                float heightT = curve.Evaluate(linearT);
+    
+                float height = Mathf.Lerp(0, heightY, heightT);
+    
+                transform.position = Vector2.Lerp(start, end, linearT) + new Vector2(0, height);
+    
+                yield return null;
+            }
+    
+        }
+    }</code></pre>
                     <p><br><br><br><br></p>
                 </div>
             </div>
