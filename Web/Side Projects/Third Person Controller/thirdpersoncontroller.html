@@ -22,7 +22,7 @@
 			</div>
 			<h2>
 				<tit>Summary</tit>
-				<br>This is mainly the code for the Agent/Player movement.
+				<br>This is mainly the code for the <green>AgentMovement</green>.
 				I've created this with the new Unity Built in input system.
 				This system comes in handy for me since this can be used for upgrades to controller instead of keyboard and mouse.
 				
@@ -32,7 +32,11 @@
 				<br><br><tit>Movement</tit>
 				<br>What this code does is whenever you as the player starts to move it doesn't immediatly goes forward,
 				but it goes forward smoothly with a velocity calculated on the bottom of this codebox  (<yellow>CalculateSpeed</yellow>())
-				
+				<br><br>Also the <yellow>Sprint</yellow>() function is added to this movement.
+				This is added with an fov effect to the camera for the player to really have the experience to run faster.
+				And not to forget stamina, stamina is added to this movement so you can't fully sprint the whole game. 
+				Whenever you run out of stamina the Sprint mechanic is unable to be used and ofcourse when you stop sprinting it recharges, but recharges faster when standing still.
+
 				<br><br><tit>Forward Rotation</tit>
 				<br>Because this is third person movement and not first person the rotation of the camera needs to be calculated to get the players forward rotation.
 				First person controller have the ability to just rotate the player to the point the player wants to go to by just rotating the full body,
@@ -44,7 +48,24 @@
 				and last I call the <yellow>CalculateSpeed</yellow>() to apply the movement to the new forward rotation.
 
 				<br><br><tit>Crouch</tit>
-				<br>The crouch is made smoothly with lerps and helps the developer with</h2>
+				<br>The <yellow>Crouch</yellow>() is made smoothly with lerps and helps the developer with debugging for the perfect speed of crouching.
+				What I mean with this is usually when you create a crouch mechanic you instantly downscale the collider on the player to make him crouch quickly through something.
+				But not when you have animations, because animation take time to progress you might go underneath an object faster then the animation, 
+				so it would just clip the players mesh through and object.
+				That's why I added a lerp to the collider to make it go as fast as the animation.
+				As extra just like the sprint mechanic I used the camera fov to give out the illusion of the player walking slower.
+			
+				<br><br><tit>Gravity</tit>
+				<br>The <yellow>Gravity</yellow>() function speaks for itself and applies gravity to the player whenever it's not grounded.
+				I do this by having a <yellow>GroundCheck</yellow>() function that shoots down a raycast and checks the layermask of the object.
+				Whenever the raycast doesn't reach the ground of certain distance it's not grounded.
+
+				<br><br><tit>Zoom</tit>
+				<br>As an extra I created the <yellow>Zoom</yellow>() function to zoom in to the forward rotation of the camera.
+				This can be great for the game since it's a horror game, 
+				you have a flashlight and sometimes you don't see things yourself from youur point of view,
+				but when you can zoom in this helps.
+				</h2>
 		</div>
 		<div id="right-column">
 			<div id="codebox">
@@ -103,18 +124,18 @@
 	<blue>public</blue> <blue>Vector3</blue> playerVelocity;
 	<blue>public</blue> <blue>bool</blue> jumpPressed = <blue>false</blue>;
 
-	<blue>private</blue> <blue>void</blue> <yellow>Awake</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Awake</yellow>()
 	{
 		instance = this;  
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>Start</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Start</yellow>()
 	{
 		rb = GetComponent<Rigidbody>();
 		playerAnim = GetComponentInChildren<Animator>();
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>Update</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Update</yellow>()
 	{
 		<purple>if</purple> (movementOff == <blue>false</blue>)
 		{
@@ -125,14 +146,14 @@
 		<yellow>GroundCheck</yellow>();
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>FixedUpdate</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>FixedUpdate</yellow>()
 	{
 		RotateAgent();
 
 		rb.velocity = movementDirection.normalized * currentVelocity;
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>FunctionAble</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>FunctionAble</yellow>()
 	{
 		<purple>if</purple> (inCrouch == <blue>false</blue> && inSideStep == <blue>false</blue> && inPunch == <blue>false</blue> && inWallJump == <blue>false</blue> && inCrawl == <blue>false</blue> && currentVelocity > 0.1f)
 		{
@@ -143,7 +164,7 @@
 			inSprint = <blue>false</blue>;
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>DefaultMovementsOff</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>DefaultMovementsOff</yellow>()
 	{
 		inCrouch = <blue>false</blue>;
 		inSprint = <blue>false</blue>;
@@ -157,7 +178,7 @@
 	<dgreen>/// &lt;summary&gt;
 	/// Does check if groundcheck
 	/// &lt;/summary&gt;</dgreen>
-	<blue>private</blue> <blue>void</blue> <yellow>GroundCheck</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>GroundCheck</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(new <blue>Vector3</blue>(transform.position.x, transform.position.y, transform.position.z), <blue>Vector3</blue>.down, out hit, 1, ground))
@@ -169,7 +190,7 @@
 			grounded = <blue>false</blue>;
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>Zoom</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Zoom</yellow>()
 	{
 		<purple>if</purple> (Input.GetMouseButtonDown(1))
 		{
@@ -178,7 +199,7 @@
 		}
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>Stamina</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Stamina</yellow>()
 	{
 		<purple>if</purple> (currentVelocity > 0 && currentVelocity &lt;= 2.5f && inSprint == <blue>false</blue>)
 			stamina.value = Mathf.MoveTowards(stamina.value, stamina.maxValue, 0.6f * Time.deltaTime);
@@ -189,7 +210,7 @@
 	<dgreen>/// &lt;summary&gt;
 	/// When using Shift u can sprint with Fov effect of cinemachine cam
 	/// &lt;/summary&gt;</dgreen>
-	<blue>private</blue> <blue>void</blue> <yellow>Sprint</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Sprint</yellow>()
 	{
 		<purple>if</purple> (Input.GetKey(KeyCode.LeftShift))
 		{
@@ -221,7 +242,7 @@
 	<dgreen>/// &lt;summary&gt;
 	/// Applies gravity when not grounded
 	/// &lt;/summary&gt;</dgreen>
-	<blue>private</blue> <blue>void</blue> <yellow>Gravity</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Gravity</yellow>()
 	{
 		<purple>if</purple> (jumpPressed && grounded == <blue>false</blue>)
 		{
@@ -236,7 +257,7 @@
 		}
 	}
 
-	<blue>public</blue> <blue>void</blue> <yellow>MovementChange</yellow>(<blue>Vector3</blue> movementInput)
+	<blue>public</blue> <blue><blue>void</blue></blue> <yellow>MovementChange</yellow>(<blue>Vector3</blue> movementInput)
 	{
 		<purple>if</purple> (jumpPressed)
 		{
@@ -256,7 +277,7 @@
 			MoveAgent(movementInput, 20, 25, MaxCrouchSpeed);
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>MoveAgent</yellow>(<blue>Vector3</blue> movementInput, <blue>float</blue> _acceleration, <blue>float</blue> _deacceleration, <blue>float</blue> _maxSpeed)
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>MoveAgent</yellow>(<blue>Vector3</blue> movementInput, <blue>float</blue> _acceleration, <blue>float</blue> _deacceleration, <blue>float</blue> _maxSpeed)
 	{
 		<purple>if</purple> (movementOff == <blue>false</blue>)
 		{
@@ -284,7 +305,7 @@
 	<dgreen>/// &lt;summary&gt;
 	/// Rotate player to where ur walking to
 	/// &lt;/summary&gt;</dgreen>
-	<blue>private</blue> <blue>void</blue> <yellow>RotateAgent</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>RotateAgent</yellow>()
 	{
 		<purple>if</purple> (currentVelocity != 0)
 		{
@@ -297,7 +318,7 @@
 	<dgreen>/// &lt;summary&gt;
 	/// if pressing crouch button move player down and scale down movement speed and fov
 	/// &lt;/summary&gt;</dgreen>
-	<blue>private</blue> <blue>void</blue> <yellow>Crouch</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Crouch</yellow>()
 	{
 		<purple>if</purple> (Input.GetKey(KeyCode.LeftControl) && crouchUsable == <blue>true</blue>)
 		{
@@ -334,7 +355,7 @@
 		}
 	}
 
-	<blue>public</blue> <blue>void</blue> <yellow>GoCrouch</yellow>()
+	<blue>public</blue> <blue><blue>void</blue></blue> <yellow>GoCrouch</yellow>()
 	{
 		playerBody.transform.localPosition = new <blue>Vector3</blue>(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, 0, 0.5f * Time.maximumDeltaTime), playerBody.transform.localPosition.z);
 		playerBody.transform.localScale = new <blue>Vector3</blue>(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 0.5f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
@@ -349,6 +370,632 @@
 
 		return Mathf.Clamp(currentVelocity, 0, _maxSpeed);
 	}   
+}</code></pre>
+			</div>
+			<div id="codebox">
+			</div>
+		</div>
+	</div>
+	<div id="main">
+		<div id="left-column">
+			<h1>Headmovement + Flashlight</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP Flashlight w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+			<h2>
+				<tit>Head Movement</tit>
+				<br>What I created here with a little help from the internet is a head movement with vector4.
+				Vector4 helps me saving 4 position in rotation. 
+				All I do here is rotate the head to the forward of the camera with smoothdamping but also clamping it with the vector4 values.
+				After that I just added a light source to the <blue>BodyFollow</blue> variable and made it do the same forward rotation but without a clamp.
+				This all together is a great addition to the game to give the person playing the game the feeling of really being the player.</h2>
+		</div>
+		<div id="right-column">
+			<div id="codebox">
+<pre><code><blue>public class</blue> <green>HeadRotate</green> : MonoBehaviour
+{
+[Tooltip(<red>"Set to any Transform, or null to look forward relative to the camera."</red>)]
+<blue>public</blue> Transform BodyFollow;
+
+<blue>public</blue> Transform lookAt;
+<blue>public</blue> <blue>float</blue> rotationSpeed = 0.25f;
+<blue>public</blue> Vector4 limitLeftRightUpDown = new Vector4(-80, 80, -45, 45);
+<blue>private</blue> <blue>float</blue> rxVel = 0;
+<blue>private</blue> <blue>float</blue> ryVel = 0;
+
+<blue><blue>void</blue></blue> <yellow>Update</yellow>()
+	{
+		<purple>if</purple> (BodyFollow != <blue>null</blue>)
+		    transform.position = Vector3.Lerp(transform.position, BodyFollow.position, 2 * Time.maximumDeltaTime);
+
+		<blue>Vector3</blue> <lblue>forward</lblue> = (lookAt == <blue>null</blue>) ? Camera.main.transform.forward : (lookAt.position - transform.position).normalized;
+		<blue>Vector3</blue> <lblue>prevRotation</lblue> = transform.localRotation.eulerAngles;
+
+		transform.forward = <lblue>forward</lblue>;
+		Vector3 <lblue>newRotation</lblue> = transform.localRotation.eulerAngles;
+
+		<purple>if</purple> (<lblue>newRotation</lblue>.x > 180) <lblue>newRotation</lblue>.x -= 360;
+		<purple>if</purple> (<lblue>newRotation</lblue>.y > 180) <lblue>newRotation</lblue>.y -= 360;
+
+		<lblue>newRotation</lblue>.x = Mathf.Clamp(<lblue>newRotation</lblue>.x, limitLeftRightUpDown.z, limitLeftRightUpDown.w);
+		<lblue>newRotation</lblue>.y = Mathf.Clamp(<lblue>newRotation</lblue>.y, limitLeftRightUpDown.x, limitLeftRightUpDown.y);
+		transform.localRotation = Quaternion.Euler(<blue>new</blue> <blue>Vector3</blue>(Mathf.SmoothDampAngle(<lblue>prevRotation</lblue>.x, <lblue>newRotation</lblue>.x, <blue>ref</blue> rxVel, rotationSpeed), Mathf.SmoothDampAngle(<lblue>prevRotation</lblue>.y, <lblue>newRotation</lblue>.y, <blue>ref</blue> ryVel, rotationSpeed)));
+	}	
+}</code></pre>
+			</div>
+			<div id="codebox">
+			</div>
+		</div>
+	</div>
+	<div id="main">
+		<div id="left-column">
+			<h1>Interactives</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP interactives.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+			<h2>
+				<tit>Summary</tit>
+				<br>This is the code provided in the <green>AgentMovement</green> script. 
+				What this code does is use a raycast to interact with certain layers(pickups).
+				The raycast I use for this is the raycast I use for every mechanic you need to interact with.
+				<br><br><tit>Pickup</tit>
+				<br>The <yellow>Pickup</yellow>() function creates a raycast from the camera forward rotation and shoots it to a certain distance.
+				Whenever the object with that layer gets hit it enters the object script to change it colors<br>(variable outline.SetActive(true))<br> and gets all data needed from the pickup if I ever want to add anything like text or a weapon.
+				<br><br>I am going to change the color instead of entering the object material to adding a shader that makes the object lit.
+
+				<br><br>When the player is looking at the object and presses the keycode it could enter the object data with the tools provided if I add something.
+				<br><br>The same thing for the doors, but instead of picking it up I open it with rotation lerps inside the <green>ClosetDoors</green> script.
+			</h2>
+		</div>
+		<div id="right-column">
+			<div id="codebox">
+<pre><code><blue>public</blue> class <green>AgentMovement</green> : MonoBehaviour
+{
+	[Space(20)]
+	[Header(<red>"Interactable Settings"</red>)]
+	[SerializeField] <blue>private</blue> LayerMask pickups;
+	[SerializeField] <blue>private</blue> LayerMask interactiveLayer;
+	[SerializeField] <blue>private</blue> Pickup pickupItem; 
+	[SerializeField] <blue>private</blue> ClosetDoors door;
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Update</yellow>()
+	{
+		<purple>if</purple> (movementOff == <blue>false</blue>)
+		{
+			<yellow>Doors</yellow>();
+			<yellow>Pickup</yellow>();
+		}
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Doors</yellow>()
+	{
+		RaycastHit hit;
+		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10, interactiveLayer))
+		{
+			<purple>if</purple> (door != null)
+			{
+				<purple>if</purple> (door != hit.transform.GetComponent<ClosetDoors>())
+				{
+					door.OnObject = <blue>false</blue>;
+					door = <blue>null</blue>;
+				}
+			}
+			<purple>else</purple>
+			{
+				door = hit.transform.GetComponent<ClosetDoors>();
+
+				<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 5)
+					door.OnTheObject();
+			}
+
+			Debug.DrawLine(transform.position, hit.point, Color.red);
+		}
+		<purple>else</purple>
+		{
+			<purple>if</purple> (door != null)
+			{
+				door.OnObject = <blue>false</blue>;
+				door = <blue>null</blue>;
+			}
+		}
+	}    
+	
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Pickup</yellow>()
+	{
+		RaycastHit hit;
+		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10, pickups))
+		{
+			pickupItem = hit.transform.GetComponent<Pickup>();
+			pickupItem.outline.SetActive(<blue>true</blue>);
+
+			Debug.Log("<red>Pickup"</red>);
+			Debug.DrawLine(transform.position, hit.point, Color.red);
+
+
+			<purple>if</purple> (Input.GetKeyDown(KeyCode.E))
+			{
+				<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 5)
+				{
+					print("<red>picked up"</red>);
+				}
+			}
+		}
+		<purple>else</purple>
+		{
+			<purple>if</purple> (pickupItem != null)
+			{
+				pickupItem.outline.SetActive(<blue>false</blue>);
+				pickupItem = <blue>null</blue>;
+			}
+		}
+	}
+}</code></pre>
+			</div>
+			<div id="codebox">
+			</div>
+		</div>
+	</div>
+	<div id="main">
+		<div id="left-column">
+			<h1>Ragdoll (OnDeath)</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP ragdoll.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+			<h2>
+				<tit>Ragdoll</tit>
+				<br>I created a script for the player to also be able to die.
+				I achieved this by using the Unity ragdoll system where u can put in every limb of a character.
+				Then all there is to do is turn of the main collider and rigibody and turn on every limbs own collider and rigibody.
+				Ofcourse right now it's just for testing but later on I can easily add transition, text and all other things you need to respawn.
+			</h2>
+		</div>
+		<div id="right-column">
+			<div id="codebox">
+<pre><code><blue>public class</blue> <green>Kill</green> : MonoBehaviour
+{
+	<blue>public</blue> CapsuleCollider MainCollider;
+	<blue>public</blue> GameObject Rig;
+	<blue>public</blue> Animator Animator;
+
+	<blue>void</blue> <yellow>Start</yellow>()
+	{
+		Rig = <blue>this</blue>.gameObject;
+		Animator = GetComponent<Animator>();
+		<yellow>GetRagdollBits</yellow>();
+		<yellow>RagdollModeOff</yellow>();
+	}
+
+	<blue>void</blue> Update()
+	{
+		<yellow>GetRagdollBits</yellow>();
+
+
+		if (Input.GetKeyDown(KeyCode.X))
+			<yellow>RagdollModeOn</yellow>();
+
+
+		if (Input.GetKeyDown(KeyCode.Y))
+			<yellow>RagdollModeOff</yellow>();
+	}
+
+	<blue>public</blue> Collider[] ragDollColliders;
+	<blue>public</blue> Rigidbody[] limbsRigibodies;
+	<blue>private</blue> <blue>void</blue> <yellow>GetRagdollBits</yellow>()
+	{
+		ragDollColliders = Rig.GetComponentsInChildren<Collider>();
+		limbsRigibodies = Rig.GetComponentsInChildren<Rigidbody>();
+	}
+
+	<blue>private</blue> <blue>void</blue> <yellow>RagdollModeOn</yellow>()
+	{
+		GetComponentInParent<AgentMovement>().movementOff = <blue>true</blue>;
+
+		Animator.enabled = false;
+		MainCollider.enabled = false;
+
+		<purple>foreach</purple> (Collider <lblue>col</lblue> <purple>in</purple> ragDollColliders)
+		{
+			<lblue>col</lblue>.enabled = <blue>true</blue>;
+		}
+
+		<purple>foreach</purple> (Rigidbody <lblue>rigid</lblue> <purple>in</purple> limbsRigibodies)
+		{
+			<lblue>rigid</lblue>.isKinematic = false;
+		}
+
+		GetComponentInParent<Rigidbody>().isKinematic = <blue>true</blue>;
+	}
+	
+	<blue>private</blue> <blue>void</blue> <yellow>RagdollModeOff</yellow>()
+	{
+		GetComponentInParent<AgentMovement>().movementOff = false;
+
+		Animator.enabled = <blue>true</blue>;
+
+		<purple>foreach</purple> (Collider <lblue>col</lblue> <purple>in</purple> ragDollColliders)
+		{
+			<lblue>col</lblue>.enabled = false;
+		}
+
+		<purple>foreach</purple> (Rigidbody <lblue>rigid</lblue> <purple>in</purple> limbsRigibodies)
+		{
+			<lblue>rigid</lblue>.isKinematic = <blue>true</blue>;
+		}
+
+		MainCollider.enabled = <blue>true</blue>;
+		GetComponentInParent<Rigidbody>().isKinematic = false;
+	}
+}</code></pre>
+			</div>
+			<div id="codebox">
+			</div>
+		</div>
+	</div>
+	</1><div id="main">
+		<div id="left-column">
+			<h1>Crouching and Hiding</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP Movetocover w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>			
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP Movetocover.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+			<h2>
+				<tit>Summary</tit>
+				<br>Since i've already explained a bit about the crouching and the raycast I use for my mechanics I will talk more about the hiding mechanic itself.
+
+				<br><br><tit>Cover</tit>
+				<br>The <yellow>TakeCover</yellow>() function brings the addition to the game to hide from enemies or lines of fire.
+				In some famous games like GTA 5 you as the player have the ability to hide behind walls by pressin a button.
+				I created something simular but to certain layers of walls like you see in the video.
+				Whenever your raycast is pointed at the wall a tooltip that follows your mouse position on the x-axis but stays the same on the y-axis.
+				This helps the player to know you can hide behind that wall.
+				
+				<br><br>When you press the right button it automatically walks towards that exact point u pressed towards.
+				This turns off your movement untill you reach the wall. 
+				It doesn't fully turns off your movement, because if you press a movement key while walking towards the wall it stop and you can continue walking yourself.
+				the <yellow>TakeCover</yellow>() function mainly works on the raycast and the <yellow>MoveToCover</yellow>() does all the movement and calculations.
+
+				<br><br>Another thing I added to the cover layered objects is an ontrigger, 
+				so if you've reached the wall and try moving yourself close to the wall it stays crouched untill you walk away from the wall.
+				This helps the player progress it's journey and not being able to stand up immediatly and being caught by any enemy or line of fire.
+				
+				<br><br>This is still a bit buggy since when the player hugs the wall it tends to stay stuck to the wall but still play the animation of crouch walking.
+				So ofcourse this is a fix on my to do list.
+			</h2>
+		</div>
+		<div id="right-column">
+			<div id="codebox">
+<pre><code><blue>using</blue> UnityEngine.UI;
+<blue>using</blue> Cinemachine;
+	
+[RequireComponent(<blue>typeof</blue>(Rigidbody))]
+<blue>public</blue> class <green>AgentMovement</green> : MonoBehaviour
+{
+	[Header(<red>"Player Settings"</red>)]
+	<blue>public</blue> <blue>float</blue> MaxCrouchSpeed = 2;
+
+	[Space(10)]
+	[Header(<red>"Crouch Settings"</red>)]
+	[SerializeField] <blue>private</blue> <blue>float</blue> crouchOffTime = 1;
+	<blue>private</blue> <blue>bool</blue> crouchUsable = <blue>true</blue>;
+
+	[<blue>field</blue>: Space(20)]
+	[Header(<red>"Hide Settings"</red>)]
+	[SerializeField] <blue>private</blue> LayerMask coverLayer;
+
+	[<blue>field</blue>: Space(20)]
+	[Header(<red>"Hide Info"</red>)]
+	[SerializeField] <blue>private</blue> HideWall hideWall;
+	[SerializeField] <blue>private</blue> Transform hideTooltip;
+	[SerializeField] <blue>private</blue> <blue>Vector3</blue> coverPos;
+
+	[<blue>field</blue> : Space(20)]
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> inCrouch { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
+
+	<blue>public</blue> <blue>bool</blue> takingCover = <blue>false</blue>;
+
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Start</yellow>()
+	{
+		playerAnim = GetComponentInChildren<Animator>();
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Update</yellow>()
+	{
+		<purple>if</purple> (movementOff == <blue>false</blue>)
+		{
+			<yellow>FunctionAble</yellow>();
+		}
+
+		<yellow>MoveToCover</yellow>();
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>FunctionAble</yellow>()
+	{
+		<purple>if</purple> (inPunch == <blue>false</blue>)
+		{
+			<yellow>TakeCover</yellow>();
+		}
+
+		<purple>if</purple> (inSideStep == <blue>false</blue> && inPunch == <blue>false</blue> && inWallJump == <blue>false</blue> && inCrawl == <blue>false</blue>)
+			<yellow>Crouch</yellow>();
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>DefaultMovementsOff</yellow>()
+	{
+		inCrouch = <blue>false</blue>;
+
+		playerAnim.SetBool("<red>Crouch"</red>, <blue>false</blue>);
+	}
+			
+	<dgreen>/// &lt;summary&gt;
+	/// Get wall Position where you can hide
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>TakeCover</yellow>()
+	{
+		RaycastHit hit;
+		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 15, coverLayer))
+		{
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) >= 3)
+			{
+				Debug.DrawLine(transform.position, hit.point, Color.red);
+
+				<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 10)
+				{
+					hideTooltip.gameObject.SetActive(<blue>true</blue>);
+					hideTooltip.position = new <blue>Vector3</blue>(hit.point.x, hit.transform.position.y + 1.75f, hit.point.z);
+				}
+				<purple>else</purple>
+					hideTooltip.gameObject.SetActive(<blue>false</blue>);
+
+				<purple>if</purple> (Input.GetKeyDown(KeyCode.E))
+				{
+					<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 10)
+					{
+						inSprint = <blue>false</blue>;
+						movementOff = <blue>true</blue>;
+						currentVelocity = 0;
+						hideWall = hit.transform.GetComponentInChildren<HideWall>();
+						takingCover = <blue>true</blue>;
+						playerAnim.CrossFade("<red>TakeCover"</red>, 0.1f);
+						inCrouch = <blue>true</blue>;
+						coverPos = hit.point;
+					}
+				}
+			}
+		}
+	}
+
+	<dgreen>/// &lt;summary&gt;
+	/// Moves to position TakeCover(); got
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>MoveToCover</yellow>() 
+	{
+		<purple>if</purple> (coverPos != new <blue>Vector3</blue>(0, 0, 0))
+		{
+			<blue>Vector3</blue> lookPos = coverPos - transform.position;
+			lookPos.y = 0;
+			<blue>Quaternion</blue> coverRot = <blue>Quaternion</blue>.LookRotation(lookPos);
+
+			transform.rotation = <blue>Quaternion</blue>.RotateTowards(transform.rotation, coverRot, 10 * Time.maximumDeltaTime);
+
+			transform.position = <blue>Vector3</blue>.MoveTowards(transform.position, new <blue>Vector3</blue>(coverPos.x, transform.position.y, coverPos.z), 3 * Time.deltaTime);
+
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, coverPos) <= 1)
+			{
+				movementOff = <blue>false</blue>;
+				playerAnim.CrossFade("<red>Crouch Idle"</red>, 0.5f);
+				coverPos = new <blue>Vector3</blue>(0, 0, 0);
+			}
+
+			<purple>if</purple> (currentVelocity > 0)
+			{
+				inCrouch = <blue>false</blue>;
+				coverPos = new <blue>Vector3</blue>(0, 0, 0);
+			}
+		}
+
+		<purple>if</purple> (takingCover && currentVelocity > 0 && hideWall.hiding == <blue>false</blue>)
+		{
+			takingCover = <blue>false</blue>;
+		}
+	}
+
+	<blue>public</blue> <blue><blue>void</blue></blue> <yellow>MovementChange</yellow>(<blue>Vector3</blue> movementInput)
+	{
+		<purple>if</purple> (inCrouch && inSprint == <blue>false</blue>)
+			MoveAgent(movementInput, 20, 25, MaxCrouchSpeed);
+	}
+
+	<dgreen>/// &lt;summary&gt;
+	/// if pressing crouch button move player down and scale down movement speed and fov
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Crouch</yellow>()
+	{
+		<purple>if</purple> (Input.GetKey(KeyCode.LeftControl) && crouchUsable == <blue>true</blue>)
+		{
+			VcamSettings.instance.FOVValue = 40;
+			playerBody.transform.localPosition = new <blue>Vector3</blue>(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, -0.2f, 2.5f * Time.deltaTime), playerBody.transform.localPosition.z);
+			playerBody.transform.localScale = new <blue>Vector3</blue>(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 0.5f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
+			inSprint = <blue>false</blue>;
+			inCrouch = <blue>true</blue>;
+		}
+		<purple>else</purple>
+		{
+			playerBody.transform.localPosition = new <blue>Vector3</blue>(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, 0.3f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localPosition.z);
+			playerBody.transform.localScale = new <blue>Vector3</blue>(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 1, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
+
+			<purple>if</purple> (crouchUsable == <blue>false</blue>)
+			{
+				crouchOffTime -= Time.deltaTime;
+				<purple>if</purple> (crouchOffTime <= 0)
+				{
+					crouchUsable = <blue>true</blue>;
+					crouchOffTime = 0.4f;
+				}
+			}
+
+			<purple>if</purple> (takingCover == <blue>false</blue>)
+				inCrouch = <blue>false</blue>;
+		}
+
+		<purple>if</purple> (Input.GetKeyUp(KeyCode.LeftControl))
+		{
+			crouchUsable = <blue>false</blue>;
+			VcamSettings.instance.FOVValue = 50;
+			inCrouch = <blue>false</blue>;
+		}
+	}
+
+	<blue>public</blue> <blue><blue>void</blue></blue> <yellow>GoCrouch</yellow>()
+	{
+		playerBody.transform.localPosition = new <blue>Vector3</blue>(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, 0, 0.5f * Time.maximumDeltaTime), playerBody.transform.localPosition.z);
+		playerBody.transform.localScale = new <blue>Vector3</blue>(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 0.5f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
+	}
+}</code></pre>
+			</div>
+			<div id="codebox">
+			</div>
+		</div>
+	</div>
+	<div id="main">
+		<div id="left-column">
+			<h1>Walljump</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TPC Walljump.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+			<h2>
+				<tit>Summary</tit>
+				<br>The wall jump mechanic is a great addition to the game because it's a fun way to progress to parts in a level, 
+				such as something that's blocking the path.
+				
+				<br><br><tit>Wall Jump</tit>
+				<br>I created this mechanic with the <yellow>Walljump</yellow>() function that does all the raycast and position information
+				And the <yellow>JumpOverWall</yellow>() function that does all the calculation, position and animations.
+
+				<br><br>The raycast again finds the layer of the object needed to use this mechanic.
+			</h2>
+		</div>
+		<div id="right-column">
+			<div id="codebox">
+<pre><code><blue>using</blue> UnityEngine.UI;
+<blue>using</blue> Cinemachine;
+	
+[RequireComponent(<blue>typeof</blue>(Rigidbody))]
+<blue>public</blue> class <green>AgentMovement</green> : MonoBehaviour
+{
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> movementOff { <blue>get</blue>; <blue>set;</blue> }
+	
+	[Header(<red>"Player Info"</red>)]
+	<blue>public</blue> Transform playerBody;
+
+	[SerializeField] <blue>private</blue> Animator playerAnim;
+
+	[Space(30)]
+	[Header(<red>"Cam Settings"</red>)]
+	[SerializeField] <blue>private</blue> GameObject mainCamera;
+	[SerializeField] <blue>private</blue> GameObject wallJumpCam;
+
+	[Space(10)]
+	[Header(<red>"Vcam Settings"</red>)]
+	[SerializeField] <blue>private</blue> CinemachineFreeLook mainVcam;
+	[SerializeField] <blue>private</blue> CinemachineVirtualCamera sideStepVcam;
+
+	[<blue>field</blue>: Space(20)]
+	[Header(<red>"Jump Settings"</red>)]
+	[SerializeField] <blue>private</blue> LayerMask jumpLayer;
+
+	[<blue>field</blue>: Space(20)]
+	[Header(<red>"Jump Info"</red>)]
+	[SerializeField] <blue>private</blue> <blue>Vector3</blue> jumpPos;
+
+	[<blue>field</blue>: Space(20)]
+	[Header(<red>"Hide Info"</red>)]
+	[SerializeField] <blue>private</blue> HideWall hideWall;
+	[SerializeField] <blue>private</blue> Transform hideTooltip;
+	[SerializeField] <blue>private</blue> <blue>Vector3</blue> coverPos;
+
+	[<blue>field</blue> : Space(20)]
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> inWallJump { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
+	
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Update</yellow>()
+	{
+		<purple>if</purple> (movementOff == <blue>false</blue>)
+		{
+			<yellow>FunctionAble</yellow>();
+		}
+
+		<yellow>JumpOverWall</yellow>();
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>FunctionAble</yellow>()
+	{
+		<purple>if</purple> (inPunch == <blue>false</blue>)
+		{
+			<yellow>WallJump</yellow>();
+		}
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>WallJump</yellow>()
+	{
+		RaycastHit hit;
+		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10, jumpLayer))
+		{
+			Debug.DrawLine(transform.position, hit.point, Color.red);
+
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 5)
+			{
+				hideTooltip.gameObject.SetActive(<blue>true</blue>);
+				hideTooltip.position = new <blue>Vector3</blue>(hit.point.x, hit.transform.position.y + 1.75f, hit.point.z);
+			}
+			<purple>else</purple>
+				hideTooltip.gameObject.SetActive(<blue>false</blue>);
+
+			<purple>if</purple> (Input.GetKeyDown(KeyCode.E))
+			{
+				<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 5)
+				{
+					<purple>if</purple> (hit.transform.gameObject.GetComponent<WallJump>().Front == <blue>true</blue>)
+					{
+						jumpPos = new <blue>Vector3</blue>(transform.position.x, transform.position.y, hit.transform.position.z - 2);
+						transform.rotation = <blue>Quaternion</blue>.LookRotation(-<blue>Vector3</blue>.forward, <blue>Vector3</blue>.up);
+						hit.transform.gameObject.GetComponent<WallJump>().Front = <blue>false</blue>;
+					}
+					<purple><purple>else</purple> if</purple> (hit.transform.gameObject.GetComponent<WallJump>().Back == <blue>true</blue>)
+					{
+						jumpPos = new <blue>Vector3</blue>(transform.position.x, transform.position.y, hit.transform.position.z + 2);
+						transform.rotation = <blue>Quaternion</blue>.LookRotation(<blue>Vector3</blue>.forward, <blue>Vector3</blue>.up);
+						hit.transform.gameObject.GetComponent<WallJump>().Back = <blue>false</blue>;
+					}
+
+					inWallJump = <blue>true</blue>;
+					wallJumpCam.SetActive(<blue>true</blue>);
+					movementOff = <blue>true</blue>;
+					GetComponentInChildren<CapsuleCollider>().enabled = <blue>false</blue>;
+					playerAnim.Play("<red>Jump Over"</red>);
+				}
+			}
+		}
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>JumpOverWall</yellow>()
+	{
+		<purple>if</purple> (jumpPos != new <blue>Vector3</blue>(0, 0, 0))
+		{
+			transform.position = <blue>Vector3</blue>.Lerp(transform.position, new <blue>Vector3</blue>(jumpPos.x, transform.position.y, jumpPos.z), 2 * Time.deltaTime);
+
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, jumpPos) <= 0.6f)
+			{
+				inWallJump = <blue>false</blue>;
+				wallJumpCam.SetActive(<blue>false</blue>);
+				movementOff = <blue>false</blue>;
+				GetComponentInChildren<CapsuleCollider>().enabled = <blue>true</blue>;
+				jumpPos = new <blue>Vector3</blue>(0, 0, 0);
+			}
+		}
+	}
 }</code></pre>
 			</div>
 			<div id="codebox">
@@ -520,18 +1167,18 @@
 	<blue>public</blue> <blue>Vector3</blue> playerVelocity;
 	<blue>public</blue> <blue>bool</blue> jumpPressed = <blue>false</blue>;
 
-	<blue>private</blue> <blue>void</blue> <yellow>Awake</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Awake</yellow>()
 	{
 		instance = this;  
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>Start</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Start</yellow>()
 	{
 		rb = GetComponent<Rigidbody>();
 		playerAnim = GetComponentInChildren<Animator>();
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>Update</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Update</yellow>()
 	{
 		<purple>if</purple> (movementOff == <blue>false</blue>)
 		{
@@ -555,21 +1202,21 @@
 		<yellow>GroundCheck</yellow>();
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>FixedUpdate</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>FixedUpdate</yellow>()
 	{
 		RotateAgent();
 
 		rb.velocity = movementDirection.normalized * currentVelocity;
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>OnCollisionEnter</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>OnCollisionEnter</yellow>()
 	{
 		jumpPressed = <blue>false</blue>;
 		JumpForce = 2.5f;
 		gravity = 0;
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>FunctionAble</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>FunctionAble</yellow>()
 	{
 		<purple>if</purple> (inPunch == <blue>false</blue>)
 		{
@@ -592,7 +1239,7 @@
 			<yellow>Attack</yellow>();
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>DefaultMovementsOff</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>DefaultMovementsOff</yellow>()
 	{
 		inCrouch = <blue>false</blue>;
 		inSprint = <blue>false</blue>;
@@ -606,7 +1253,7 @@
 	<dgreen>/// &lt;summary&gt;
 	/// Does check if groundcheck
 	/// &lt;/summary&gt;</dgreen>
-	<blue>private</blue> <blue>void</blue> <yellow>GroundCheck</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>GroundCheck</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(new <blue>Vector3</blue>(transform.position.x, transform.position.y, transform.position.z), <blue>Vector3</blue>.down, out hit, 1, ground))
@@ -618,7 +1265,7 @@
 			grounded = <blue>false</blue>;
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>Zoom</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Zoom</yellow>()
 	{
 		<purple>if</purple> (Input.GetMouseButtonDown(1))
 		{
@@ -627,7 +1274,7 @@
 		}
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>Attack</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Attack</yellow>()
 	{
 		<purple>if</purple> (Input.GetMouseButtonDown(0))
 		{
@@ -637,12 +1284,12 @@
 		}
 	}
 
-	<blue>public</blue> <blue>void</blue> <yellow>PunchCol</yellow>()
+	<blue>public</blue> <blue><blue>void</blue></blue> <yellow>PunchCol</yellow>()
 	{
 		FistColl.enabled = <blue>true</blue>;
 	}
 
-	<blue>public</blue> <blue>void</blue> <yellow>OutPunch</yellow>()
+	<blue>public</blue> <blue><blue>void</blue></blue> <yellow>OutPunch</yellow>()
 	{
 		FistColl.enabled = <blue>false</blue>;
 		movementOff = <blue>false</blue>;
@@ -650,7 +1297,7 @@
 		playerAnim.SetBool("<red>InPunch"</red>, <blue>false</blue>);
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>Stamina</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Stamina</yellow>()
 	{
 		<purple>if</purple> (currentVelocity > 0 && currentVelocity &lt;= 2.5f && inSprint == <blue>false</blue>)
 			stamina.value = Mathf.MoveTowards(stamina.value, stamina.maxValue, 0.6f * Time.deltaTime);
@@ -661,7 +1308,7 @@
 	<dgreen>/// &lt;summary&gt;
 	/// When using Shift u can sprint with Fov effect of cinemachine cam
 	/// &lt;/summary&gt;</dgreen>
-	<blue>private</blue> <blue>void</blue> <yellow>Sprint</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Sprint</yellow>()
 	{
 		<purple>if</purple> (Input.GetKey(KeyCode.LeftShift))
 		{
@@ -690,7 +1337,7 @@
 			stamina.value = Mathf.MoveTowards(stamina.value, stamina.maxValue, 1 * Time.deltaTime);
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>SideStep</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>SideStep</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10, sideStepLayer))
@@ -711,7 +1358,7 @@
 		}
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>SideStepping</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>SideStepping</yellow>()
 	{
 		<purple>if</purple> (inSideStep && OnSideStepStart)
 		{
@@ -754,7 +1401,7 @@
 		}
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>Crawl</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Crawl</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 5, crawlLayer))
@@ -774,7 +1421,7 @@
 		}
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>Crawling</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Crawling</yellow>()
 	{
 		<purple>if</purple> (inCrawl && onCrawlStart)
 		{
@@ -820,7 +1467,7 @@
 		}
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>WallJump</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>WallJump</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10, jumpLayer))
@@ -862,7 +1509,7 @@
 		}
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>JumpOverWall</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>JumpOverWall</yellow>()
 	{
 		<purple>if</purple> (jumpPos != new <blue>Vector3</blue>(0, 0, 0))
 		{
@@ -882,7 +1529,7 @@
 	<dgreen>/// &lt;summary&gt;
 	/// Get wall Position where you can hide
 	/// &lt;/summary&gt;</dgreen>
-	<blue>private</blue> <blue>void</blue> <yellow>TakeCover</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>TakeCover</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 15, coverLayer))
@@ -920,7 +1567,7 @@
 	<dgreen>/// &lt;summary&gt;
 	/// Moves to position <yellow>TakeCover</yellow>(); got
 	/// &lt;/summary&gt;</dgreen>
-	<blue>private</blue> <blue>void</blue> <yellow>MoveToCover</yellow>() 
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>MoveToCover</yellow>() 
 	{
 		<purple>if</purple> (coverPos != new <blue>Vector3</blue>(0, 0, 0))
 		{
@@ -955,7 +1602,7 @@
 	<dgreen>/// &lt;summary&gt;
 	/// Applies gravity when not grounded
 	/// &lt;/summary&gt;</dgreen>
-	<blue>private</blue> <blue>void</blue> <yellow>Gravity</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Gravity</yellow>()
 	{
 		<purple>if</purple> (jumpPressed && grounded == <blue>false</blue>)
 		{
@@ -973,7 +1620,7 @@
 	<dgreen>/// &lt;summary&gt;
 	/// when jumping u jump keeping the same velocity
 	/// &lt;/summary&gt;</dgreen>
-	<blue>private</blue> <blue>void</blue> <yellow>OnJump</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>OnJump</yellow>()
 	{
 		<purple>if</purple> (Input.GetKeyDown(KeyCode.Space) && grounded && jumpPressed == <blue>false</blue>)
 		{
@@ -983,7 +1630,7 @@
 		}
 	}
 
-	<blue>public</blue> <blue>void</blue> <yellow>MovementChange</yellow>(<blue>Vector3</blue> movementInput)
+	<blue>public</blue> <blue><blue>void</blue></blue> <yellow>MovementChange</yellow>(<blue>Vector3</blue> movementInput)
 	{
 		<purple>if</purple> (jumpPressed)
 		{
@@ -1003,7 +1650,7 @@
 			MoveAgent(movementInput, 20, 25, MaxCrouchSpeed);
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>MoveAgent</yellow>(<blue>Vector3</blue> movementInput, <blue>float</blue> _acceleration, <blue>float</blue> _deacceleration, <blue>float</blue> _maxSpeed)
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>MoveAgent</yellow>(<blue>Vector3</blue> movementInput, <blue>float</blue> _acceleration, <blue>float</blue> _deacceleration, <blue>float</blue> _maxSpeed)
 	{
 		<purple>if</purple> (movementOff == <blue>false</blue>)
 		{
@@ -1031,7 +1678,7 @@
 	<dgreen>/// &lt;summary&gt;
 	/// Rotate player to where ur walking to
 	/// &lt;/summary&gt;</dgreen>
-	<blue>private</blue> <blue>void</blue> <yellow>RotateAgent</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>RotateAgent</yellow>()
 	{
 		<purple>if</purple> (currentVelocity != 0)
 		{
@@ -1044,7 +1691,7 @@
 	<dgreen>/// &lt;summary&gt;
 	/// if pressing crouch button move player down and scale down movement speed and fov
 	/// &lt;/summary&gt;</dgreen>
-	<blue>private</blue> <blue>void</blue> <yellow>Crouch</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Crouch</yellow>()
 	{
 		<purple>if</purple> (Input.GetKey(KeyCode.LeftControl) && crouchUsable == <blue>true</blue>)
 		{
@@ -1081,13 +1728,13 @@
 		}
 	}
 
-	<blue>public</blue> <blue>void</blue> <yellow>GoCrouch</yellow>()
+	<blue>public</blue> <blue><blue>void</blue></blue> <yellow>GoCrouch</yellow>()
 	{
 		playerBody.transform.localPosition = new <blue>Vector3</blue>(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, 0, 0.5f * Time.maximumDeltaTime), playerBody.transform.localPosition.z);
 		playerBody.transform.localScale = new <blue>Vector3</blue>(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 0.5f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
 	}
 
-	<blue>private</blue> <blue>void</blue> <yellow>Doors</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Doors</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10, interactiveLayer))
@@ -1120,7 +1767,7 @@
 		}
 	}    
 	
-	<blue>private</blue> <blue>void</blue> <yellow>Pickup</yellow>()
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Pickup</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10, pickups))

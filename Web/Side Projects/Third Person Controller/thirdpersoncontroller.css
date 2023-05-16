@@ -6,7 +6,7 @@ h1 {
   font-family: "Montserrat Medium";
   max-width: 40ch;
   color: rgb(208, 208, 208);
-  text-align: center;
+  text-align: start;
   transform: scale(1.94);
   transition: padding 1s ease-in-out;
   transition: margin 1s ease-in-out;
@@ -19,7 +19,7 @@ h2{
 }
 
 tit{
-  font-size: 2em;
+  font-size: 1.6em;
   color: #00ffea;
 }
 
@@ -54,8 +54,8 @@ width: 35%;
 font-size: 24px;
   font-family: Rockwell, "Courier New", Courier, Georgia, Times, "Times New Roman", serif;
 margin-bottom: 20px;
-margin-left: 30px;
-  color: #007bff;
+margin-left: 32%;
+  color: #ff0000;
 }
 
 #left-column video {
@@ -125,6 +125,10 @@ yellow{
 
 purple{
   color: rgba(255, 9, 255, 0.87);
+}
+
+lblue{
+  color: lightblue;
 }
 
 pre {
