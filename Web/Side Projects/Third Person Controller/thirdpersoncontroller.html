@@ -3,6 +3,7 @@
 	<link rel="icon" type="image/png" sizes="32x32" href="/Pictures/favicon-32x32.png">
 
 	<title>Third Person Controller</title>
+
 	<link rel="stylesheet" type="text/css" href="/Web/Side Projects/Third Person Controller/thirdpersoncontroller.css">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script>
@@ -19,6 +20,31 @@
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos/TPC Animation and Movement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
 			</div>
+			<h2>
+				<tit>Summary</tit>
+				<br>This is mainly the code for the Agent/Player movement.
+				I've created this with the new Unity Built in input system.
+				This system comes in handy for me since this can be used for upgrades to controller instead of keyboard and mouse.
+				
+				<br><br>I am going to update this code later on in the development since it's a pretty large script and a lot can be put in a different script.
+				When I do i'm going to update the code you see on the right to a scriptable object that stores all settings for the players movement.
+				
+				<br><br><tit>Movement</tit>
+				<br>What this code does is whenever you as the player starts to move it doesn't immediatly goes forward,
+				but it goes forward smoothly with a velocity calculated on the bottom of this codebox  (<yellow>CalculateSpeed</yellow>())
+				
+				<br><br><tit>Forward Rotation</tit>
+				<br>Because this is third person movement and not first person the rotation of the camera needs to be calculated to get the players forward rotation.
+				First person controller have the ability to just rotate the player to the point the player wants to go to by just rotating the full body,
+				 but in the third person controller you want the playerbody to rotate freely for a visible rotation for the player to know where he is going/facing. 
+				How I completed this u can find in <yellow>MoveAgent</yellow>() is by calculating the cameras forward position by using the <blue>movemenInput</blue>.
+				I first calculate the cameras forward with vector3 and then the right of the camera, I normalize these 2 vectors and calculate these 2 values with my <blue>movementInput</blue> z axis and x axis.
+				I create this new vector3 <blue>cameraRelativeMovement</blue> and put both the forward as the right values inside.
+				<br>I already created a <blue>protected vector3</blue> for my main <blue>movementDirection</blue> and put the <blue>cameraRelativeMovement</blue> inside to create the new forward rotation.
+				and last I call the <yellow>CalculateSpeed</yellow>() to apply the movement to the new forward rotation.
+
+				<br><br><tit>Crouch</tit>
+				<br>The crouch is made smoothly with lerps and helps the developer with</h2>
 		</div>
 		<div id="right-column">
 			<div id="codebox">
@@ -32,11 +58,360 @@
 
 	<blue>protected</blue> Rigidbody rb;
 
-	<blue>protected</blue> Vector3 movementDirection;
+	<blue>protected</blue> <blue>Vector3</blue> movementDirection;
 
-	[field : SerializeField] <blue>public</blue> <blue>bool</blue> movementOff { <blue>get</blue>; <blue>set;</blue> }
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> movementOff { <blue>get</blue>; <blue>set;</blue> }
 
-	[field: SerializeField]
+	[<blue>field</blue>: SerializeField]
+	<blue>public</blue> <blue>float</blue> currentVelocity { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
+	
+	[Header(<red>"Player Info"</red>)]
+	<blue>public</blue> Transform playerBody;
+
+	[SerializeField] <blue>private</blue> Animator playerAnim;
+	[SerializeField] <blue>private</blue> Slider stamina;
+
+	[Header(<red>"Player Settings"</red>)]
+	<blue>public</blue> <blue>float</blue> MaxWalkSpeed = 2.5f;
+	<blue>public</blue> <blue>float</blue> MaxCrouchSpeed = 2;
+	<blue>public</blue> <blue>float</blue> MaxRunSpeed = 5f;
+	<blue>public</blue> <blue>float</blue> JumpForce = 2.0f;
+	<blue>public</blue> <blue>float</blue> gravity = 5.0f;
+
+	[Space(10)]
+	[Header(<red>"Crouch Settings"</red>)]
+	[SerializeField] <blue>private</blue> <blue>float</blue> crouchOffTime = 1;
+	<blue>private</blue> <blue>bool</blue> crouchUsable = <blue>true</blue>;
+
+	[Space(30)]
+	[Header(<red>"Cam Settings"</red>)]
+	[SerializeField] <blue>private</blue> GameObject mainCamera;
+
+	[Space(10)]
+	[Header(<red>"Vcam Settings"</red>)]
+	[SerializeField] <blue>private</blue> CinemachineFreeLook mainVcam;
+
+	[Space(50)]
+	[Header(<red>"GroundCheck Settings"</red>)]
+	[SerializeField] <blue>private</blue> LayerMask ground;
+
+	[Header(<red>"GroundCheck Info"</red>)]
+	[SerializeField] <blue>private</blue> <blue>bool</blue> grounded = <blue>false</blue>;
+
+
+	<blue>public</blue> <blue>float</blue> gravityValue = -9.81f;
+	<blue>public</blue> <blue>Vector3</blue> playerVelocity;
+	<blue>public</blue> <blue>bool</blue> jumpPressed = <blue>false</blue>;
+
+	<blue>private</blue> <blue>void</blue> <yellow>Awake</yellow>()
+	{
+		instance = this;  
+	}
+
+	<blue>private</blue> <blue>void</blue> <yellow>Start</yellow>()
+	{
+		rb = GetComponent<Rigidbody>();
+		playerAnim = GetComponentInChildren<Animator>();
+	}
+
+	<blue>private</blue> <blue>void</blue> <yellow>Update</yellow>()
+	{
+		<purple>if</purple> (movementOff == <blue>false</blue>)
+		{
+			<yellow>FunctionAble</yellow>();
+		}
+		<yellow>Stamina</yellow>();
+		<yellow>Gravity</yellow>();
+		<yellow>GroundCheck</yellow>();
+	}
+
+	<blue>private</blue> <blue>void</blue> <yellow>FixedUpdate</yellow>()
+	{
+		RotateAgent();
+
+		rb.velocity = movementDirection.normalized * currentVelocity;
+	}
+
+	<blue>private</blue> <blue>void</blue> <yellow>FunctionAble</yellow>()
+	{
+		<purple>if</purple> (inCrouch == <blue>false</blue> && inSideStep == <blue>false</blue> && inPunch == <blue>false</blue> && inWallJump == <blue>false</blue> && inCrawl == <blue>false</blue> && currentVelocity > 0.1f)
+		{
+			<yellow>Zoom</yellow>();
+			<yellow>Sprint</yellow>();
+		}
+		<purple><purple>else</purple> if</purple> (currentVelocity == 0)
+			inSprint = <blue>false</blue>;
+	}
+
+	<blue>private</blue> <blue>void</blue> <yellow>DefaultMovementsOff</yellow>()
+	{
+		inCrouch = <blue>false</blue>;
+		inSprint = <blue>false</blue>;
+
+		playerAnim.SetBool("<red>Running"</red>, <blue>false</blue>);
+		playerAnim.SetBool("<red>Crouch"</red>, <blue>false</blue>);
+
+		VcamSettings.instance.FOVValue = 50;
+	}
+
+	<dgreen>/// &lt;summary&gt;
+	/// Does check if groundcheck
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue>void</blue> <yellow>GroundCheck</yellow>()
+	{
+		RaycastHit hit;
+		<purple>if</purple> (Physics.Raycast(new <blue>Vector3</blue>(transform.position.x, transform.position.y, transform.position.z), <blue>Vector3</blue>.down, out hit, 1, ground))
+		{
+			Debug.DrawLine(transform.position, hit.point, Color.green);
+			grounded = <blue>true</blue>;
+		}
+		<purple>else</purple>
+			grounded = <blue>false</blue>;
+	}
+
+	<blue>private</blue> <blue>void</blue> <yellow>Zoom</yellow>()
+	{
+		<purple>if</purple> (Input.GetMouseButtonDown(1))
+		{
+			Debug.Log("<red>right"</red>);
+			mainVcam.m_Lens.FieldOfView = 20;
+		}
+	}
+
+	<blue>private</blue> <blue>void</blue> <yellow>Stamina</yellow>()
+	{
+		<purple>if</purple> (currentVelocity > 0 && currentVelocity &lt;= 2.5f && inSprint == <blue>false</blue>)
+			stamina.value = Mathf.MoveTowards(stamina.value, stamina.maxValue, 0.6f * Time.deltaTime);
+		<purple><purple>else</purple> if</purple> (currentVelocity == 0)
+			stamina.value = Mathf.MoveTowards(stamina.value, stamina.maxValue, 3 * Time.deltaTime);
+	}
+
+	<dgreen>/// &lt;summary&gt;
+	/// When using Shift u can sprint with Fov effect of cinemachine cam
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue>void</blue> <yellow>Sprint</yellow>()
+	{
+		<purple>if</purple> (Input.GetKey(KeyCode.LeftShift))
+		{
+			stamina.value = Mathf.MoveTowards(stamina.value, 0, 3 * Time.deltaTime);
+			<purple>if</purple> (stamina.value >= 0.3f)
+			{
+				VcamSettings.instance.FOVValue = 60;
+				inSprint = <blue>true</blue>;
+			}
+			<purple>else</purple>
+			{
+				VcamSettings.instance.FOVValue = 50;
+				inSprint = <blue>false</blue>;
+			}
+
+		}
+		<purple><purple>else</purple> if</purple> (Input.GetKeyUp(KeyCode.LeftShift))
+		{
+			inSprint = <blue>false</blue>;
+			VcamSettings.instance.FOVValue = 50;
+		}
+		<purple><purple>else</purple> if</purple> (inCrouch == <blue>true</blue>)
+			VcamSettings.instance.FOVValue = 50;
+
+		<purple>if</purple> (inSprint == <blue>false</blue> && stamina.value != stamina.maxValue)
+			stamina.value = Mathf.MoveTowards(stamina.value, stamina.maxValue, 1 * Time.deltaTime);
+	}
+
+	<dgreen>/// &lt;summary&gt;
+	/// Applies gravity when not grounded
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue>void</blue> <yellow>Gravity</yellow>()
+	{
+		<purple>if</purple> (jumpPressed && grounded == <blue>false</blue>)
+		{
+			rb.AddForce(0, JumpForce, 0, ForceMode.VelocityChange);
+			JumpForce -= 10 * Time.deltaTime;
+		}
+
+		<purple>if</purple> (grounded == <blue>false</blue> && jumpPressed == <blue>false</blue>)
+		{
+			rb.AddForce(0, gravity, 0, ForceMode.VelocityChange);
+			gravity -= 10 * Time.deltaTime;
+		}
+	}
+
+	<blue>public</blue> <blue>void</blue> <yellow>MovementChange</yellow>(<blue>Vector3</blue> movementInput)
+	{
+		<purple>if</purple> (jumpPressed)
+		{
+			<purple>if</purple> (inSprint)
+				MoveAgent(movementInput, 20, 25, MaxRunSpeed);
+			<purple>else</purple>
+				MoveAgent(movementInput, 0.1f, 0.1f, MaxWalkSpeed);
+		}
+
+
+		<purple>if</purple> (jumpPressed == <blue>false</blue> && inSprint == <blue>false</blue>)
+			MoveAgent(movementInput, 20, 25, MaxWalkSpeed);
+		<purple><purple>else</purple> if</purple> (inSprint == <blue>true</blue>)
+			MoveAgent(movementInput, 20, 25, MaxRunSpeed);
+
+		<purple>if</purple> (inCrouch && inSprint == <blue>false</blue>)
+			MoveAgent(movementInput, 20, 25, MaxCrouchSpeed);
+	}
+
+	<blue>private</blue> <blue>void</blue> <yellow>MoveAgent</yellow>(<blue>Vector3</blue> movementInput, <blue>float</blue> _acceleration, <blue>float</blue> _deacceleration, <blue>float</blue> _maxSpeed)
+	{
+		<purple>if</purple> (movementOff == <blue>false</blue>)
+		{
+			<blue>Vector3</blue> forward = Camera.main.transform.forward;
+			<blue>Vector3</blue> right = Camera.main.transform.right;
+			forward.y = 0;
+			right.y = 0;
+			forward = forward.normalized;
+			right = right.normalized;
+
+			<blue>Vector3</blue> forwardRelativeVerticalInput = movementInput.z * forward;
+			<blue>Vector3</blue> rightRelativeVerticalInput = movementInput.x * right;
+
+			<blue>Vector3</blue> cameraRelativeMovement = forwardRelativeVerticalInput + rightRelativeVerticalInput;
+
+			<purple>if</purple> (movementInput.magnitude > 0)
+				movementDirection = cameraRelativeMovement;
+
+			currentVelocity = CalculateSpeed(movementInput, _acceleration, _deacceleration, _maxSpeed);
+		}
+		<purple>else</purple>
+			currentVelocity = 0;
+	}
+
+	<dgreen>/// &lt;summary&gt;
+	/// Rotate player to where ur walking to
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue>void</blue> <yellow>RotateAgent</yellow>()
+	{
+		<purple>if</purple> (currentVelocity != 0)
+		{
+			<blue>Quaternion</blue> toRotation = <blue>Quaternion</blue>.LookRotation(movementDirection, <blue>Vector3</blue>.up);
+
+			transform.rotation = <blue>Quaternion</blue>.Lerp(transform.rotation, toRotation, 8 * Time.deltaTime);
+		}
+	}
+
+	<dgreen>/// &lt;summary&gt;
+	/// if pressing crouch button move player down and scale down movement speed and fov
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue>void</blue> <yellow>Crouch</yellow>()
+	{
+		<purple>if</purple> (Input.GetKey(KeyCode.LeftControl) && crouchUsable == <blue>true</blue>)
+		{
+			VcamSettings.instance.FOVValue = 40;
+			playerBody.transform.localPosition = new <blue>Vector3</blue>(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, -0.2f, 2.5f * Time.deltaTime), playerBody.transform.localPosition.z);
+			playerBody.transform.localScale = new <blue>Vector3</blue>(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 0.5f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
+			inSprint = <blue>false</blue>;
+			inCrouch = <blue>true</blue>;
+		}
+		<purple>else</purple>
+		{
+			playerBody.transform.localPosition = new <blue>Vector3</blue>(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, 0.3f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localPosition.z);
+			playerBody.transform.localScale = new <blue>Vector3</blue>(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 1, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
+
+			<purple>if</purple> (crouchUsable == <blue>false</blue>)
+			{
+				crouchOffTime -= Time.deltaTime;
+				<purple>if</purple> (crouchOffTime <= 0)
+				{
+					crouchUsable = <blue>true</blue>;
+					crouchOffTime = 0.4f;
+				}
+			}
+
+			<purple>if</purple> (takingCover == <blue>false</blue>)
+				inCrouch = <blue>false</blue>;
+		}
+
+		<purple>if</purple> (Input.GetKeyUp(KeyCode.LeftControl))
+		{
+			crouchUsable = <blue>false</blue>;
+			VcamSettings.instance.FOVValue = 50;
+			inCrouch = <blue>false</blue>;
+		}
+	}
+
+	<blue>public</blue> <blue>void</blue> <yellow>GoCrouch</yellow>()
+	{
+		playerBody.transform.localPosition = new <blue>Vector3</blue>(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, 0, 0.5f * Time.maximumDeltaTime), playerBody.transform.localPosition.z);
+		playerBody.transform.localScale = new <blue>Vector3</blue>(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 0.5f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
+	}
+
+	<blue>private</blue> <blue>float</blue> <yellow>CalculateSpeed</yellow>(<blue>Vector3</blue> movementInput, <blue>float</blue> _acceleration, <blue>float</blue> _deacceleration, <blue>float</blue> _maxSpeed)
+	{
+		<purple>if</purple> (movementInput.magnitude > 0)
+			currentVelocity += _acceleration * Time.deltaTime;
+		<purple>else</purple>
+			currentVelocity -= _deacceleration * Time.deltaTime;
+
+		return Mathf.Clamp(currentVelocity, 0, _maxSpeed);
+	}   
+}</code></pre>
+			</div>
+			<div id="codebox">
+			</div>
+		</div>
+	</div>
+	<div id="main">
+		<div id="left-column">
+			<h1>Movement and Animation</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TPC Animation and Movement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+			<h1>Headmovement + Flashlight</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP Flashlight w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+			<h1>Interactives</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP interactives.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+			<h1>Ragdoll (OnDeath)</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP ragdoll.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+			<h1>Hiding + Crouching</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP Movetocover w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+			<h1>Walljump</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TPC Walljump.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+			<h1>Sidestep</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP sidestep w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+			<h1>Crawling</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP Crawling.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+			<h1>Destructibles + attack</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP walldestroy.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+			</div>
+
+		</div>
+		<div id="right-column">
+			<div id="codebox">
+<pre><code><blue>using</blue> UnityEngine.UI;
+<blue>using</blue> Cinemachine;
+	
+[RequireComponent(<blue>typeof</blue>(Rigidbody))]
+<blue>public</blue> class <green>AgentMovement</green> : MonoBehaviour
+{
+	<blue>public</blue> static <green>AgentMovement</green> instance;
+
+	<blue>protected</blue> Rigidbody rb;
+
+	<blue>protected</blue> <blue>Vector3</blue> movementDirection;
+
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> movementOff { <blue>get</blue>; <blue>set;</blue> }
+
+	[<blue>field</blue>: SerializeField]
 	<blue>public</blue> <blue>float</blue> currentVelocity { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
 	
 	[Header(<red>"Player Info"</red>)]
@@ -57,7 +432,7 @@
 	[Space(10)]
 	[Header(<red>"Crouch Settings"</red>)]
 	[SerializeField] <blue>private</blue> <blue>float</blue> crouchOffTime = 1;
-	<blue>private</blue> <blue>bool</blue> crouchUsable = true;
+	<blue>private</blue> <blue>bool</blue> crouchUsable = <blue>true</blue>;
 
 	[Space(30)]
 	[Header(<red>"Cam Settings"</red>)]
@@ -76,7 +451,7 @@
 	[SerializeField] <blue>private</blue> LayerMask ground;
 
 	[Header(<red>"GroundCheck Info"</red>)]
-	[SerializeField] <blue>private</blue> <blue>bool</blue> grounded = false;
+	[SerializeField] <blue>private</blue> <blue>bool</blue> grounded = <blue>false</blue>;
 
 	[Space(20)]
 	[Header(<red>"Interactable Settings"</red>)]
@@ -93,200 +468,200 @@
 	[Header(<red>"Crawl Settings"</red>)]
 	[SerializeField] <blue>private</blue> LayerMask crawlLayer;
 
-	[field: Space(20)]
+	[<blue>field</blue>: Space(20)]
 	[Header(<red>"Crawl Info"</red>)]
-	<blue>public</blue> <blue>bool</blue> onCrawlStart = false;
+	<blue>public</blue> <blue>bool</blue> onCrawlStart = <blue>false</blue>;
 
 	[SerializeField] <blue>private</blue> Crawl crawl;
-	<blue>private</blue> Quaternion crawlRot;
+	<blue>private</blue> <blue>Quaternion</blue> crawlRot;
 
 	[Space(20)]
 	[Header(<red>"SideStep Settings"</red>)]
 	[SerializeField] <blue>private</blue> LayerMask sideStepLayer;
 
-	[field: Space(20)]
+	[<blue>field</blue>: Space(20)]
 	[Header(<red>"SideStep Info"</red>)]
-	<blue>public</blue> <blue>bool</blue> OnSideStepStart = false;
+	<blue>public</blue> <blue>bool</blue> OnSideStepStart = <blue>false</blue>;
 
 	[SerializeField] <blue>private</blue> WallWalk wall;
 
-	<blue>private</blue> Quaternion sideStepRot;
+	<blue>private</blue> <blue>Quaternion</blue> sideStepRot;
 
-	[field: Space(20)]
+	[<blue>field</blue>: Space(20)]
 	[Header(<red>"Jump Settings"</red>)]
 	[SerializeField] <blue>private</blue> LayerMask jumpLayer;
 
-	[field: Space(20)]
+	[<blue>field</blue>: Space(20)]
 	[Header(<red>"Jump Info"</red>)]
-	[SerializeField] <blue>private</blue> Vector3 jumpPos;
+	[SerializeField] <blue>private</blue> <blue>Vector3</blue> jumpPos;
 
-	[field: Space(20)]
+	[<blue>field</blue>: Space(20)]
 	[Header(<red>"Hide Settings"</red>)]
 	[SerializeField] <blue>private</blue> LayerMask coverLayer;
 
-	[field: Space(20)]
+	[<blue>field</blue>: Space(20)]
 	[Header(<red>"Hide Info"</red>)]
 	[SerializeField] <blue>private</blue> HideWall hideWall;
 	[SerializeField] <blue>private</blue> Transform hideTooltip;
-	[SerializeField] <blue>private</blue> Vector3 coverPos;
+	[SerializeField] <blue>private</blue> <blue>Vector3</blue> coverPos;
 
-	[field : Space(20)]
-	[field : SerializeField] <blue>public</blue> <blue>bool</blue> inCrouch { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
-	[field : SerializeField] <blue>public</blue> <blue>bool</blue> inWallJump { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
-	[field : SerializeField] <blue>public</blue> <blue>bool</blue> inSprint { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
-	[field : SerializeField] <blue>public</blue> <blue>bool</blue> inSideStep { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
-	[field : SerializeField] <blue>public</blue> <blue>bool</blue> inCrawl { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
-	[field : SerializeField] <blue>public</blue> <blue>bool</blue> inPunch { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
-	[field: Space(20)]
+	[<blue>field</blue> : Space(20)]
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> inCrouch { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> inWallJump { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> inSprint { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> inSideStep { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> inCrawl { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> inPunch { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
+	[<blue>field</blue>: Space(20)]
 
-	<blue>public</blue> <blue>bool</blue> takingCover = false;
+	<blue>public</blue> <blue>bool</blue> takingCover = <blue>false</blue>;
 
 	<blue>public</blue> <blue>float</blue> gravityValue = -9.81f;
-	<blue>public</blue> Vector3 playerVelocity;
-	<blue>public</blue> <blue>bool</blue> jumpPressed = false;
+	<blue>public</blue> <blue>Vector3</blue> playerVelocity;
+	<blue>public</blue> <blue>bool</blue> jumpPressed = <blue>false</blue>;
 
-	<blue>private</blue> <blue>void</blue> Awake()
+	<blue>private</blue> <blue>void</blue> <yellow>Awake</yellow>()
 	{
 		instance = this;  
 	}
 
-	<blue>private</blue> <blue>void</blue> Start()
+	<blue>private</blue> <blue>void</blue> <yellow>Start</yellow>()
 	{
 		rb = GetComponent<Rigidbody>();
 		playerAnim = GetComponentInChildren<Animator>();
 	}
 
-	<blue>private</blue> <blue>void</blue> Update()
+	<blue>private</blue> <blue>void</blue> <yellow>Update</yellow>()
 	{
-		<purple>if</purple> (movementOff == false)
+		<purple>if</purple> (movementOff == <blue>false</blue>)
 		{
-			FunctionAble();
-			Doors();
-			Pickup();
+			<yellow>FunctionAble</yellow>();
+			<yellow>Doors</yellow>();
+			<yellow>Pickup</yellow>();
 
-			OnJump();
+			<yellow>OnJump</yellow>();
 
-			SideStep(); 
-			Crawl();
+			<yellow>SideStep</yellow>(); 
+			<yellow>Crawl</yellow>();
 		}
 
-		Stamina();
-		Crawling();
-		SideStepping();
-		MoveToCover();
-		JumpOverWall();
+		<yellow>Stamina</yellow>();
+		<yellow>Crawling</yellow>();
+		<yellow>SideStepping</yellow>();
+		<yellow>MoveToCover</yellow>();
+		<yellow>JumpOverWall</yellow>();
 
-		Gravity();
-		GroundCheck();
+		<yellow>Gravity</yellow>();
+		<yellow>GroundCheck</yellow>();
 	}
 
-	<blue>private</blue> <blue>void</blue> FixedUpdate()
+	<blue>private</blue> <blue>void</blue> <yellow>FixedUpdate</yellow>()
 	{
 		RotateAgent();
 
 		rb.velocity = movementDirection.normalized * currentVelocity;
 	}
 
-	<blue>private</blue> <blue>void</blue> OnCollisionEnter()
+	<blue>private</blue> <blue>void</blue> <yellow>OnCollisionEnter</yellow>()
 	{
-		jumpPressed = false;
+		jumpPressed = <blue>false</blue>;
 		JumpForce = 2.5f;
 		gravity = 0;
 	}
 
-	<blue>private</blue> <blue>void</blue> FunctionAble()
+	<blue>private</blue> <blue>void</blue> <yellow>FunctionAble</yellow>()
 	{
-		<purple>if</purple> (inPunch == false)
+		<purple>if</purple> (inPunch == <blue>false</blue>)
 		{
-			WallJump();
-			TakeCover();
+			<yellow>WallJump</yellow>();
+			<yellow>TakeCover</yellow>();
 		}
 
-		<purple>if</purple> (inSideStep == false && inPunch == false && inWallJump == false && inCrawl == false)
-			Crouch();
+		<purple>if</purple> (inSideStep == <blue>false</blue> && inPunch == <blue>false</blue> && inWallJump == <blue>false</blue> && inCrawl == <blue>false</blue>)
+			<yellow>Crouch</yellow>();
 
-		<purple>if</purple> (inCrouch == false && inSideStep == false && inPunch == false && inWallJump == false && inCrawl == false && currentVelocity > 0.1f)
+		<purple>if</purple> (inCrouch == <blue>false</blue> && inSideStep == <blue>false</blue> && inPunch == <blue>false</blue> && inWallJump == <blue>false</blue> && inCrawl == <blue>false</blue> && currentVelocity > 0.1f)
 		{
-			Zoom();
-			Sprint();
+			<yellow>Zoom</yellow>();
+			<yellow>Sprint</yellow>();
 		}
-		else <purple>if</purple> (currentVelocity == 0)
-			inSprint = false;
+		<purple><purple>else</purple> if</purple> (currentVelocity == 0)
+			inSprint = <blue>false</blue>;
 
-		<purple>if</purple> (inCrouch == false && inSideStep == false && inWallJump == false && inCrawl == false)
-			Attack();
+		<purple>if</purple> (inCrouch == <blue>false</blue> && inSideStep == <blue>false</blue> && inWallJump == <blue>false</blue> && inCrawl == <blue>false</blue>)
+			<yellow>Attack</yellow>();
 	}
 
-	<blue>private</blue> <blue>void</blue> DefaultMovementsOff()
+	<blue>private</blue> <blue>void</blue> <yellow>DefaultMovementsOff</yellow>()
 	{
-		inCrouch = false;
-		inSprint = false;
+		inCrouch = <blue>false</blue>;
+		inSprint = <blue>false</blue>;
 
-		playerAnim.Set<blue>Bool</blue>("Running", false);
-		playerAnim.Set<blue>Bool</blue>("Crouch", false);
+		playerAnim.SetBool("<red>Running"</red>, <blue>false</blue>);
+		playerAnim.SetBool("<red>Crouch"</red>, <blue>false</blue>);
 
 		VcamSettings.instance.FOVValue = 50;
 	}
 
-	/// <summary>
+	<dgreen>/// &lt;summary&gt;
 	/// Does check if groundcheck
-	/// </summary>
-	<blue>private</blue> <blue>void</blue> GroundCheck()
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue>void</blue> <yellow>GroundCheck</yellow>()
 	{
 		RaycastHit hit;
-		<purple>if</purple> (Physics.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z), Vector3.down, out hit, 1, ground))
+		<purple>if</purple> (Physics.Raycast(new <blue>Vector3</blue>(transform.position.x, transform.position.y, transform.position.z), <blue>Vector3</blue>.down, out hit, 1, ground))
 		{
 			Debug.DrawLine(transform.position, hit.point, Color.green);
-			grounded = true;
+			grounded = <blue>true</blue>;
 		}
-		else
-			grounded = false;
+		<purple>else</purple>
+			grounded = <blue>false</blue>;
 	}
 
-	<blue>private</blue> <blue>void</blue> Zoom()
+	<blue>private</blue> <blue>void</blue> <yellow>Zoom</yellow>()
 	{
 		<purple>if</purple> (Input.GetMouseButtonDown(1))
 		{
-			Debug.Log("right");
+			Debug.Log("<red>right"</red>);
 			mainVcam.m_Lens.FieldOfView = 20;
 		}
 	}
 
-	<blue>private</blue> <blue>void</blue> Attack()
+	<blue>private</blue> <blue>void</blue> <yellow>Attack</yellow>()
 	{
 		<purple>if</purple> (Input.GetMouseButtonDown(0))
 		{
-			movementOff = true;
-			inPunch = true;
-			playerAnim.Set<blue>Bool</blue>("InPunch", true);
+			movementOff = <blue>true</blue>;
+			inPunch = <blue>true</blue>;
+			playerAnim.SetBool("<red>InPunch"</red>, <blue>true</blue>);
 		}
 	}
 
-	<blue>public</blue> <blue>void</blue> PunchCol()
+	<blue>public</blue> <blue>void</blue> <yellow>PunchCol</yellow>()
 	{
-		FistColl.enabled = true;
+		FistColl.enabled = <blue>true</blue>;
 	}
 
-	<blue>public</blue> <blue>void</blue> OutPunch()
+	<blue>public</blue> <blue>void</blue> <yellow>OutPunch</yellow>()
 	{
-		FistColl.enabled = false;
-		movementOff = false;
-		inPunch = false;
-		playerAnim.Set<blue>Bool</blue>("InPunch", false);
+		FistColl.enabled = <blue>false</blue>;
+		movementOff = <blue>false</blue>;
+		inPunch = <blue>false</blue>;
+		playerAnim.SetBool("<red>InPunch"</red>, <blue>false</blue>);
 	}
 
-	<blue>private</blue> <blue>void</blue> Stamina()
+	<blue>private</blue> <blue>void</blue> <yellow>Stamina</yellow>()
 	{
-		<purple>if</purple> (currentVelocity > 0 && currentVelocity <= 2.5f && inSprint == false)
+		<purple>if</purple> (currentVelocity > 0 && currentVelocity &lt;= 2.5f && inSprint == <blue>false</blue>)
 			stamina.value = Mathf.MoveTowards(stamina.value, stamina.maxValue, 0.6f * Time.deltaTime);
-		else <purple>if</purple> (currentVelocity == 0)
+		<purple><purple>else</purple> if</purple> (currentVelocity == 0)
 			stamina.value = Mathf.MoveTowards(stamina.value, stamina.maxValue, 3 * Time.deltaTime);
 	}
 
-	/// <summary>
-	/// When <blue>using</blue> Shift u can sprint with Fov effect of cinemachine cam
-	/// </summary>
-	<blue>private</blue> <blue>void</blue> Sprint()
+	<dgreen>/// &lt;summary&gt;
+	/// When using Shift u can sprint with Fov effect of cinemachine cam
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue>void</blue> <yellow>Sprint</yellow>()
 	{
 		<purple>if</purple> (Input.GetKey(KeyCode.LeftShift))
 		{
@@ -294,247 +669,247 @@
 			<purple>if</purple> (stamina.value >= 0.3f)
 			{
 				VcamSettings.instance.FOVValue = 60;
-				inSprint = true;
+				inSprint = <blue>true</blue>;
 			}
-			else
+			<purple>else</purple>
 			{
 				VcamSettings.instance.FOVValue = 50;
-				inSprint = false;
+				inSprint = <blue>false</blue>;
 			}
 
 		}
-		else <purple>if</purple> (Input.GetKeyUp(KeyCode.LeftShift))
+		<purple><purple>else</purple> if</purple> (Input.GetKeyUp(KeyCode.LeftShift))
 		{
-			inSprint = false;
+			inSprint = <blue>false</blue>;
 			VcamSettings.instance.FOVValue = 50;
 		}
-		else <purple>if</purple> (inCrouch == true)
+		<purple><purple>else</purple> if</purple> (inCrouch == <blue>true</blue>)
 			VcamSettings.instance.FOVValue = 50;
 
-		<purple>if</purple> (inSprint == false && stamina.value != stamina.maxValue)
+		<purple>if</purple> (inSprint == <blue>false</blue> && stamina.value != stamina.maxValue)
 			stamina.value = Mathf.MoveTowards(stamina.value, stamina.maxValue, 1 * Time.deltaTime);
 	}
 
-	<blue>private</blue> <blue>void</blue> SideStep()
+	<blue>private</blue> <blue>void</blue> <yellow>SideStep</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10, sideStepLayer))
 		{
 			<purple>if</purple> (Input.GetKeyDown(KeyCode.E))
 			{
-				<purple>if</purple> (Vector3.Distance(hit.transform.position, transform.position) <= 10)
+				<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 10)
 				{
-					DefaultMovementsOff();
-					inSideStep = true;
-					movementOff = true;
-					sideStepCam.SetActive(true);
+					<yellow>DefaultMovementsOff</Animator>();
+					inSideStep = <blue>true</blue>;
+					movementOff = <blue>true</blue>;
+					sideStepCam.SetActive(<blue>true</blue>);
 					wall = hit.transform.gameObject.GetComponentInParent<WallWalk>();
 					GetComponentInChildren<CapsuleCollider>().radius = 0.4f;
-					playerAnim.Play("Left Turn");
+					playerAnim.Play("<red>Left Turn"</red>);
 				}
 			}
 		}
 	}
 
-	<blue>private</blue> <blue>void</blue> SideStepping()
+	<blue>private</blue> <blue>void</blue> <yellow>SideStepping</yellow>()
 	{
 		<purple>if</purple> (inSideStep && OnSideStepStart)
 		{
 			<purple>if</purple> (Input.GetKey(KeyCode.W))
-				transform.Translate(Vector3.forward * MaxSideStepSpeed * Time.deltaTime);
+				transform.Translate(<blue>Vector3</blue>.forward * MaxSideStepSpeed * Time.deltaTime);
 
 			<purple>if</purple> (Input.GetKeyDown(KeyCode.W))
 				playerAnim.speed = 1;
-			else <purple>if</purple> (Input.GetKeyUp(KeyCode.W))
+			<purple><purple>else</purple> if</purple> (Input.GetKeyUp(KeyCode.W))
 				playerAnim.speed = 0.02f;
 		}
 		<purple>if</purple> (inSideStep)
 		{
 			<purple>if</purple> (transform.rotation != sideStepRot)
 			{
-				Vector3 lookPos = wall.EndPos.position - transform.position;
+				<blue>Vector3</blue> lookPos = wall.EndPos.position - transform.position;
 				lookPos.y = 0;
-				sideStepRot = Quaternion.LookRotation(lookPos);
+				sideStepRot = <blue>Quaternion</blue>.LookRotation(lookPos);
 
-				transform.rotation = Quaternion.RotateTowards(transform.rotation, sideStepRot, 10 * Time.maximumDeltaTime);
+				transform.rotation = <blue>Quaternion</blue>.RotateTowards(transform.rotation, sideStepRot, 10 * Time.maximumDeltaTime);
 			}
 
-			<purple>if</purple> (Vector3.Distance(transform.position, new Vector3(wall.StartPos.position.x, wall.StartPos.position.y, wall.StartPos.position.z)) > 0.1f && OnSideStepStart == false)
-				transform.position = Vector3.MoveTowards(transform.position, new Vector3(wall.StartPos.position.x, wall.StartPos.position.y, wall.StartPos.position.z), 2 * Time.deltaTime);
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, new <blue>Vector3</blue>(wall.StartPos.position.x, wall.StartPos.position.y, wall.StartPos.position.z)) > 0.1f && OnSideStepStart == <blue>false</blue>)
+				transform.position = <blue>Vector3</blue>.MoveTowards(transform.position, new <blue>Vector3</blue>(wall.StartPos.position.x, wall.StartPos.position.y, wall.StartPos.position.z), 2 * Time.deltaTime);
 
-			<purple>if</purple> (Vector3.Distance(transform.position, new Vector3(wall.StartPos.position.x, wall.StartPos.position.y, wall.StartPos.position.z)) <= 0.1f)
-				OnSideStepStart = true;
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, new <blue>Vector3</blue>(wall.StartPos.position.x, wall.StartPos.position.y, wall.StartPos.position.z)) <= 0.1f)
+				OnSideStepStart = <blue>true</blue>;
 
-			<purple>if</purple> (Vector3.Distance(transform.position, wall.EndPos.transform.position) <= 0.5f)
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, wall.EndPos.transform.position) &lt;= 0.5f)
 			{
 				GetComponentInChildren<CapsuleCollider>().radius = 0.5f;
-				playerAnim.Play("Right Turn");
+				playerAnim.Play("<red>Right Turn"</red>);
 				mainCamera.transform.position = sideStepCam.transform.position;
-				sideStepCam.SetActive(false);
+				sideStepCam.SetActive(<blue>false</blue>);
 				StartCoroutine(OutSideStep());
-				OnSideStepStart = false;
-				wall = null;
-				inSideStep = false;
+				OnSideStepStart = <blue>false</blue>;
+				wall = <blue>null</blue>;
+				inSideStep = <blue>false</blue>;
 			}
 		}
 	}
 
-	<blue>private</blue> <blue>void</blue> Crawl()
+	<blue>private</blue> <blue>void</blue> <yellow>Crawl</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 5, crawlLayer))
 		{
 			<purple>if</purple> (Input.GetKeyDown(KeyCode.E))
 			{
-				<purple>if</purple> (Vector3.Distance(hit.transform.position, transform.position) <= 5)
+				<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) &lt;= 5)
 				{
-					DefaultMovementsOff();
-					inCrawl = true;
-					movementOff = true;
-					crawlCam.SetActive(true);
+					<yellow>DefaultMovementsOff</yellow>();
+					inCrawl = <blue>true</blue>;
+					movementOff = <blue>true</blue>;
+					crawlCam.SetActive(<blue>true</blue>);
 					crawl = hit.transform.gameObject.GetComponentInParent<Crawl>();
-					playerAnim.Play("Laying Down");
+					playerAnim.Play("<red>Laying Down"</red>);
 				}
 			}
 		}
 	}
 
-	<blue>private</blue> <blue>void</blue> Crawling()
+	<blue>private</blue> <blue>void</blue> <yellow>Crawling</yellow>()
 	{
 		<purple>if</purple> (inCrawl && onCrawlStart)
 		{
 			<purple>if</purple> (Input.GetKey(KeyCode.W))
-				transform.Translate(Vector3.forward * MaxCrawlSpeed * Time.deltaTime);
+				transform.Translate(<blue>Vector3</blue>.forward * MaxCrawlSpeed * Time.deltaTime);
 
 			<purple>if</purple> (Input.GetKeyDown(KeyCode.W))
 				playerAnim.speed = 1;
-			else <purple>if</purple> (Input.GetKeyUp(KeyCode.W))
+			<purple><purple>else</purple> if</purple> (Input.GetKeyUp(KeyCode.W))
 				playerAnim.speed = 0.02f;
 		}
 		<purple>if</purple> (inCrawl)
 		{
-			playerBody.transform.localPosition = new Vector3(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, -0.2f, 2.5f * Time.deltaTime), playerBody.transform.localPosition.z);
-			playerBody.transform.localScale = new Vector3(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 0.5f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
+			playerBody.transform.localPosition = new <blue>Vector3</blue>(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, -0.2f, 2.5f * Time.deltaTime), playerBody.transform.localPosition.z);
+			playerBody.transform.localScale = new <blue>Vector3</blue>(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 0.5f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
 
 			<purple>if</purple> (transform.rotation != crawlRot)
 			{
-				Vector3 lookPos = crawl.EndPos.position - transform.position;
+				<blue>Vector3</blue> lookPos = crawl.EndPos.position - transform.position;
 				lookPos.y = 0;
-				crawlRot = Quaternion.LookRotation(lookPos);
+				crawlRot = <blue>Quaternion</blue>.LookRotation(lookPos);
 
-				transform.rotation = Quaternion.RotateTowards(transform.rotation, crawlRot, 10 * Time.maximumDeltaTime);
+				transform.rotation = <blue>Quaternion</blue>.RotateTowards(transform.rotation, crawlRot, 10 * Time.maximumDeltaTime);
 			}
 
-			<purple>if</purple> (Vector3.Distance(transform.position, new Vector3(crawl.StartPos.position.x, crawl.StartPos.position.y, crawl.StartPos.position.z)) > 0.1f && onCrawlStart == false)
-				transform.position = Vector3.MoveTowards(transform.position, new Vector3(crawl.StartPos.position.x, crawl.StartPos.position.y, crawl.StartPos.position.z), 1 * Time.deltaTime);
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, new <blue>Vector3</blue>(crawl.StartPos.position.x, crawl.StartPos.position.y, crawl.StartPos.position.z)) > 0.1f && onCrawlStart == <blue>false</blue>)
+				transform.position = <blue>Vector3</blue>.MoveTowards(transform.position, new <blue>Vector3</blue>(crawl.StartPos.position.x, crawl.StartPos.position.y, crawl.StartPos.position.z), 1 * Time.deltaTime);
 
-			<purple>if</purple> (Vector3.Distance(transform.position, new Vector3(crawl.StartPos.position.x, crawl.StartPos.position.y, crawl.StartPos.position.z)) <= 0.1f)
-				onCrawlStart = true;
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, new <blue>Vector3</blue>(crawl.StartPos.position.x, crawl.StartPos.position.y, crawl.StartPos.position.z)) <= 0.1f)
+				onCrawlStart = <blue>true</blue>;
 
-			<purple>if</purple> (Vector3.Distance(transform.position, crawl.EndPos.transform.position) <= 0.5f)
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, crawl.EndPos.transform.position) <= 0.5f)
 			{
 				GetComponentInChildren<CapsuleCollider>().radius = 0.5f;
-				playerAnim.Play("Getting Up");
+				playerAnim.Play("<red>Getting Up"</red>);
 				mainCamera.transform.position = crawlCam.transform.position;
-				crawlCam.SetActive(false);
+				crawlCam.SetActive(<blue>false</blue>);
 				StartCoroutine(OutCrawl());
-				onCrawlStart = false;
-				crawl = null;
-				inCrawl = false;
+				onCrawlStart = <blue>false</blue>;
+				crawl = <blue>null</blue>;
+				inCrawl = <blue>false</blue>;
 			}
 		}
 	}
 
-	<blue>private</blue> <blue>void</blue> WallJump()
+	<blue>private</blue> <blue>void</blue> <yellow>WallJump</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10, jumpLayer))
 		{
 			Debug.DrawLine(transform.position, hit.point, Color.red);
 
-			<purple>if</purple> (Vector3.Distance(hit.transform.position, transform.position) <= 5)
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 5)
 			{
-				hideTooltip.gameObject.SetActive(true);
-				hideTooltip.position = new Vector3(hit.point.x, hit.transform.position.y + 1.75f, hit.point.z);
+				hideTooltip.gameObject.SetActive(<blue>true</blue>);
+				hideTooltip.position = new <blue>Vector3</blue>(hit.point.x, hit.transform.position.y + 1.75f, hit.point.z);
 			}
-			else
-				hideTooltip.gameObject.SetActive(false);
+			<purple>else</purple>
+				hideTooltip.gameObject.SetActive(<blue>false</blue>);
 
 			<purple>if</purple> (Input.GetKeyDown(KeyCode.E))
 			{
-				<purple>if</purple> (Vector3.Distance(hit.transform.position, transform.position) <= 5)
+				<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 5)
 				{
-					<purple>if</purple> (hit.transform.gameObject.GetComponent<WallJump>().Front == true)
+					<purple>if</purple> (hit.transform.gameObject.GetComponent<WallJump>().Front == <blue>true</blue>)
 					{
-						jumpPos = new Vector3(transform.position.x, transform.position.y, hit.transform.position.z - 2);
-						transform.rotation = Quaternion.LookRotation(-Vector3.forward, Vector3.up);
-						hit.transform.gameObject.GetComponent<WallJump>().Front = false;
+						jumpPos = new <blue>Vector3</blue>(transform.position.x, transform.position.y, hit.transform.position.z - 2);
+						transform.rotation = <blue>Quaternion</blue>.LookRotation(-<blue>Vector3</blue>.forward, <blue>Vector3</blue>.up);
+						hit.transform.gameObject.GetComponent<WallJump>().Front = <blue>false</blue>;
 					}
-					else <purple>if</purple> (hit.transform.gameObject.GetComponent<WallJump>().Back == true)
+					<purple><purple>else</purple> if</purple> (hit.transform.gameObject.GetComponent<WallJump>().Back == <blue>true</blue>)
 					{
-						jumpPos = new Vector3(transform.position.x, transform.position.y, hit.transform.position.z + 2);
-						transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
-						hit.transform.gameObject.GetComponent<WallJump>().Back = false;
+						jumpPos = new <blue>Vector3</blue>(transform.position.x, transform.position.y, hit.transform.position.z + 2);
+						transform.rotation = <blue>Quaternion</blue>.LookRotation(<blue>Vector3</blue>.forward, <blue>Vector3</blue>.up);
+						hit.transform.gameObject.GetComponent<WallJump>().Back = <blue>false</blue>;
 					}
 
-					inWallJump = true;
-					wallJumpCam.SetActive(true);
-					movementOff = true;
-					GetComponentInChildren<CapsuleCollider>().enabled = false;
-					playerAnim.Play("Jump Over");
+					inWallJump = <blue>true</blue>;
+					wallJumpCam.SetActive(<blue>true</blue>);
+					movementOff = <blue>true</blue>;
+					GetComponentInChildren<CapsuleCollider>().enabled = <blue>false</blue>;
+					playerAnim.Play("<red>Jump Over"</red>);
 				}
 			}
 		}
 	}
 
-	<blue>private</blue> <blue>void</blue> JumpOverWall()
+	<blue>private</blue> <blue>void</blue> <yellow>JumpOverWall</yellow>()
 	{
-		<purple>if</purple> (jumpPos != new Vector3(0, 0, 0))
+		<purple>if</purple> (jumpPos != new <blue>Vector3</blue>(0, 0, 0))
 		{
-			transform.position = Vector3.Lerp(transform.position, new Vector3(jumpPos.x, transform.position.y, jumpPos.z), 2 * Time.deltaTime);
+			transform.position = <blue>Vector3</blue>.Lerp(transform.position, new <blue>Vector3</blue>(jumpPos.x, transform.position.y, jumpPos.z), 2 * Time.deltaTime);
 
-			<purple>if</purple> (Vector3.Distance(transform.position, jumpPos) <= 0.6f)
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, jumpPos) <= 0.6f)
 			{
-				inWallJump = false;
-				wallJumpCam.SetActive(false);
-				movementOff = false;
-				GetComponentInChildren<CapsuleCollider>().enabled = true;
-				jumpPos = new Vector3(0, 0, 0);
+				inWallJump = <blue>false</blue>;
+				wallJumpCam.SetActive(<blue>false</blue>);
+				movementOff = <blue>false</blue>;
+				GetComponentInChildren<CapsuleCollider>().enabled = <blue>true</blue>;
+				jumpPos = new <blue>Vector3</blue>(0, 0, 0);
 			}
 		}
 	}
 			
-	/// <summary>
+	<dgreen>/// &lt;summary&gt;
 	/// Get wall Position where you can hide
-	/// </summary>
-	<blue>private</blue> <blue>void</blue> TakeCover()
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue>void</blue> <yellow>TakeCover</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 15, coverLayer))
 		{
-			<purple>if</purple> (Vector3.Distance(hit.transform.position, transform.position) >= 3)
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) >= 3)
 			{
 				Debug.DrawLine(transform.position, hit.point, Color.red);
 
-				<purple>if</purple> (Vector3.Distance(hit.transform.position, transform.position) <= 10)
+				<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 10)
 				{
-					hideTooltip.gameObject.SetActive(true);
-					hideTooltip.position = new Vector3(hit.point.x, hit.transform.position.y + 1.75f, hit.point.z);
+					hideTooltip.gameObject.SetActive(<blue>true</blue>);
+					hideTooltip.position = new <blue>Vector3</blue>(hit.point.x, hit.transform.position.y + 1.75f, hit.point.z);
 				}
-				else
-					hideTooltip.gameObject.SetActive(false);
+				<purple>else</purple>
+					hideTooltip.gameObject.SetActive(<blue>false</blue>);
 
 				<purple>if</purple> (Input.GetKeyDown(KeyCode.E))
 				{
-					<purple>if</purple> (Vector3.Distance(hit.transform.position, transform.position) <= 10)
+					<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 10)
 					{
-						inSprint = false;
-						movementOff = true;
+						inSprint = <blue>false</blue>;
+						movementOff = <blue>true</blue>;
 						currentVelocity = 0;
 						hideWall = hit.transform.GetComponentInChildren<HideWall>();
-						takingCover = true;
-						playerAnim.CrossFade("TakeCover", 0.1f);
-						inCrouch = true;
+						takingCover = <blue>true</blue>;
+						playerAnim.CrossFade("<red>TakeCover"</red>, 0.1f);
+						inCrouch = <blue>true</blue>;
 						coverPos = hit.point;
 					}
 				}
@@ -542,177 +917,177 @@
 		}
 	}
 
-	/// <summary>
-	/// Moves to position TakeCover(); got
-	/// </summary>
-	<blue>private</blue> <blue>void</blue> MoveToCover() 
+	<dgreen>/// &lt;summary&gt;
+	/// Moves to position <yellow>TakeCover</yellow>(); got
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue>void</blue> <yellow>MoveToCover</yellow>() 
 	{
-		<purple>if</purple> (coverPos != new Vector3(0, 0, 0))
+		<purple>if</purple> (coverPos != new <blue>Vector3</blue>(0, 0, 0))
 		{
-			Vector3 lookPos = coverPos - transform.position;
+			<blue>Vector3</blue> lookPos = coverPos - transform.position;
 			lookPos.y = 0;
-			Quaternion coverRot = Quaternion.LookRotation(lookPos);
+			<blue>Quaternion</blue> coverRot = <blue>Quaternion</blue>.LookRotation(lookPos);
 
-			transform.rotation = Quaternion.RotateTowards(transform.rotation, coverRot, 10 * Time.maximumDeltaTime);
+			transform.rotation = <blue>Quaternion</blue>.RotateTowards(transform.rotation, coverRot, 10 * Time.maximumDeltaTime);
 
-			transform.position = Vector3.MoveTowards(transform.position, new Vector3(coverPos.x, transform.position.y, coverPos.z), 3 * Time.deltaTime);
+			transform.position = <blue>Vector3</blue>.MoveTowards(transform.position, new <blue>Vector3</blue>(coverPos.x, transform.position.y, coverPos.z), 3 * Time.deltaTime);
 
-			<purple>if</purple> (Vector3.Distance(transform.position, coverPos) <= 1)
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, coverPos) <= 1)
 			{
-				movementOff = false;
-				playerAnim.CrossFade("Crouch Idle", 0.5f);
-				coverPos = new Vector3(0, 0, 0);
+				movementOff = <blue>false</blue>;
+				playerAnim.CrossFade("<red>Crouch Idle"</red>, 0.5f);
+				coverPos = new <blue>Vector3</blue>(0, 0, 0);
 			}
 
 			<purple>if</purple> (currentVelocity > 0)
 			{
-				inCrouch = false;
-				coverPos = new Vector3(0, 0, 0);
+				inCrouch = <blue>false</blue>;
+				coverPos = new <blue>Vector3</blue>(0, 0, 0);
 			}
 		}
 
-		<purple>if</purple> (takingCover && currentVelocity > 0 && hideWall.hiding == false)
+		<purple>if</purple> (takingCover && currentVelocity > 0 && hideWall.hiding == <blue>false</blue>)
 		{
-			takingCover = false;
+			takingCover = <blue>false</blue>;
 		}
 	}
 
-	/// <summary>
+	<dgreen>/// &lt;summary&gt;
 	/// Applies gravity when not grounded
-	/// </summary>
-	<blue>private</blue> <blue>void</blue> Gravity()
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue>void</blue> <yellow>Gravity</yellow>()
 	{
-		<purple>if</purple> (jumpPressed && grounded == false)
+		<purple>if</purple> (jumpPressed && grounded == <blue>false</blue>)
 		{
 			rb.AddForce(0, JumpForce, 0, ForceMode.VelocityChange);
 			JumpForce -= 10 * Time.deltaTime;
 		}
 
-		<purple>if</purple> (grounded == false && jumpPressed == false)
+		<purple>if</purple> (grounded == <blue>false</blue> && jumpPressed == <blue>false</blue>)
 		{
 			rb.AddForce(0, gravity, 0, ForceMode.VelocityChange);
 			gravity -= 10 * Time.deltaTime;
 		}
 	}
 
-	/// <summary>
+	<dgreen>/// &lt;summary&gt;
 	/// when jumping u jump keeping the same velocity
-	/// </summary>
-	<blue>private</blue> <blue>void</blue> OnJump()
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue>void</blue> <yellow>OnJump</yellow>()
 	{
-		<purple>if</purple> (Input.GetKeyDown(KeyCode.Space) && grounded && jumpPressed == false)
+		<purple>if</purple> (Input.GetKeyDown(KeyCode.Space) && grounded && jumpPressed == <blue>false</blue>)
 		{
 			rb.velocity = movementDirection.normalized * currentVelocity;
-			jumpPressed = true;
-			grounded = false;
+			jumpPressed = <blue>true</blue>;
+			grounded = <blue>false</blue>;
 		}
 	}
 
-	<blue>public</blue> <blue>void</blue> MovementChange(Vector3 movementInput)
+	<blue>public</blue> <blue>void</blue> <yellow>MovementChange</yellow>(<blue>Vector3</blue> movementInput)
 	{
 		<purple>if</purple> (jumpPressed)
 		{
 			<purple>if</purple> (inSprint)
 				MoveAgent(movementInput, 20, 25, MaxRunSpeed);
-			else
+			<purple>else</purple>
 				MoveAgent(movementInput, 0.1f, 0.1f, MaxWalkSpeed);
 		}
 
 
-		<purple>if</purple> (jumpPressed == false && inSprint == false)
+		<purple>if</purple> (jumpPressed == <blue>false</blue> && inSprint == <blue>false</blue>)
 			MoveAgent(movementInput, 20, 25, MaxWalkSpeed);
-		else <purple>if</purple> (inSprint == true)
+		<purple><purple>else</purple> if</purple> (inSprint == <blue>true</blue>)
 			MoveAgent(movementInput, 20, 25, MaxRunSpeed);
 
-		<purple>if</purple> (inCrouch && inSprint == false)
+		<purple>if</purple> (inCrouch && inSprint == <blue>false</blue>)
 			MoveAgent(movementInput, 20, 25, MaxCrouchSpeed);
 	}
 
-	<blue>private</blue> <blue>void</blue> MoveAgent(Vector3 movementInput, <blue>float</blue> _acceleration, <blue>float</blue> _deacceleration, <blue>float</blue> _maxSpeed)
+	<blue>private</blue> <blue>void</blue> <yellow>MoveAgent</yellow>(<blue>Vector3</blue> movementInput, <blue>float</blue> _acceleration, <blue>float</blue> _deacceleration, <blue>float</blue> _maxSpeed)
 	{
-		<purple>if</purple> (movementOff == false)
+		<purple>if</purple> (movementOff == <blue>false</blue>)
 		{
-			Vector3 forward = Camera.main.transform.forward;
-			Vector3 right = Camera.main.transform.right;
+			<blue>Vector3</blue> forward = Camera.main.transform.forward;
+			<blue>Vector3</blue> right = Camera.main.transform.right;
 			forward.y = 0;
 			right.y = 0;
 			forward = forward.normalized;
 			right = right.normalized;
 
-			Vector3 forwardRelativeVerticalInput = movementInput.z * forward;
-			Vector3 rightRelativeVerticalInput = movementInput.x * right;
+			<blue>Vector3</blue> forwardRelativeVerticalInput = movementInput.z * forward;
+			<blue>Vector3</blue> rightRelativeVerticalInput = movementInput.x * right;
 
-			Vector3 cameraRelativeMovement = forwardRelativeVerticalInput + rightRelativeVerticalInput;
+			<blue>Vector3</blue> cameraRelativeMovement = forwardRelativeVerticalInput + rightRelativeVerticalInput;
 
 			<purple>if</purple> (movementInput.magnitude > 0)
 				movementDirection = cameraRelativeMovement;
 
 			currentVelocity = CalculateSpeed(movementInput, _acceleration, _deacceleration, _maxSpeed);
 		}
-		else
+		<purple>else</purple>
 			currentVelocity = 0;
 	}
 
-	/// <summary>
+	<dgreen>/// &lt;summary&gt;
 	/// Rotate player to where ur walking to
-	/// </summary>
-	<blue>private</blue> <blue>void</blue> RotateAgent()
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue>void</blue> <yellow>RotateAgent</yellow>()
 	{
 		<purple>if</purple> (currentVelocity != 0)
 		{
-			Quaternion toRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
+			<blue>Quaternion</blue> toRotation = <blue>Quaternion</blue>.LookRotation(movementDirection, <blue>Vector3</blue>.up);
 
-			transform.rotation = Quaternion.Lerp(transform.rotation, toRotation, 8 * Time.deltaTime);
+			transform.rotation = <blue>Quaternion</blue>.Lerp(transform.rotation, toRotation, 8 * Time.deltaTime);
 		}
 	}
 
-	/// <summary>
+	<dgreen>/// &lt;summary&gt;
 	/// if pressing crouch button move player down and scale down movement speed and fov
-	/// </summary>
-	<blue>private</blue> <blue>void</blue> Crouch()
+	/// &lt;/summary&gt;</dgreen>
+	<blue>private</blue> <blue>void</blue> <yellow>Crouch</yellow>()
 	{
-		<purple>if</purple> (Input.GetKey(KeyCode.LeftControl) && crouchUsable == true)
+		<purple>if</purple> (Input.GetKey(KeyCode.LeftControl) && crouchUsable == <blue>true</blue>)
 		{
 			VcamSettings.instance.FOVValue = 40;
-			playerBody.transform.localPosition = new Vector3(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, -0.2f, 2.5f * Time.deltaTime), playerBody.transform.localPosition.z);
-			playerBody.transform.localScale = new Vector3(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 0.5f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
-			inSprint = false;
-			inCrouch = true;
+			playerBody.transform.localPosition = new <blue>Vector3</blue>(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, -0.2f, 2.5f * Time.deltaTime), playerBody.transform.localPosition.z);
+			playerBody.transform.localScale = new <blue>Vector3</blue>(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 0.5f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
+			inSprint = <blue>false</blue>;
+			inCrouch = <blue>true</blue>;
 		}
-		else
+		<purple>else</purple>
 		{
-			playerBody.transform.localPosition = new Vector3(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, 0.3f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localPosition.z);
-			playerBody.transform.localScale = new Vector3(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 1, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
+			playerBody.transform.localPosition = new <blue>Vector3</blue>(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, 0.3f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localPosition.z);
+			playerBody.transform.localScale = new <blue>Vector3</blue>(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 1, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
 
-			<purple>if</purple> (crouchUsable == false)
+			<purple>if</purple> (crouchUsable == <blue>false</blue>)
 			{
 				crouchOffTime -= Time.deltaTime;
 				<purple>if</purple> (crouchOffTime <= 0)
 				{
-					crouchUsable = true;
+					crouchUsable = <blue>true</blue>;
 					crouchOffTime = 0.4f;
 				}
 			}
 
-			<purple>if</purple> (takingCover == false)
-				inCrouch = false;
+			<purple>if</purple> (takingCover == <blue>false</blue>)
+				inCrouch = <blue>false</blue>;
 		}
 
 		<purple>if</purple> (Input.GetKeyUp(KeyCode.LeftControl))
 		{
-			crouchUsable = false;
+			crouchUsable = <blue>false</blue>;
 			VcamSettings.instance.FOVValue = 50;
-			inCrouch = false;
+			inCrouch = <blue>false</blue>;
 		}
 	}
 
-	<blue>public</blue> <blue>void</blue> GoCrouch()
+	<blue>public</blue> <blue>void</blue> <yellow>GoCrouch</yellow>()
 	{
-		playerBody.transform.localPosition = new Vector3(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, 0, 0.5f * Time.maximumDeltaTime), playerBody.transform.localPosition.z);
-		playerBody.transform.localScale = new Vector3(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 0.5f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
+		playerBody.transform.localPosition = new <blue>Vector3</blue>(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, 0, 0.5f * Time.maximumDeltaTime), playerBody.transform.localPosition.z);
+		playerBody.transform.localScale = new <blue>Vector3</blue>(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 0.5f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
 	}
 
-	<blue>private</blue> <blue>void</blue> Doors()
+	<blue>private</blue> <blue>void</blue> <yellow>Doors</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10, interactiveLayer))
@@ -721,85 +1096,86 @@
 			{
 				<purple>if</purple> (door != hit.transform.GetComponent<ClosetDoors>())
 				{
-					door.OnObject = false;
-					door = null;
+					door.OnObject = <blue>false</blue>;
+					door = <blue>null</blue>;
 				}
 			}
-			else
+			<purple>else</purple>
 			{
 				door = hit.transform.GetComponent<ClosetDoors>();
 
-				<purple>if</purple> (Vector3.Distance(hit.transform.position, transform.position) <= 5)
+				<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 5)
 					door.OnTheObject();
 			}
 
 			Debug.DrawLine(transform.position, hit.point, Color.red);
 		}
-		else
+		<purple>else</purple>
 		{
 			<purple>if</purple> (door != null)
 			{
-				door.OnObject = false;
-				door = null;
+				door.OnObject = <blue>false</blue>;
+				door = <blue>null</blue>;
 			}
 		}
 	}    
 	
-	<blue>private</blue> <blue>void</blue> Pickup()
+	<blue>private</blue> <blue>void</blue> <yellow>Pickup</yellow>()
 	{
 		RaycastHit hit;
 		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10, pickups))
 		{
 			pickupItem = hit.transform.GetComponent<Pickup>();
-			pickupItem.outline.SetActive(true);
+			pickupItem.outline.SetActive(<blue>true</blue>);
 
-			Debug.Log("Pickup");
+			Debug.Log("<red>Pickup"</red>);
 			Debug.DrawLine(transform.position, hit.point, Color.red);
 
 
 			<purple>if</purple> (Input.GetKeyDown(KeyCode.E))
 			{
-				<purple>if</purple> (Vector3.Distance(hit.transform.position, transform.position) <= 5)
+				<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 5)
 				{
-					print("picked up");
+					print("<red>picked up"</red>);
 				}
 			}
 		}
-		else
+		<purple>else</purple>
 		{
 			<purple>if</purple> (pickupItem != null)
 			{
-				pickupItem.outline.SetActive(false);
-				pickupItem = null;
+				pickupItem.outline.SetActive(<blue>false</blue>);
+				pickupItem = <blue>null</blue>;
 			}
 		}
 	}
 
-	<blue>private</blue> <blue>float</blue> CalculateSpeed(Vector3 movementInput, <blue>float</blue> _acceleration, <blue>float</blue> _deacceleration, <blue>float</blue> _maxSpeed)
+	<blue>private</blue> <blue>float</blue> <yellow>CalculateSpeed</yellow>(<blue>Vector3</blue> movementInput, <blue>float</blue> _acceleration, <blue>float</blue> _deacceleration, <blue>float</blue> _maxSpeed)
 	{
 		<purple>if</purple> (movementInput.magnitude > 0)
 			currentVelocity += _acceleration * Time.deltaTime;
-		else
+		<purple>else</purple>
 			currentVelocity -= _deacceleration * Time.deltaTime;
 
 		return Mathf.Clamp(currentVelocity, 0, _maxSpeed);
 	}   
 	
-	<blue>private</blue> IEnumerator OutSideStep()
+	<blue>private</blue> IEnumerator <yellow>OutSideStep</yellow>()
 	{
 		yield return new WaitForSeconds(1);
-		movementOff = false;
+		movementOff = <blue>false</blue>;
 	}    
 
-	<blue>private</blue> IEnumerator OutCrawl()
+	<blue>private</blue> IEnumerator <yellow>OutCrawl</yellow>()
 	{
 		yield return new WaitForSeconds(4.5f);
-		movementOff = false;
+		movementOff = <blue>false</blue>;
 	}
 }</code></pre>
 			</div>
 		</div>
 	</div>
+
 </body>
   <script>
 	$(function(){

@@ -12,6 +12,17 @@ h1 {
   transition: margin 1s ease-in-out;
 }
 
+h2{
+  font-family: "Montserrat Medium";
+  max-width: 40ch;
+  color: rgb(255, 255, 255);
+}
+
+tit{
+  font-size: 2em;
+  color: #00ffea;
+}
+
 @media only screen and (max-height: 1080px) {    
 #left-column .videoplayer {
   margin-bottom: 30px;
@@ -36,7 +47,7 @@ margin: 50px;
 }
 
 #left-column {
-width: 50%;
+width: 35%;
 }
 
 #left-column h1 {
@@ -58,7 +69,7 @@ border-radius: 5px;
 }
 
 #right-column {
-width: 50%;
+width: 65%;
 }
 
 #right-column h2 {
@@ -93,7 +104,11 @@ pre{
 }
 
 blue{
-  color: rgb(0, 102, 255);
+  color: rgb(0, 162, 255);
+}
+
+dgreen{
+  color: darkgreen;
 }
 
 green{
@@ -104,11 +119,16 @@ red{
   color: rgb(255, 38, 0);
 }
 
+yellow{
+  color: rgb(255, 255, 0);
+}
+
 purple{
   color: rgba(255, 9, 255, 0.87);
 }
 
 pre {
+  margin-top: 50px;
   white-space: pre-wrap;
 }
 
