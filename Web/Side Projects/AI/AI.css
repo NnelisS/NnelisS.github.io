@@ -1,3 +1,271 @@
-body{
+body {
     background-color: #18222d;
-}
+  }  
+  
+  h1 {
+    font-family: "Montserrat Medium";
+    max-width: 40ch;
+    color: rgb(208, 208, 208);
+    text-align: start;
+    transform: scale(1.94);
+    transition: padding 1s ease-in-out;
+    transition: margin 1s ease-in-out;
+  }
+  
+  h2{
+    font-family: "Montserrat Medium";
+    max-width: 40ch;
+    color: rgb(255, 255, 255);
+  }
+  
+  tit{
+    font-size: 1.6em;
+    color: #00ffea;
+  }
+  
+  @media only screen and (max-height: 2160px){
+    #main pre{
+      font-size: 1.2em;
+    }
+  
+  #left-column h1{
+    margin-left: 2%;
+    padding-top: 2%;
+  }
+  
+    #left-column h2{
+      padding-top: 1%;
+    }
+  
+  }
+  
+  @media only screen and (max-height: 1080px) {    
+  #left-column .videoplayer {
+    margin-bottom: 30px;
+  }  
+  
+  #left-column{
+    width: 50%;
+    }
+    
+  }
+  
+  @media only screen and (max-height: 900px) {    
+  #left-column .videoplayer{
+    margin-bottom: -120px;
+  }
+  
+  #main pre{
+    font-size: 0.7em;
+    max-width: 50%;
+    justify-content: end;
+  }
+  
+  #left-column{
+  width: 40%;
+  }
+  
+  #right-column{
+    width: 60%;
+    padding-left: 20%;
+  }
+  #right-column pre{
+    justify-content: start;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    padding-left: 0%;
+    padding-top: 0%;
+  
+  }
+  
+  #left-column h2{
+    padding-top: 30%;
+  }
+  }
+  
+  @media only screen and (max-height: 500px){
+    #left-column .videoplayer{
+      margin-bottom: -120px;
+    }
+    
+    #main pre{
+      font-size: 0.3em;
+      max-width: 50%;
+      justify-content: end;
+    }
+    
+    #left-column{
+    width: 40%;
+    }
+    
+    #right-column{
+      width: 60%;
+      padding-left: 20%;
+    }
+    #right-column pre{
+      justify-content: start;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      padding-left: 0%;
+      padding-top: 0%;
+    
+    }
+    
+    #left-column h2{
+      padding-top: 30%;
+    }
+  }
+  
+  @media only screen and (max-width: 1170px) and (max-height: 2532px) {
+  #left-column video{
+    margin-bottom: -120px;
+  }
+  
+  #left-column .videoplayer{
+    margin-bottom: -120px;
+  }
+  
+  #main pre{
+    font-size: 1.3em;
+    max-width: 50%;
+    justify-content: end;
+  }
+  
+  #left-column{
+  width: 40%;
+  }
+  
+  #right-column{
+    width: 60%;
+    padding-left: 5%;
+  }
+  #right-column pre{
+    justify-content: start;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    padding-left: 0%;
+    padding-top: 0%;
+  
+  }
+  
+  #left-column h1{
+    padding-bottom: 1%;
+  }
+  
+  #left-column h2{
+    padding-top: 60%;
+  }
+  }
+  
+  #main {
+  display: flex;
+  margin-top: 50px;
+  margin-left: 1%;
+  }
+  
+  #end{
+    margin-left: 1%;
+  }
+  
+  #end h1{
+    margin-left: 30%;
+  }
+  
+  #left-column {
+  width: 35%;
+  }
+  
+  #left-column h1 {
+  font-size: 24px;
+    font-family: Rockwell, "Courier New", Courier, Georgia, Times, "Times New Roman", serif;
+  margin-bottom: 20px;
+  margin-left: 32%;
+    color: #ff0000;
+  }
+  
+  #left-column video {
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+  }
+  
+  #right-column {
+  width: 65%;
+  }
+  
+  #right-column h2 {
+  font-size: 34px;
+  margin-bottom: 20px;
+  width: 100%;
+  color: #007bff;
+  font-family: Rockwell, "Courier New", Courier, Georgia, Times, "Times New Roman", serif;
+  }
+  
+  @media only screen and (max-width: 1170px) and (max-height: 2532px) {
+  #left-column video{
+    width: 426px;
+    height: 240px; 
+  }
+  }
+  
+  #codebox {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  
+  pre{
+    font-size: smaller;
+    color: aliceblue;
+    padding-left: 1%;
+    padding-top: 1%;
+    width: fit-content;
+    max-width: fit-content;
+    border-style: solid;
+    background-color: rgb(46, 46, 46);
+  }
+  
+  blue{
+    color: rgb(0, 162, 255);
+  }
+  
+  dgreen{
+    color: darkgreen;
+  }
+  
+  green{
+    color: greenyellow;
+  }
+  
+  red{
+    color: rgb(255, 38, 0);
+  }
+  
+  yellow{
+    color: rgb(255, 255, 0);
+  }
+  
+  purple{
+    color: rgba(255, 9, 255, 0.87);
+  }
+  
+  lblue{
+    color: lightblue;
+  }
+  
+  pre {
+    margin-top: 50px;
+    white-space: pre-wrap;
+  }
+  
+  code {
+    display: block;
+    padding: 10px;
+    font-family: monospace;
+  }

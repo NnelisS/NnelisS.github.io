@@ -3,7 +3,7 @@
 	<link rel="icon" type="image/png" sizes="32x32" href="/Pictures/favicon-32x32.png">
 
 	<title>AI</title>
-	
+
 	<link rel="stylesheet" type="text/css" href="/Web/Side Projects/AI/AI.css">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script>
@@ -14,7 +14,599 @@
   </head>
   <body>
 	<div id="navbar"></div>
-  </body>
+    <div id="main">
+		<div id="left-column">
+			<h1>AI Movement</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/AI.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
+			</div>
+			<h2>
+				<tit>Summary</tit>
+				<br>I created an AI for my third person game to roam on parts of the map and attack the player.
+				I completed this by using the Unity engines <blue>NavMeshAgent</blue>. This built in asset is great to create AI en pathing on the map.
+				For this script I tried to keep the code as minimal as possible.
+				I completed this by using the quickest ways to call or return stuff and using <blue>scriptable objects</blue> for the AI settings.
+			
+				<br><br><tit>Movement</tit>
+				<br>We start off by creating a <blue>NavMeshAgent</blue> variable, all values of the AI itself are already stored in, like the height, width of the AI.
+				I then create an enum that stores all states of the AI.
+				So for now I use idle, roam, find and attack.
+				Most of these states speak for themselfs.
+				
+				<br><br>- <yellow>Idle</yellow>: Stands still but still has the ability to look around in the area.
+				<br><br>- <yellow>Roam</yellow>: Walk around the walkable area trying to find the player.
+				<br><br>- <yellow>Attack</yellow>: When the player is in the AI it's vision it goes to the players exact position to attack him.
+				<br><br>- <yellow>Find/LastPos</yellow>: When the player escape the AI by moving around a corner so the AI loses it's player vision, the AI goes to the last position the player was in still being able to find the player around the corner.
+
+				<br><br>This all seems smaal for an AI, but since it's just the minimal code it's always expendable.
+			</h2>
+		</div>
+		<div id="right-column">
+			<div id="codebox">
+<pre><code><blue>using</blue> UnityEngine.AI;
+<blue>using</blue> UnityEditor;
+
+<blue><blue>public</blue> enum</blue> <green>AgentState</green>
+{
+	idle = 0,
+	roam,
+	find,
+	attack
+}
+
+[RequireComponent(<blue>typeof</blue>(NavMeshAgent))]
+<blue><blue>public</blue> class</blue> <green>AIMovement</green> : MonoBehaviour
+{
+	<blue><blue>private</blue> float</blue> idleTime = 2;
+
+	[Header("<red>AI State"</red>)]
+	<blue><blue>public</blue></blue> <green>AgentState</green> state;
+
+	[Space(20)]
+	[Header("<red>Agent Info"</red>)]
+	[SerializeField] <blue>private</blue> NavMeshAgent agent;
+
+	[Space(20)]
+	[Header("<red>AI Settings"</red>)]
+	<blue><blue>public</blue></blue> AISO AIStats;
+
+	[HideInInspector]
+	<blue><blue>public</blue></blue> Vector3 GoToPos;
+
+	<blue>void</blue> <yellow>Start</yellow>()
+	{
+		<purple>if</purple> (agent == <blue>null</blue>)
+			agent = GetComponent<NavMeshAgent>();
+	}
+
+	<blue>void</blue> <yellow>Update</yellow>()
+	{
+		<purple>switch</purple> (state)
+		{
+			<purple>case</purple> <green>AgentState</green>>.idle:
+				<yellow>Idle</yellow>();
+				<purple>break</purple>;
+			<purple>case</purple> <green>AgentState</green>>.roam:
+				<yellow>Roam</yellow>();
+				<purple>break</purple>;
+			<purple>case</purple> <green>AgentState</green>>.find:
+				<yellow>LastPos</yellow>();
+				<purple>break</purple>;
+			<purple>case</purple> <green>AgentState</green>>.attack:
+				<yellow>Attack</yellow>();
+				<purple>break</purple>;
+			default:
+				break;
+		}
+	}
+
+	<blue><blue>private</blue> void</blue> <yellow>Idle</yellow>()
+	{
+		transform.Rotate(<blue>new</blue> Vector3(0, 20, 0), 100 * Time.deltaTime);
+
+		idleTime -= Time.deltaTime;
+			<purple>if</purple> (idleTime <= 0)
+		{
+
+			<blue>int</blue> <lblue>minplus</lblue> = Random.Range(0, 2);
+			print(<lblue>minplus</lblue>);
+
+				<purple>if</purple> (<lblue>minplus</lblue> == 0)
+				agent.SetDestination(<blue>new</blue> Vector3(transform.position.x + Random.Range(AIStats.MinRoamRange, AIStats.MaxRoamRange), transform.position.y, transform.position.z + Random.Range(AIStats.MinRoamRange, AIStats.MaxRoamRange)));
+			<purple>else if</purple> (<lblue>minplus</lblue> == 1)
+				agent.SetDestination(<blue>new</blue> Vector3(transform.position.x - Random.Range(AIStats.MinRoamRange, AIStats.MaxRoamRange), transform.position.y, transform.position.z - Random.Range(AIStats.MinRoamRange, AIStats.MaxRoamRange)));
+
+			state = <green>AgentState</green>.roam;
+
+			idleTime = Random.Range(1, 2.5f);
+		}
+	}
+
+	<blue><blue>private</blue> void</blue> <yellow>Roam</yellow>()
+	{
+			<purple>if</purple> (agent.pathPending || agent.remainingDistance > 0.1f)
+			<purple>return</purple>;
+
+		state = <green>AgentState</green>.idle;
+	}
+
+	<blue><blue>private</blue> void</blue> <yellow>LastPos</yellow>()
+	{
+			<purple>if</purple> (agent.pathPending || agent.remainingDistance < 0.1f)
+			state = </green>AgentState</green>.roam;
+
+		agent.SetDestination(GoToPos);
+	}
+
+	<blue><blue>private</blue> void</blue> <yellow>Attack</yellow>()
+	{
+			<purple>if</purple> (agent.pathPending || agent.remainingDistance < 0.1f)
+			state = <green>AgentState</green>.idle;
+
+		agent.SetDestination(GoToPos);
+	}
+
+	<blue><blue>private</blue> void</blue> <yellow>OnDrawGizmosSelected</yellow>()
+	{
+		Gizmos.color = Color.blue;
+		Gizmos.DrawLine(transform.position, agent.destination);
+	}
+}</code></pre>
+			</div>
+			<div id="codebox">
+			</div>
+		</div>
+	</div>
+
+    <div id="main">
+		<div id="left-column">
+			<h1>AI Scriptable Object</h1>
+			<h2>
+				<tit>AISO</tit>
+				<br>AISO stands for <br>(Artificial Intelligence Scriptable Object).
+				I created this scriptable object so I can create a variety of different enemies with differen speed and distances.
+				
+				<br><br>So all information is stored in the scriptable object of the AI and <green>AIMovement</green> can call these variables.
+			</h2>
+		</div>
+		<div id="right-column">
+			<div id="codebox">
+<pre><code>[CreateAssetMenu(fileName = <red>"AIData"</red>, menuName = <red>"AIStats"</red>, order = 0)]
+<blue><blue>public</blue> class</blue> <green>AISO</green> : ScriptableObject
+{
+	[Header("Speed Settings")]
+	<blue><blue>public</blue> float</blue> RoamSpeed = 2;
+	<blue><blue>public</blue> float</blue> MinRoamRange = 5;
+	<blue><blue>public</blue> float</blue> MaxRoamRange = 25;
+	<blue><blue>public</blue> float</blue> AttackSpeed = 3;
+
+	[Space(20)]
+	[Header(<red>"Vision Cone Settings"</red>)]
+	[Range(0, 100)] <blue><blue>public</blue> float</blue> ViewRadius = 25;
+	[Range(0, 360)] <blue><blue>public</blue> float</blue> ViewAngle = 90;
+
+	[Space(10)]
+	[Header(<red>"Layer Settings"</red>)]
+	</blue><blue>public</blue></blue> LayerMask LookForLayer;
+	</blue><blue>public</blue></blue> LayerMask ObstacleLayer;
+}</code></pre>
+			</div>
+		</div>
+	</div>
+
+	<div id="main">
+		<div id="left-column">
+			<h1>AI Vision Cone</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/AI.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
+			</div>
+			<h2>
+				<tit>Vision Cone</tit>
+				<br>With the help of <a href="https://www.youtube.com/watch?v=rQG9aUWarwE"><blue>Sebastion Lague</blue></a> I was able to create a advanced vision cone.
+				This vision Cone works great for visualization on what the AI sees.
+
+				<br><br>What happens in the script is that it uses a mesh and basically cuts it where it's not being seen by the AI.
+				Also this AI vision cone is easily reusable for games with multiple target as you can see in the <yellow>FindVisibleTargets</yellow>() function.
+				But what I did is with one player and get that players position for the AI to attack.
+				So the AI sees the player in it's vision cone and will enter it's own component <green>AIMovement</green> and gets the <blue>GoToPos</blue> variable.
+				Also this <yellow>FindVisible</yellow>() function is updated with a delay so it doesn't enter the scripts values every frame.
+
+				<br><br>For the vision cone settings of the AI I entered the AI scriptable object to get the radius and angle of the AI.
+
+				<br><br>This vision cone script does a lot of calculation for the mesh, since <purple>if</purple> you remove the calculations for the cutting the mesh would just go straight through every object.
+				<br><br>In the codebox below I created the <green>FieldOfViewEditor</green> script to have the vision cone appear on the screen and be customized as custom editor.
+			</h2>
+		</div>
+		<div id="right-column">
+			<div id="codebox">
+<pre><code>[RequireComponent(<blue>typeof</blue>(AIMovement))]
+<blue><blue>public</blue> class</blue> <green>FieldOfView</green> : MonoBehaviour
+{
+	<blue>private</blue> <green>AIMovement</green> AI;
+
+	[HideInInspector] <blue><blue>public</blue> float</blue> ViewRadius;
+	[HideInInspector] <blue><blue>public</blue> float</blue> ViewAngle;
+
+	<blue>private</blue> LayerMask TargetMask;
+	<blue>private</blue> LayerMask ObstacleMask;
+
+	[HideInInspector]
+	<blue><blue>public</blue></blue> List&lt;Transform> VisibleTargets = <blue>new</blue> List&lt;Transform>();
+
+	[SerializeField] <blue>private</blue> <blue>float</blue> MeshResolution;
+	[SerializeField] <blue>private</blue> <blue>int</blue> EdgeResolveIterations;
+	[SerializeField] <blue>private</blue> <blue>float</blue> EdgeDstThreshold;
+
+	<blue><blue>public</blue></blue> MeshFilter ViewMeshFilter;
+	Mesh viewMesh;
+
+	<blue><blue>public</blue></blue> Vector3 TargetPos;
+
+    <blue>private void</blue> <yellow>Awake</yellow>()
+    {
+		AI = GetComponent&lt;AIMovement>();
+    }
+
+    <blue>void</blue> <yellow>Start</yellow>()
+	{
+		viewMesh = <blue>new</blue> Mesh();
+		viewMesh.name = <red>"View Mesh"</red>;
+		ViewMeshFilter.mesh = viewMesh;
+
+		StartCoroutine(<red>"FindTargetsWithDelay"</red>, .2f);
+	}
+
+    <blue>private</blue> <blue>void</blue> <yellow>FixedUpdate</yellow>()
+    {
+		<yellow>SetSettings</yellow>();
+    }
+
+    IEnumerator <yellow>FindTargetsWithDelay</yellow>(<blue>float</blue> <lblue>delay</lblue>)
+	{
+		<purple>while</purple> (<blue><blue>true</blue></blue>)
+		{
+		<purple>yield return</purple> <blue>new</blue> WaitForSeconds(<lblue>delay</lblue>);
+			<yellow>FindVisibleTargets</yellow>();
+		}
+	}
+
+	<blue>void</blue> <yellow>LateUpdate</yellow>()
+	{
+		<yellow>DrawFieldOfView</yellow>();
+	}
+
+	<blue>private</blue> <blue>void</blue> <yellow>SetSettings</yellow>()
+    {
+        	<purple>if</purple> (ViewRadius != AI.AIStats.ViewRadius)
+			ViewRadius = AI.AIStats.ViewRadius;
+
+		<purple>if</purple> (ViewAngle != AI.AIStats.ViewAngle)
+			ViewAngle = AI.AIStats.ViewAngle;
+
+		<purple>if</purple> (TargetMask != AI.AIStats.LookForLayer)
+			TargetMask = AI.AIStats.LookForLayer;
+
+		<purple>if</purple> (ObstacleMask != AI.AIStats.ObstacleLayer)
+			ObstacleMask = AI.AIStats.ObstacleLayer;
+	}
+
+	<blue>private void</blue> <yellow>FindVisibleTargets</yellow>()
+	{
+		VisibleTargets.Clear();
+		Collider[] <lblue>targetsInViewRadius</lblue> = Physics.OverlapSphere(transform.position, ViewRadius, TargetMask);
+
+		<purple>for</purple> (<blue>int</blue> <lblue>i</lblue> = 0; i < <lblue>targetsInViewRadius</lblue>.Length; <lblue>i</lblue>++)
+		{
+			Transform target = <lblue>targetsInViewRadius</lblue>[<lblue>i</lblue>].transform;
+			Vector3 <lblue>dirToTarget</lblue> = (<lblue>target</lblue>.position - transform.position).normalized;
+			<purple>if</purple> (Vector3.Angle(transform.forward, <lblue>dirToTarget</lblue>) < ViewAngle / 2)
+			{
+				<blue>float</blue> dstToTarget = Vector3.Distance(transform.position, <lblue>target</lblue>.position);
+				<purple>if</purple> (!Physics.Raycast(transform.position, <lblue>dirToTarget</lblue>, dstToTarget, ObstacleMask))
+				{
+					VisibleTargets.Add(<lblue>target</lblue>);
+					AI.GoToPos = <lblue>new</lblue> Vector3(<lblue>target</lblue>.position.x, <lblue>target</lblue>.position.y, <lblue>target</lblue>.position.z);
+					AI.state = AgentState.attack;
+				}
+			}
+		}
+	}
+
+	<blue>void</blue> <yellow>DrawFieldOfView(</yellow>)
+	{
+		<blue>int</blue> <lblue>stepCount</lblue> = Mathf.RoundToInt(ViewAngle * MeshResolution);
+		<blue>float</blue> <lblue>stepAngleSize</lblue> = ViewAngle / <lblue>stepCount</lblue>;
+		List&lt;Vector3> <lblue>viewPoints</lblue> = <blue>new</blue> List&lt;Vector3>();
+		<green>ViewCastInfo</green> <lblue>oldViewCast</lblue> = <blue>new</blue> <green>ViewCastInfo</green>();
+		<purple>for</purple> (<blue>int</blue> <lblue>i</lblue> = 0; i <= <lblue>stepCount</lblue>; <lblue>i</lblue>++)
+		{
+			<blue>float</blue> <lblue>angle</lblue> = transform.eulerAngles.y - ViewAngle / 2 + <lblue>stepAngleSize</lblue> * <lblue>i</lblue>;
+			<green>ViewCastInfo</green> <lblue>newViewCast</lblue> = <yellow>ViewCast</yellow>(angle);
+
+			<purple>if</purple> (<lblue>i</lblue> > 0)
+			{
+				<blue><blue>bool</blue></blue> <lblue>edgeDstThresholdExceeded</lblue> = Mathf.Abs(<lblue>oldViewCast</lblue>.dst - <lblue>newViewCast</lblue>.dst) > EdgeDstThreshold;
+				<purple>if</purple> (<lblue>oldViewCast</lblue>.hit != <lblue>newViewCast</lblue>.hit || (<lblue>oldViewCast</lblue>.hit && <lblue>newViewCast</lblue>.hit && <lblue>edgeDstThresholdExceeded</lblue>))
+				{
+					<green>EdgeInfo</green> edge = FindEdge(<lblue>oldViewCast</lblue>, <lblue>newViewCast</lblue>);
+					<purple>if</purple> (<lblue>edge</lblue>.pointA != Vector3.zero)
+					{
+						<lblue>viewPoints</lblue>.Add(<lblue>edge</lblue>.pointA);
+					}
+					<purple>if</purple> (<lblue>edge</lblue>.pointB != Vector3.zero)
+					{
+						<lblue>viewPoints</lblue>.Add(<lblue>edge</lblue>.pointB);
+					}
+				}
+			}
+
+			<lblue>viewPoints</lblue>.Add(<lblue>newViewCast</lblue>.point);
+			<lblue>oldViewCast</lblue> = <lblue>newViewCast</lblue>;
+		}
+
+		<blue>int</blue> <lblue>vertexCount</lblue> = <lblue>viewPoints</lblue>.Count + 1;
+		Vector3[] <lblue>vertices</lblue> = new Vector3[<lblue>vertexCount</lblue>];
+		int[] <lblue>triangles</lblue> = <blue>new int</blue>[(<lblue>vertexCount</lblue> - 2) * 3];
+
+		<lblue>vertices</lblue>[0] = Vector3.zero;
+		<purple>for</purple> (<blue>int</blue> <lblue>i</lblue> = 0; <lblue>i</lblue> < <lblue>vertexCount</lblue> - 1; <lblue>i</lblue>++)
+		{
+			<lblue>vertices</lblue>[<lblue>i</lblue> + 1] = transform.InverseTransformPoint(<lblue>viewPoints</lblue>[<lblue>i</lblue>]);
+
+			<purple>if</purple> (<lblue>i</lblue> < <lblue>vertexCount</lblue> - 2)
+			{
+				<lblue>triangles</lblue>[<lblue>i</lblue> * 3] = 0;
+				<lblue>triangles</lblue>[<lblue>i</lblue> * 3 + 1] = i + 1;
+				<lblue>triangles</lblue>[<lblue>i</lblue> * 3 + 2] = i + 2;
+			}
+		}
+
+		viewMesh.Clear();
+
+		viewMesh.<lblue>vertices</lblue> = <lblue>vertices</lblue>;
+		viewMesh.<lblue>triangles</lblue> = <lblue>triangles</lblue>;
+		viewMesh.RecalculateNormals();
+	}
+
+
+	<green>EdgeInfo</green> <yellow>FindEdge</yellow>(<green>ViewCastInfo</green> <lblue>minViewCast</lblue>, <green>ViewCastInfo</green> <lblue>maxViewCast</lblue>)
+	{
+		<blue>float</blue> <lblue>minAngle</lblue> = <lblue>minViewCast</lblue>.angle;
+		<blue>float</blue> <lblue>maxAngle</lblue> = <lblue>maxViewCast</lblue>.angle;
+		Vector3 <lblue>minPoint</lblue> = Vector3.zero;
+		Vector3 <lblue>maxPoint</lblue> = Vector3.zero;
+
+		<purple>for</purple> (<blue>int</blue> <lblue>i</lblue> = 0; <lblue>i</lblue> < EdgeResolveIterations; <lblue>i</lblue>++)
+		{
+			<blue>float</blue> <lblue>angle</lblue> = (<lblue>minAngle</lblue> + <lblue>maxAngle</lblue>) / 2;
+			<green>ViewCastInfo</green> <lblue>newViewCast</lblue> = ViewCast(angle);
+
+			<blue><blue>bool</blue></blue> <lblue>edgeDstThresholdExceeded</lblue> = Mathf.Abs(<lblue>minViewCast</lblue>.dst - <lblue>newViewCast</lblue>.dst) > EdgeDstThreshold;
+			<purple>if</purple> (<lblue>newViewCast</lblue>.hit == <lblue>minViewCast</lblue>.hit && !<lblue>edgeDstThresholdExceeded</lblue>)
+			{
+				<lblue>minAngle</lblue> = <lblue>angle</lblue>;
+				<lblue>minPoint</lblue> = <lblue>newViewCast</lblue>.point;
+			}
+			<purple>else</purple>
+			{
+				<lblue>maxAngle</lblue> = <lblue>angle</lblue>;
+				<lblue>maxPoint</lblue> = <lblue>newViewCast</lblue>.point;
+			}
+		}
+
+		<purple>return</purple> <blue>new</blue> <green>EdgeInfo</green>(<lblue>minPoint</lblue>, <lblue>maxPoint</lblue>);
+	}
+
+
+	<green>ViewCastInfo</green> <yellow>ViewCast</yellow>(<blue>float</blue> <lblue>globalAngle</lblue>)
+	{
+		Vector3 dir = DirFromAngle(<lblue>globalAngle</lblue>, <blue>true</blue>);
+		RaycastHit hit;
+
+		<purple>if</purple> (Physics.Raycast(transform.position, <lblue>dir</lblue>,	<blue>out</blue> </blue>hit</lblue>, ViewRadius, ObstacleMask))
+		{
+			<purple>return</purple> <blue>new</blue> <green>ViewCastInfo</green>(<blue>true</blue>, <lblue>hit</lblue>.point, <lblue>hit</lblue>.distance, <lblue>globalAngle</lblue>);
+		}
+		<purple>else</purple>
+		{
+			<purple>return</purple> <blue>new</blue> <green>ViewCastInfo</green>(<blue>false</blue>, transform.position + dir * ViewRadius, ViewRadius, <lblue>globalAngle</lblue>);
+		}
+	}
+
+	<blue>public</blue> Vector3 <yellow>DirFromAngle</yellow>(<blue>float</blue> <lblue>angleInDegrees</lblue>, <blue>bool</blue> <lblue>angleIsGlobal</lblue>)
+	{
+		<purple>if</purple> (!<lblue>angleIsGlobal</lblue>)
+		{
+			<lblue>angleInDegrees</lblue> += transform.eulerAngles.y;
+		}
+		<purple>return</purple> <blue>new</blue> Vector3(Mathf.Sin(<lblue>angleInDegrees</lblue> * Mathf.Deg2Rad), 0, Mathf.Cos(<lblue>angleInDegrees</lblue> * Mathf.Deg2Rad));
+	}
+
+	<blue>public</blue> struct <green>ViewCastInfo</green>
+	{
+		<blue><blue>public</blue> <blue>bool</blue></blue> hit;
+		<blue>public</blue> Vector3 point;
+		<blue>public</blue> <blue>float</blue> dst;
+		<blue>public</blue> <blue>float</blue> angle;
+
+		<blue>public</blue> <green>ViewCastInfo</green>(<blue>bool</blue> <lblue>_hit</lblue>, Vector3 <lblue>_point</lblue>, <blue>float</blue> <lblue>_dst</lblue>, <blue>float</blue> <lblue>_angle</lblue>)
+		{
+			hit = <lblue>_hit</lblue>;
+			point = <lblue>_point</lblue>;
+			dst = <lblue>_dst</lblue>;
+			angle = <lblue>_angle</lblue>;
+		}
+	}
+
+	<blue>public</blue> struct <green>EdgeInfo</green>
+	{
+		<blue>public</blue> Vector3 pointA;
+		<blue>public</blue> Vector3 pointB;
+
+		<blue>public</blue> <green>EdgeInfo</green>(Vector3 <lblue>_point</lblue>A, Vector3 <lblue>_point</lblue>B)
+		{
+			pointA = <lblue>_point</lblue>A;
+			pointB = <lblue>_point</lblue>B;
+		}
+	}
+}</code></pre>
+			</div>
+			<div id="codebox">
+<pre><code><blue>using</blue> UnityEditor;
+
+[CustomEditor (<blue>typeof</blue> (FieldOfView))]
+<blue>public class</blue> <green>FieldOfViewEditor</green> : Editor
+{
+	<blue>private void</blue> <yellow>OnSceneGUI</yellow>()
+	{
+		FieldOfView <lblue>fov</lblue> = (FieldOfView)target;
+		Handles.color = Color.white;
+		Handles.DrawWireArc(<lblue>fov</lblue>.transform.position, Vector3.up, Vector3.forward, 360, <lblue>fov</lblue>.ViewRadius);
+
+		Vector3 <lblue>viewAngleA</lblue> = <lblue>fov</lblue>.DirFromAngle(-<lblue>fov</lblue>.ViewAngle / 2, <blue>false</blue>);
+		Vector3 <lblue>viewAngleB</lblue> = <lblue>fov</lblue>.DirFromAngle(<lblue>fov</lblue>.ViewAngle / 2, <blue>false</blue>);
+
+		Handles.DrawLine(<lblue>fov</lblue>.transform.position, <lblue>fov</lblue>.transform.position + <lblue>viewAngleA</lblue> * <lblue>fov</lblue>.ViewRadius);
+		Handles.DrawLine(<lblue>fov</lblue>.transform.position, <lblue>fov</lblue>.transform.position + <lblue>viewAngleB</lblue>  * <lblue>fov</lblue>.ViewRadius);
+
+		Handles.color = Color.red;
+		<purple>foreach</purple> (Transform visibleTarget <purple>in</purple> <lblue>fov</lblue>.VisibleTargets)
+			Handles.DrawLine(<lblue>fov</lblue>.transform.position, <lblue>visibleTarget</lblue>.position);
+	}
+}</code></pre>
+			</div>
+		</div>
+	</div>
+
+	<div id="main">
+		<div id="left-column">
+			<h1>Sound Barrier</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos//AI Sound barier.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
+			</div>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos//AI Sound barier 2.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
+			</div>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos//AI Sound barier 3.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
+			</div>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos//AI Sound barier 4.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
+			</div>
+			<h2>
+				<tit>Summary</tit>
+				<br>What I created here is a sound barrier for the player that can be pickup up by the AI.
+				This gives the AI the players position and makes it more challenging for the player because he has to be silent.
+				I created this script myself and it's fully customizable.
+
+				<br><br><tit>Sound Barrier</tit>
+				<br>This <green>SoundBarrier</green> script creates a 2d circle around the player that grows bigger walking and multiplies when sprinting.
+				This is a fun way for the player to play around with how fast he can go through the map and when to stay silent.
+
+				<br><br>It's hard to see in the videos but there is a blue line from the AI to the player to indicate where the AI is moving towards.
+				So when the green circle(sound barrier) hit the AI the player enters the AI when that happens the AI script updates with a delay so it doesn't update getcomponent every frame and changes the AI <blue>GoToPos</blue> to the players Position.
+				This works like a charm and can be modified in multiple ways, such as adding effect when you as player gets heard or and an effect or UI effect to the player so it knows to be silent.
+			</h2>
+		</div>
+		<div id="right-column">
+			<div id="codebox">
+<pre><code><blue>using</blue> UnityEditor;
+
+<blue>public class</blue> <green>SoundBarrier</green> : MonoBehaviour
+{
+	<blue>private</blue> <green>AgentMovement</green> agent;
+
+	<blue>public</blue> List&lt;Transform> EnemyHeard = <blue>new</blue> List&lt;Transform>();
+
+    [Header(<red>"Noise Info"</red>)]
+    [Range(0, 20)]
+    [SerializeField] private float currentNoise;
+
+    [Space(20)]
+    [Header(<red>"Noise Settings"</red>)]
+    [SerializeField] <blue>private float</blue> MaxWalkNoise = 10;
+    [SerializeField] <blue>private float</blue> MaxRunNoise = 20;
+
+    [SerializeField] <blue>private</blue> LayerMask enemyLayer;
+
+	<blue>void</blue> <yellow>Start</yellow>()
+    {
+        agent = GetComponentInParent&lt;AgentMovement>();
+        StartCoroutine(<red>"FindTargetsWithDelay"</red>, 0.2f);
+
+    }
+
+	</blue>void</blue> Update()
+    {
+        <purple>if</purple> (agent.currentVelocity > 0 && agent.currentVelocity <= 2.5f)
+        {
+            <purple>if</purple> (currentNoise >= MaxWalkNoise)
+                currentNoise = MaxWalkNoise;
+
+            <purple>if</purple> (currentNoise <= MaxWalkNoise)
+                currentNoise += 0.2f * agent.currentVelocity * 4 * Time.deltaTime;
+        }
+		<purple>else if</purple> (agent.currentVelocity > 2.5f && agent.currentVelocity <= 8)
+        {
+            <purple>if</purple> (currentNoise <= MaxRunNoise)
+                currentNoise += 0.2f * agent.currentVelocity * 4 * Time.deltaTime;
+        }
+		<pruple>else if</purple> (agent.currentVelocity <= 0)
+            <purple>if</purple> (currentNoise >= 0)
+                currentNoise -= 1 * Time.maximumDeltaTime;
+    }
+
+	<blue>private void</blue> <yellow>NoiseHit</yellow>()
+    {
+        EnemyHeard.Clear();
+        Collider[] <lblue>enemy</lblue> = Physics.OverlapSphere(transform.position, currentNoise, enemyLayer);
+
+        <purple>for</purple> (<blue>int</blue> <lblue>i</lblue> = 0; <lblue>i</lblue> < <lblue>enemy</lblue>.Length; <lblue>i</lblue>++)
+        {
+            Transform <lblue>target</lblue> = <lblue>enemy</lblue>[<lblue>i</lblue>].transform;
+            Vector3 <lblue>dirToTarget</lblue> = (<lblue>target</lblue>.position - transform.position).normalized;
+            <purple>if</purple> (Vector3.Angle(transform.forward, <lblue>dirToTarget</lblue>) < 360 / 2)
+            {
+                Debug.Log(<lblue>target</lblue>.name);
+
+                EnemyHeard.Add(<lblue>target</lblue>);
+                <purple>for</purple> (<blue>int</blue> <lblue>a</lblue> = 0; <lblue>a</lblue> < EnemyHeard.Count; <lblue>a</lblue>++)
+                {
+                    EnemyHeard[<lblue>a</lblue>].GetComponent&lt;AIMovement>().GoToPos = transform.position;
+                    EnemyHeard[<lblue>a</lblue>].GetComponent&lt;AIMovement>().state = AgentState.find;
+                }
+            }
+        }
+    }
+
+	<blue>private void</blue> <yellow>OnDrawGizmos</yellow>()
+    {
+        Handles.color = Color.green;
+        Handles.DrawSolidArc(transform.position, Vector3.down, Vector3.right, 360, currentNoise);
+    }
+
+    IEnumerator <yellow>FindTargetsWithDelay</yellow>(<blue>float</blue> <lblue>delay</lblue>)
+    {
+		<purple>while</purple> (<blue>true</blue>)
+        {
+			<purple>yield return</purple> <blue>new</blue> WaitForSeconds(<lblue>delay</lblue>);
+			<yellow>NoiseHit</yellow>();
+        }
+    }
+}</code></pre>
+			</div>
+		</div>
+	</div>
+
+	<div id="main">
+		<div id="left-column">
+		</div>
+		<div id="right-column">
+			<div id="codebox">
+			</div>
+		</div>
+	</div>
+</body>
   <script>
 	$(function(){
 	  $("#Footer").load("/Web/Footer/index.html");

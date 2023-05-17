@@ -28,16 +28,29 @@ tit{
     font-size: 1.2em;
   }
 
-  
+#left-column h1{
+  margin-left: 2%;
+  padding-top: 2%;
+}
+
+  #left-column h2{
+    padding-top: 1%;
+  }
+
 }
 
 @media only screen and (max-height: 1080px) {    
 #left-column .videoplayer {
   margin-bottom: 30px;
 }  
+
+#left-column{
+  width: 50%;
+  }
+  
 }
 
-@media only screen and (max-height: 720px) {    
+@media only screen and (max-height: 900px) {    
 #left-column .videoplayer{
   margin-bottom: -120px;
 }
@@ -69,6 +82,40 @@ width: 40%;
 #left-column h2{
   padding-top: 30%;
 }
+}
+
+@media only screen and (max-height: 500px){
+  #left-column .videoplayer{
+    margin-bottom: -120px;
+  }
+  
+  #main pre{
+    font-size: 0.3em;
+    max-width: 50%;
+    justify-content: end;
+  }
+  
+  #left-column{
+  width: 40%;
+  }
+  
+  #right-column{
+    width: 60%;
+    padding-left: 20%;
+  }
+  #right-column pre{
+    justify-content: start;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    padding-left: 0%;
+    padding-top: 0%;
+  
+  }
+  
+  #left-column h2{
+    padding-top: 30%;
+  }
 }
 
 @media only screen and (max-width: 1170px) and (max-height: 2532px) {
