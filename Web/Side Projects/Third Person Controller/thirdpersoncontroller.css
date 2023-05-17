@@ -23,10 +23,24 @@ tit{
   color: #00ffea;
 }
 
+@media only screen and (max-height: 4000px){
+  #main pre{
+    font-size: 3em;
+  }
+  
+#left-column{
+  width: 60%;
+}
+}
+
 @media only screen and (max-height: 2160px){
   #main pre{
-    font-size: 1.2em;
+    font-size: 1.4em;
   }
+
+#left-column{
+  width: 60%;
+}
 
 #left-column h1{
   margin-left: 2%;
@@ -37,26 +51,38 @@ tit{
     padding-top: 1%;
   }
 
+  #right-column{
+    padding-left: 1%;
+  }
 }
 
 @media only screen and (max-height: 1080px) {    
-#left-column .videoplayer {
+#main pre{
+  font-size: smaller;
+}
+
+  #left-column .videoplayer {
   margin-bottom: 30px;
 }  
 
 #left-column{
   width: 50%;
   }
+
+  #right-column{
+    padding-left: 2%;
+  }
   
 }
 
-@media only screen and (max-height: 900px) {    
+
+@media only screen and (max-height: 800px) {    
 #left-column .videoplayer{
   margin-bottom: -120px;
 }
 
 #main pre{
-  font-size: 0.7em;
+  font-size: .7em;
   max-width: 50%;
   justify-content: end;
 }
@@ -67,7 +93,7 @@ width: 40%;
 
 #right-column{
   width: 60%;
-  padding-left: 20%;
+  padding-left: 8%;
 }
 #right-column pre{
   justify-content: start;
@@ -84,13 +110,13 @@ width: 40%;
 }
 }
 
-@media only screen and (max-height: 500px){
+@media only screen and (max-height: 720px){
   #left-column .videoplayer{
     margin-bottom: -120px;
   }
   
   #main pre{
-    font-size: 0.3em;
+    font-size: 0.7em;
     max-width: 50%;
     justify-content: end;
   }

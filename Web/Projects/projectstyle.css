@@ -37,6 +37,12 @@ html {
     flex-wrap: wrap;
   }
   
+  @media only screen and (max-height: 10000px) {
+    .grid{
+      width: 50%;
+    }
+  }
+
   @media only screen and (max-height: 1080px) {    
     .grid {
       width: 50%;
