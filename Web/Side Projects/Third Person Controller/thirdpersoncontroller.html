@@ -18,7 +18,7 @@
 		<div id="left-column">
 			<h1>Movement and Animation</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TPC Animation and Movement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TPC Animation and Movement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h2>
 				<tit>Summary</tit>
@@ -380,7 +380,7 @@
 		<div id="left-column">
 			<h1>Headmovement + Flashlight</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP Flashlight w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP Flashlight w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h2>
 				<tit>Head Movement</tit>
@@ -431,7 +431,7 @@
 		<div id="left-column">
 			<h1>Interactives</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP interactives.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP interactives.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h2>
 				<tit>Summary</tit>
@@ -539,7 +539,7 @@
 		<div id="left-column">
 			<h1>Ragdoll (OnDeath)</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP ragdoll.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP ragdoll.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h2>
 				<tit>Ragdoll</tit>
@@ -635,10 +635,10 @@
 		<div id="left-column">
 			<h1>Crouching and Hiding</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP Movetocover w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP Movetocover w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>			
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP Movetocover.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP Movetocover.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h2>
 				<tit>Summary</tit>
@@ -863,7 +863,7 @@
 		<div id="left-column">
 			<h1>Walljump</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TPC Walljump.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TPC Walljump.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h2>
 				<tit>Summary</tit>
@@ -1049,37 +1049,306 @@
 		<div id="left-column">
 			<h1>SideStep</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP sidestep.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP sidestep.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP sidestep w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP sidestep w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h2>
 				<tit>Summary</tit>
-				<br>The wall jump mechanic is a great addition to the game because it's a fun way to progress to parts in a level, 
-				such as something that's blocking the path.
-				
-				<br><br><tit>Wall Jump</tit>
-				<br>I created this mechanic with the <yellow>Walljump</yellow>() function that does all the raycast and position information.
-				And the <yellow>JumpOverWall</yellow>() function that does all the calculation, position and animations.
+				<br>In lots of tripple AAA third person games such as <a href="https://www.ea.com/games/a-way-out" target="_blank"><blue>A Way Out</blue></a> you have the ability to sidestep across tight ledges or caves.
+				I recreated this mechanic and made it in my own style,
+				<br><br>
+				This <green>AgentMovement</green> mechanic is the <yellow>Sidestep</yellow>() mechanic this works the same as the other mechanics by first getting the information with the raycast
+				and then calculating the rotations and movements.
 
-				<br><br>The raycast again finds the layer of the object needed to use this mechanic.
-				When it hits the tooltip shows up to know how to use this mechanic.
-				When you press the correct button the player starts to do it's <red>"jump over"</red> animation and the <blue>wallJumpCam</blue> is also turned on to get a cool cinematic transition over the wall.
+				<br><br>
+				<tit>Side Step</tit>
+				<br>First the <yellow>SideStep</yellow>() function get all information on the object and calls it to use the <yellow>SideStepping</yellow>() function.
+				The <yellow>SideStepping</yellow>() function is all about updating the position, rotation and distance.
+				When u enter the sidestep mechanic I created the calculation to point the players forwards position to the <green>Wall</green>.<blue>EndPos</blue>.<blue>position</blue>.
+				What I do then is turn off the default game movement and turn on the sidestep movement.
 
-				<br><br>The cool thing about UnityEngines <blue>Cinemachine</blue> is that you can add transitions if you turn off one of their camera.
-				This helps a lot since you can create multiple individual cinemachine camera with their own fov, animation, rotation and following targets.
-				Cinemachine then helps u with it's own smooth or hard transition of any changes on the cam itself such as the fov or rotation.
+				<br><br>I am going to change the local movement to the new unity input system, but for now with debugging it works out fine.
 
-				<br><br><br><br><tit>Wall Side</tit>
-				<br>What I then created for the wall object itself is a way to decide which side of the wall you are on and which side you have to jump to whenever you press the correct button.
-				This works great since I only call the wall objects script once when pressin the correct button.
-				
+				<br><br>I also turn on the sidestepping animation and cinemachine sidestep camera.
+
 			</h2>
 		</div>
 		<div id="right-column">
 			<div id="codebox">
-<pre><code></code></pre>
+<pre><code><blue>using</blue> Cinemachine;
+	
+[RequireComponent(<blue>typeof</blue>(Rigidbody))]
+<blue>public</blue> class <green>AgentMovement</green> : MonoBehaviour
+{
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> movementOff { <blue>get</blue>; <blue>set;</blue> }
+
+	[Header(<red>"Player Settings"</red>)]
+	<blue>public</blue> <blue>float</blue> MaxSideStepSpeed = 2;
+
+	[Space(30)]
+	[Header(<red>"Cam Settings"</red>)]
+	[SerializeField] <blue>private</blue> GameObject mainCamera;
+	[SerializeField] <blue>private</blue> GameObject sideStepCam;
+
+	[Space(10)]
+	[Header(<red>"Vcam Settings"</red>)]
+	[SerializeField] <blue>private</blue> CinemachineFreeLook mainVcam;
+	[SerializeField] <blue>private</blue> CinemachineVirtualCamera sideStepVcam;
+
+	[Space(20)]
+	[Header(<red>"SideStep Settings"</red>)]
+	[SerializeField] <blue>private</blue> LayerMask sideStepLayer;
+
+	[<blue>field</blue>: Space(20)]
+	[Header(<red>"SideStep Info"</red>)]
+	<blue>public</blue> <blue>bool</blue> OnSideStepStart = <blue>false</blue>;
+
+	[SerializeField] <blue>private</blue> WallWalk wall;
+
+	<blue>private</blue> <blue>Quaternion</blue> sideStepRot;
+
+	[<blue>field</blue> : Space(20)]
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> inSideStep { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
+	[<blue>field</blue>: Space(20)]
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Start</yellow>()
+	{
+		playerAnim = GetComponentInChildren<Animator>();
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Update</yellow>()
+	{
+		<purple>if</purple> (movementOff == <blue>false</blue>)
+		{
+			<yellow>SideStep</yellow>(); 
+		}
+
+		<yellow>SideStepping</yellow>();
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>SideStep</yellow>()
+	{
+		RaycastHit hit;
+		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10, sideStepLayer))
+		{
+			<purple>if</purple> (Input.GetKeyDown(KeyCode.E))
+			{
+				<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) <= 10)
+				{
+					<yellow>DefaultMovementsOff</Animator>();
+					inSideStep = <blue>true</blue>;
+					movementOff = <blue>true</blue>;
+					sideStepCam.SetActive(<blue>true</blue>);
+					wall = hit.transform.gameObject.GetComponentInParent<WallWalk>();
+					GetComponentInChildren<CapsuleCollider>().radius = 0.4f;
+					playerAnim.Play("<red>Left Turn"</red>);
+				}
+			}
+		}
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>SideStepping</yellow>()
+	{
+		<purple>if</purple> (inSideStep && OnSideStepStart)
+		{
+			<purple>if</purple> (Input.GetKey(KeyCode.W))
+				transform.Translate(<blue>Vector3</blue>.forward * MaxSideStepSpeed * Time.deltaTime);
+
+			<purple>if</purple> (Input.GetKeyDown(KeyCode.W))
+				playerAnim.speed = 1;
+			<purple><purple>else</purple> if</purple> (Input.GetKeyUp(KeyCode.W))
+				playerAnim.speed = 0.02f;
+		}
+		<purple>if</purple> (inSideStep)
+		{
+			<purple>if</purple> (transform.rotation != sideStepRot)
+			{
+				<blue>Vector3</blue> lookPos = wall.EndPos.position - transform.position;
+				lookPos.y = 0;
+				sideStepRot = <blue>Quaternion</blue>.LookRotation(lookPos);
+
+				transform.rotation = <blue>Quaternion</blue>.RotateTowards(transform.rotation, sideStepRot, 10 * Time.maximumDeltaTime);
+			}
+
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, new <blue>Vector3</blue>(wall.StartPos.position.x, wall.StartPos.position.y, wall.StartPos.position.z)) > 0.1f && OnSideStepStart == <blue>false</blue>)
+				transform.position = <blue>Vector3</blue>.MoveTowards(transform.position, new <blue>Vector3</blue>(wall.StartPos.position.x, wall.StartPos.position.y, wall.StartPos.position.z), 2 * Time.deltaTime);
+
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, new <blue>Vector3</blue>(wall.StartPos.position.x, wall.StartPos.position.y, wall.StartPos.position.z)) <= 0.1f)
+				OnSideStepStart = <blue>true</blue>;
+
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, wall.EndPos.transform.position) &lt;= 0.5f)
+			{
+				GetComponentInChildren<CapsuleCollider>().radius = 0.5f;
+				playerAnim.Play("<red>Right Turn"</red>);
+				mainCamera.transform.position = sideStepCam.transform.position;
+				sideStepCam.SetActive(<blue>false</blue>);
+				StartCoroutine(OutSideStep());
+				OnSideStepStart = <blue>false</blue>;
+				wall = <blue>null</blue>;
+				inSideStep = <blue>false</blue>;
+			}
+		}
+	}
+	
+	<blue>private</blue> IEnumerator <yellow>OutSideStep</yellow>()
+	{
+		yield return new WaitForSeconds(1);
+		movementOff = <blue>false</blue>;
+	}    
+}</code></pre>
+			</div>
+		</div>
+	</div>
+	<div id="main">
+		<div id="left-column">
+			<h1>Crawling</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP Crawling.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
+			</div>
+			<h2>
+				<tit>Summary</tit>
+				<br>Just like I told in the sidestep mechanic this is also something you see a lot in triple AAA third person games.
+				Crawling through tight spaces is something I really wanted aswell for the variety of progression I can create in the level design.
+
+				<br><br><tit>Crawling</tit>
+				<br>The <yellow>Crawl</yellow>() function again works for the raycast and gathering of all information that is needed for this mechanic.
+				Then the <yellow>Crawling</yellow>() does all the updates for position, rotation, animation and settings.
+				Again I've created the calculation to rotate the players forward rotation to the end point of the crawl object you've entered.
+				I enter the <green>crawl</green> script and gather the <blue>Startpos</blue> and <blue>EndPos</blue> position to set the player right.
+
+				<br><br>I turn off the defaultmovement en turn on the local movement for the crawling mechanic.
+				Again I am going to change this from local to the new unity engine input system.
+
+
+				<br><br>As extra I turn on the crawl virtual camera from cinemachine and set the camera to the players third person perspective.
+				At the end when it reaches the <blue>EndPos</blue> of the <green>Wall</green> script it plays a little animation so the script has time to turn every default movement and setting on again.
+				This helps a lot so you as player don't immediatly move and break the game by maybe walking back or something like that.
+			</h2>
+
+		</div>
+		<div id="right-column">
+			<div id="codebox">
+<pre><code><blue>using</blue> Cinemachine;
+	
+[RequireComponent(<blue>typeof</blue>(Rigidbody))]
+<blue>public</blue> class <green>AgentMovement</green> : MonoBehaviour
+{
+	<blue>protected</blue> <blue>Vector3</blue> movementDirection;
+
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> movementOff { <blue>get</blue>; <blue>set;</blue> }
+
+	[Header(<red>"Player Settings"</red>)]
+	<blue>public</blue> <blue>float</blue> MaxCrawlSpeed = 2;
+
+	[Space(30)]
+	[Header(<red>"Cam Settings"</red>)]
+	[SerializeField] <blue>private</blue> GameObject mainCamera;
+	[SerializeField] <blue>private</blue> GameObject crawlCam;
+
+	[Space(10)]
+	[Header(<red>"Vcam Settings"</red>)]
+	[SerializeField] <blue>private</blue> CinemachineFreeLook mainVcam;
+	
+	[Space(60)]
+	[Header(<red>"Crawl Settings"</red>)]
+	[SerializeField] <blue>private</blue> LayerMask crawlLayer;
+
+	[<blue>field</blue>: Space(20)]
+	[Header(<red>"Crawl Info"</red>)]
+	<blue>public</blue> <blue>bool</blue> onCrawlStart = <blue>false</blue>;
+
+	[SerializeField] <blue>private</blue> Crawl crawl;
+	<blue>private</blue> <blue>Quaternion</blue> crawlRot;
+
+	[<blue>field</blue> : Space(20)]
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> inCrawl { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
+	[<blue>field</blue>: Space(20)]
+
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Update</yellow>()
+	{
+		<purple>if</purple> (movementOff == <blue>false</blue>)
+		{
+			<yellow>Crawl</yellow>();
+		}
+
+		<yellow>Crawling</yellow>();
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Crawl</yellow>()
+	{
+		RaycastHit hit;
+		<purple>if</purple> (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 5, crawlLayer))
+		{
+			<purple>if</purple> (Input.GetKeyDown(KeyCode.E))
+			{
+				<purple>if</purple> (<blue>Vector3</blue>.Distance(hit.transform.position, transform.position) &lt;= 5)
+				{
+					<yellow>DefaultMovementsOff</yellow>();
+					inCrawl = <blue>true</blue>;
+					movementOff = <blue>true</blue>;
+					crawlCam.SetActive(<blue>true</blue>);
+					crawl = hit.transform.gameObject.GetComponentInParent<Crawl>();
+					playerAnim.Play("<red>Laying Down"</red>);
+				}
+			}
+		}
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Crawling</yellow>()
+	{
+		<purple>if</purple> (inCrawl && onCrawlStart)
+		{
+			<purple>if</purple> (Input.GetKey(KeyCode.W))
+				transform.Translate(<blue>Vector3</blue>.forward * MaxCrawlSpeed * Time.deltaTime);
+
+			<purple>if</purple> (Input.GetKeyDown(KeyCode.W))
+				playerAnim.speed = 1;
+			<purple><purple>else</purple> if</purple> (Input.GetKeyUp(KeyCode.W))
+				playerAnim.speed = 0.02f;
+		}
+		<purple>if</purple> (inCrawl)
+		{
+			playerBody.transform.localPosition = new <blue>Vector3</blue>(playerBody.transform.localPosition.x, Mathf.MoveTowards(playerBody.transform.localPosition.y, -0.2f, 2.5f * Time.deltaTime), playerBody.transform.localPosition.z);
+			playerBody.transform.localScale = new <blue>Vector3</blue>(playerBody.transform.localScale.x, Mathf.Lerp(playerBody.transform.localScale.y, 0.5f, 0.5f * Time.maximumDeltaTime), playerBody.transform.localScale.z);
+
+			<purple>if</purple> (transform.rotation != crawlRot)
+			{
+				<blue>Vector3</blue> lookPos = crawl.EndPos.position - transform.position;
+				lookPos.y = 0;
+				crawlRot = <blue>Quaternion</blue>.LookRotation(lookPos);
+
+				transform.rotation = <blue>Quaternion</blue>.RotateTowards(transform.rotation, crawlRot, 10 * Time.maximumDeltaTime);
+			}
+
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, new <blue>Vector3</blue>(crawl.StartPos.position.x, crawl.StartPos.position.y, crawl.StartPos.position.z)) > 0.1f && onCrawlStart == <blue>false</blue>)
+				transform.position = <blue>Vector3</blue>.MoveTowards(transform.position, new <blue>Vector3</blue>(crawl.StartPos.position.x, crawl.StartPos.position.y, crawl.StartPos.position.z), 1 * Time.deltaTime);
+
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, new <blue>Vector3</blue>(crawl.StartPos.position.x, crawl.StartPos.position.y, crawl.StartPos.position.z)) <= 0.1f)
+				onCrawlStart = <blue>true</blue>;
+
+			<purple>if</purple> (<blue>Vector3</blue>.Distance(transform.position, crawl.EndPos.transform.position) <= 0.5f)
+			{
+				GetComponentInChildren<CapsuleCollider>().radius = 0.5f;
+				playerAnim.Play("<red>Getting Up"</red>);
+				mainCamera.transform.position = crawlCam.transform.position;
+				crawlCam.SetActive(<blue>false</blue>);
+				StartCoroutine(OutCrawl());
+				onCrawlStart = <blue>false</blue>;
+				crawl = <blue>null</blue>;
+				inCrawl = <blue>false</blue>;
+			}
+		}
+	}
+
+	<blue>private</blue> IEnumerator <yellow>OutCrawl</yellow>()
+	{
+		yield return new WaitForSeconds(4.5f);
+		movementOff = <blue>false</blue>;
+	}
+}</code></pre>
 			</div>
 		</div>
 	</div>
@@ -1087,39 +1356,39 @@
 		<div id="left-column">
 			<h1>Movement and Animation</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TPC Animation and Movement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TPC Animation and Movement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h1>Headmovement + Flashlight</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP Flashlight w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP Flashlight w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h1>Interactives</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP interactives.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP interactives.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h1>Ragdoll (OnDeath)</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP ragdoll.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP ragdoll.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h1>Hiding + Crouching</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP Movetocover w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP Movetocover w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h1>Walljump</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TPC Walljump.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TPC Walljump.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h1>Sidestep</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP sidestep w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP sidestep w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h1>Crawling</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP Crawling.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP Crawling.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 			<h1>Destructibles + attack</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP walldestroy.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TCP walldestroy.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
 
 		</div>
