@@ -863,7 +863,7 @@
 		<div id="left-column">
 			<h1>Walljump</h1>
 			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TPC Walljump.mp4" frameborder="0" allow="autoplay; encrypted-media;" autoplay loop allowfullscreen></video>
+				<video width="615" height="355" src="/Videos/TPC Walljump.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls autoplay loop allowfullscreen></video>
 			</div>
 			<h2>
 				<tit>Summary</tit>
@@ -871,10 +871,21 @@
 				such as something that's blocking the path.
 				
 				<br><br><tit>Wall Jump</tit>
-				<br>I created this mechanic with the <yellow>Walljump</yellow>() function that does all the raycast and position information
+				<br>I created this mechanic with the <yellow>Walljump</yellow>() function that does all the raycast and position information.
 				And the <yellow>JumpOverWall</yellow>() function that does all the calculation, position and animations.
 
 				<br><br>The raycast again finds the layer of the object needed to use this mechanic.
+				When it hits the tooltip shows up to know how to use this mechanic.
+				When you press the correct button the player starts to do it's <red>"jump over"</red> animation and the <blue>wallJumpCam</blue> is also turned on to get a cool cinematic transition over the wall.
+
+				<br><br>The cool thing about UnityEngines <blue>Cinemachine</blue> is that you can add transitions if you turn off one of their camera.
+				This helps a lot since you can create multiple individual cinemachine camera with their own fov, animation, rotation and following targets.
+				Cinemachine then helps u with it's own smooth or hard transition of any changes on the cam itself such as the fov or rotation.
+
+				<br><br><br><br><tit>Wall Side</tit>
+				<br>What I then created for the wall object itself is a way to decide which side of the wall you are on and which side you have to jump to whenever you press the correct button.
+				This works great since I only call the wall objects script once when pressin the correct button.
+
 			</h2>
 		</div>
 		<div id="right-column">
@@ -912,9 +923,7 @@
 
 	[<blue>field</blue>: Space(20)]
 	[Header(<red>"Hide Info"</red>)]
-	[SerializeField] <blue>private</blue> HideWall hideWall;
 	[SerializeField] <blue>private</blue> Transform hideTooltip;
-	[SerializeField] <blue>private</blue> <blue>Vector3</blue> coverPos;
 
 	[<blue>field</blue> : Space(20)]
 	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> inWallJump { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
@@ -999,6 +1008,78 @@
 }</code></pre>
 			</div>
 			<div id="codebox">
+<pre><code><blue>public class</blue> <green>WallJump</green> : MonoBehaviour
+{
+	<blue>public bool</blue> Front = <blue>false</blue>;
+	<blue>public bool</blue> Back = <blue>false</blue>;
+}</code></pre>
+			</div>
+			<div id="codebox">
+<pre><code><blue>public class</blue> <green>WalljumpSide</green> : MonoBehaviour
+{	
+
+    [SerializeField] <blue>private bool</blue> front = <blue>false</blue>; 
+    [SerializeField] <blue>private bool</blue> back = <blue>false</blue>; 
+
+	<blue>private void</blue> <yellow>OnTriggerStay</yellow>(Collider <lblue>other</lblue>)
+	{
+		<purple>if</purple> (other.gameObject.CompareTag(<red>"Player"</red>))
+		{
+			<purple>if</purple> (front == <blue>true</blue>)
+				GetComponentInParent&lt;WallJump>().Front = <blue>true</blue>;
+
+			<purple>if</purple> (back == <blue>true</blue>)
+				GetComponentInParent&lt;WallJump>().Back = <blue>true</blue>;
+		}
+	}
+
+	<blue>private void</blue> <yellow>OnTriggerExit</yellow>(Collider <lblue>other)</lblue>
+	{
+		<purple>if</purple> (front == <blue>true</blue>)
+			GetComponentInParent&lt;<WallJump>().Front = false;
+
+		<purple>if</purple> (back == <blue>true</blue>)
+			GetComponentInParent&lt;<WallJump>().Back = false;
+	}
+}</code></pre>
+			</div>
+		</div>
+	</div>
+	<div id="main">
+		<div id="left-column">
+			<h1>SideStep</h1>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP sidestep.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls autoplay loop allowfullscreen></video>
+			</div>
+			<div class="videoplayer">
+				<video width="615" height="355" src="/Videos/TCP sidestep w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls autoplay loop allowfullscreen></video>
+			</div>
+			<h2>
+				<tit>Summary</tit>
+				<br>The wall jump mechanic is a great addition to the game because it's a fun way to progress to parts in a level, 
+				such as something that's blocking the path.
+				
+				<br><br><tit>Wall Jump</tit>
+				<br>I created this mechanic with the <yellow>Walljump</yellow>() function that does all the raycast and position information.
+				And the <yellow>JumpOverWall</yellow>() function that does all the calculation, position and animations.
+
+				<br><br>The raycast again finds the layer of the object needed to use this mechanic.
+				When it hits the tooltip shows up to know how to use this mechanic.
+				When you press the correct button the player starts to do it's <red>"jump over"</red> animation and the <blue>wallJumpCam</blue> is also turned on to get a cool cinematic transition over the wall.
+
+				<br><br>The cool thing about UnityEngines <blue>Cinemachine</blue> is that you can add transitions if you turn off one of their camera.
+				This helps a lot since you can create multiple individual cinemachine camera with their own fov, animation, rotation and following targets.
+				Cinemachine then helps u with it's own smooth or hard transition of any changes on the cam itself such as the fov or rotation.
+
+				<br><br><br><br><tit>Wall Side</tit>
+				<br>What I then created for the wall object itself is a way to decide which side of the wall you are on and which side you have to jump to whenever you press the correct button.
+				This works great since I only call the wall objects script once when pressin the correct button.
+				
+			</h2>
+		</div>
+		<div id="right-column">
+			<div id="codebox">
+<pre><code></code></pre>
 			</div>
 		</div>
 	</div>
@@ -1822,7 +1903,6 @@
 			</div>
 		</div>
 	</div>
-
 </body>
   <script>
 	$(function(){
