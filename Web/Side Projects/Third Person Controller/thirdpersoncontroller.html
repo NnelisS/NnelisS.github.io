@@ -1354,46 +1354,112 @@
 	</div>
 	<div id="main">
 		<div id="left-column">
-			<h1>Movement and Animation</h1>
-			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TPC Animation and Movement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
-			</div>
-			<h1>Headmovement + Flashlight</h1>
-			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP Flashlight w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
-			</div>
-			<h1>Interactives</h1>
-			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP interactives.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
-			</div>
-			<h1>Ragdoll (OnDeath)</h1>
-			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP ragdoll.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
-			</div>
-			<h1>Hiding + Crouching</h1>
-			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP Movetocover w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
-			</div>
-			<h1>Walljump</h1>
-			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TPC Walljump.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
-			</div>
-			<h1>Sidestep</h1>
-			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP sidestep w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
-			</div>
-			<h1>Crawling</h1>
+			<h1>Destrucibles + Attack</h1>
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos/TCP Crawling.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
 			</div>
-			<h1>Destructibles + attack</h1>
-			<div class="videoplayer">
-				<video width="615" height="355" src="/Videos/TCP walldestroy.mp4" frameborder="0" allow="autoplay; encrypted-media;" controls allowfullscreen></video>
-			</div>
+			<h2>
+				<tit>Summary</tit>
+				<br>This mechanic is something I added for fun, because in most can there is usually something you can destroy or move.
+				So I've created the abilty to punch down walls.
+				This is going to be change later on in the development if I might add something like a crowbar.
+
+				<br><br></M><tit>Destructible</tit>
+				<br>Because the attack is pretty basic with an animation and collision I will talk more about the destructible.
+				For now I've just created a wall with individual blocks that have no movement.
+				On the players fist there is a collider that only turn on When the <yellow>PunchCol</yellow>() function is called.
+				The function is public since I use an event in the animator that turns on the collider exactly at the moment the player animation does the punch,
+				otherwise you would be able to hug the wall and it gets destroyed instantly because of the collision.
+
+				<br><br>On the wall there is a script <green>BreakableWall</green> that stores all rigibodies and collisions.
+				When the <red>"PlayerFist"</red> hits the walls collider a explosion force is added from the rigibodies with a random power between(50, 250).
+				This creates some diversity in every breakable wall.
+
+				<br><br>This already works greatly and I can add any kind of object to it with individual pieces, but there is going to be improvement later on in the development for better hit precision and force.
+
+
+			</h2>
 
 		</div>
 		<div id="right-column">
 			<div id="codebox">
+<pre><code><blue>using</blue> UnityEngine.UI;
+<blue>using</blue> Cinemachine;
+	
+[RequireComponent(<blue>typeof</blue>(Rigidbody))]
+<blue>public</blue> class <green>AgentMovement</green> : MonoBehaviour
+{
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> movementOff { <blue>get</blue>; <blue>set;</blue> }
+
+	[Space(20)]
+	[Header(<red>"Punch Info"</red>)]
+	<blue>public</blue> BoxCollider FistColl;
+
+	[<blue>field</blue> : Space(20)]
+	[<blue>field</blue> : SerializeField] <blue>public</blue> <blue>bool</blue> inPunch { <blue>get</blue>; <blue>private</blue> <blue>set;</blue> }
+	[<blue>field</blue>: Space(20)]
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Update</yellow>()
+	{
+		<purple>if</purple> (movementOff == <blue>false</blue>)
+		{
+			<yellow>FunctionAble</yellow>();
+		}
+
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>FunctionAble</yellow>()
+	{
+		<purple>if</purple> (inCrouch == <blue>false</blue> && inSideStep == <blue>false</blue> && inWallJump == <blue>false</blue> && inCrawl == <blue>false</blue>)
+			<yellow>Attack</yellow>();
+	}
+
+	<blue>private</blue> <blue><blue>void</blue></blue> <yellow>Attack</yellow>()
+	{
+		<purple>if</purple> (Input.GetMouseButtonDown(0))
+		{
+			movementOff = <blue>true</blue>;
+			inPunch = <blue>true</blue>;
+			playerAnim.SetBool("<red>InPunch"</red>, <blue>true</blue>);
+		}
+	}
+
+	<blue>public</blue> <blue><blue>void</blue></blue> <yellow>PunchCol</yellow>()
+	{
+		FistColl.enabled = <blue>true</blue>;
+	}
+
+	<blue>public</blue> <blue><blue>void</blue></blue> <yellow>OutPunch</yellow>()
+	{
+		FistColl.enabled = <blue>false</blue>;
+		movementOff = <blue>false</blue>;
+		inPunch = <blue>false</blue>;
+		playerAnim.SetBool("<red>InPunch"</red>, <blue>false</blue>);
+	}
+}</code></pre>
+			</div>
+			<div id="codebox">
+<pre><code><blue>public class</blue> <green>BreakableWall</green> : MonoBehaviour
+{
+	<blue>public</blue> List&lt;Rigidbody> WallParts;
+
+	<blue>private void</blue> OnTriggerEnter(Collider <lblue>other</lblue>)
+	{
+		if (<lblue>other</lblue>.gameObject.CompareTag(<red>"PlayerFist"</red>))
+		{
+			<purple>for</purple> (<blue>int</blue> <lblue>i</lblue> = 0; i < WallParts.Count; <lblue>i</lblue>++)
+			{
+				WallParts[<lblue>i</lblue>].isKinematic = <blue>false</blue>;
+				WallParts[<lblue>i</lblue>].AddExplosionForce(Random.Range(50, 250), Vector3.right, 50);
+			}
+		}
+	}
+}</code></pre>
+			</div>
+		</div>
+	</div>
+	<div id="end">
+		<h1>Full AgentMovement Script</h1>
 <pre><code><blue>using</blue> UnityEngine.UI;
 <blue>using</blue> Cinemachine;
 	
@@ -2169,6 +2235,13 @@
 		movementOff = <blue>false</blue>;
 	}
 }</code></pre>
+			
+	</div>
+	<div id="main">
+		<div id="left-column">
+		</div>
+		<div id="right-column">
+			<div id="codebox">
 			</div>
 		</div>
 	</div>
