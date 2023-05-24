@@ -23,6 +23,15 @@
 	transition: background-color 0.5s ease-in-out;
 }
 
+.navbar:hover .nav-btn{
+	color: white;
+	transition: color 0.5s ease-in-out;
+}
+
+.navbar .nav-btn:hover{
+	color:aquamarine;
+}
+
 .logo img {
 	border-radius: 25px;
 	opacity: 1;
@@ -46,6 +55,7 @@
 	align-items: flex-start;
 	margin-left: 3%;
 }
+
 .nav-buttons.normal{
 	animation: fade-in-navbar 1.5s ease-in-out;
 }
@@ -56,11 +66,12 @@
 	display: inline-block;
 	margin-left: 20px;
 	font-weight: bold;
-	color: #fff;
+	color: #ffffff1c;
 	text-decoration: none;
 	cursor: pointer;
 	position: relative;
 	z-index: 2;
+	transition: color 0.5s ease-in-out;
 }
 
 @media only screen and (max-height: 2160px) {
@@ -203,3 +214,8 @@
     background-color: rgb(255, 0, 0);
     cursor: pointer;
 }
+
+pre code {
+	pointer-events: none;
+	user-select: none;
+  }

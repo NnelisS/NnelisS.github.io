@@ -11,12 +11,64 @@
 		$("#navbar").load("/Web/Navbar/index.html");
 	  });
 	</script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			var scrollLinks = document.querySelectorAll('.side-menu a');
+
+			for (var i = 0; i < scrollLinks.length; i++) {
+				scrollLinks[i].addEventListener("click", smoothScroll);
+			}
+
+			function smoothScroll(e) {
+				e.preventDefault();
+				var targetId = this.getAttribute("href").substring(1);
+				var targetElement = document.getElementById(targetId);
+				var targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - 30;
+				var startPosition = window.pageYOffset;
+				var distance = targetPosition - startPosition;
+				var duration = 500; // Duration in milliseconds
+				var startTimestamp = null;
+
+				function scrollAnimation(timestamp) {
+					if (!startTimestamp) {
+						startTimestamp = timestamp;
+					}
+
+					var progress = timestamp - startTimestamp;
+					var percentage = Math.min(progress / duration, 1);
+					var easing = function(t) { return t<0.5 ? 2*t*t : -1+(4-2*t)*t; }; // Easing function (quadratic)
+
+					window.scrollTo(0, startPosition + distance * easing(percentage));
+
+					if (progress < duration) {
+						requestAnimationFrame(scrollAnimation);
+					}
+				}
+
+				requestAnimationFrame(scrollAnimation);
+			}
+		});
+	</script>
   </head>
   <body>
 	<div id="navbar"></div>
+	<div class="side-menu">
+        <a href="#Movement-and-Animation">Movement and Animation</a>
+        <a href="#Headmovement-and-Flashlight">Headmovement and Flashlight</a>
+        <a href="#Interactives">Interactives</a>
+        <a href="#Ragdoll">Ragdoll</a>
+        <a href="#Crouching-and-Hiding">Crouching and Hiding</a>
+        <a href="#Walljump">Walljump</a>
+        <a href="#SideStep">SideStep</a>
+        <a href="#Crawling">Crawling</a>
+        <a href="#Destrucible-and-Attack">Destrucible and attack</a>
+        <a href="#AgentMovement-Script">AgentMovementScript</a>
+    </div>
     <div id="main">
 		<div id="left-column">
+			<div id="Movement-and-Animation">
 			<h1>Movement and Animation</h1>
+			</div>
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos/TPC Animation and Movement.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
 			</div>
@@ -378,7 +430,9 @@
 	</div>
 	<div id="main">
 		<div id="left-column">
+			<div id="Headmovement-and-Flashlight">
 			<h1>Headmovement + Flashlight</h1>
+			</div>
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos/TCP Flashlight w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
 			</div>
@@ -429,7 +483,9 @@
 	</div>
 	<div id="main">
 		<div id="left-column">
+			<div id="Interactives">
 			<h1>Interactives</h1>
+			</div>
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos/TCP interactives.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
 			</div>
@@ -537,7 +593,9 @@
 	</div>
 	<div id="main">
 		<div id="left-column">
+			<div id="Ragdoll">
 			<h1>Ragdoll (OnDeath)</h1>
+			</div>
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos/TCP ragdoll.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
 			</div>
@@ -631,9 +689,11 @@
 			</div>
 		</div>
 	</div>
-	</1><div id="main">
+	<div id="main">
 		<div id="left-column">
+			<div id="Crouching-and-Hiding">
 			<h1>Crouching and Hiding</h1>
+			</div>
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos/TCP Movetocover w headmovement.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
 			</div>			
@@ -861,7 +921,9 @@
 	</div>
 	<div id="main">
 		<div id="left-column">
+			<div id="Walljump">
 			<h1>Walljump</h1>
+			</div>
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos/TPC Walljump.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
 			</div>
@@ -1047,7 +1109,9 @@
 	</div>
 	<div id="main">
 		<div id="left-column">
+			<div id="SideStep">
 			<h1>SideStep</h1>
+			</div>
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos/TCP sidestep.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
 			</div>
@@ -1203,7 +1267,9 @@
 	</div>
 	<div id="main">
 		<div id="left-column">
+			<div id="Crawling">
 			<h1>Crawling</h1>
+			</div>
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos/TCP Crawling.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
 			</div>
@@ -1354,7 +1420,9 @@
 	</div>
 	<div id="main">
 		<div id="left-column">
+			<div id="Destrucible-and-Attack">
 			<h1>Destrucibles + Attack</h1>
+			</div>
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos/TCP Crawling.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
 			</div>
@@ -1459,7 +1527,9 @@
 		</div>
 	</div>
 	<div id="end">
+		<div id="AgentMovement-Script">
 		<h1>Full AgentMovement Script</h1>
+		</div>
 <pre><code><blue>using</blue> UnityEngine.UI;
 <blue>using</blue> Cinemachine;
 	

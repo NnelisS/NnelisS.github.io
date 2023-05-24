@@ -275,6 +275,12 @@
 body{
 	background: linear-gradient(to bottom, #ffffff,#ffffff,#ffffff, #b2cdf6, #3586ff);
 }
+@media only screen and (max-height: 10000px) {
+  body{
+    background: linear-gradient(to bottom, #ffffff,#ffffff,#ffffff, #3586ff);
+  }
+}
+
 @media only screen and (max-height: 1080px) {    
   body{
     background: linear-gradient(to bottom, #ffffff,#ffffff,#ffffff, #b2cdf6, #3586ff);
