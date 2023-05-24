@@ -11,12 +11,59 @@
 		$("#navbar").load("/Web/Navbar/index.html");
 	  });
 	</script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			var scrollLinks = document.querySelectorAll('.side-menu a');
+
+			for (var i = 0; i < scrollLinks.length; i++) {
+				scrollLinks[i].addEventListener("click", smoothScroll);
+			}
+
+			function smoothScroll(e) {
+				e.preventDefault();
+				var targetId = this.getAttribute("href").substring(1);
+				var targetElement = document.getElementById(targetId);
+				var targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - 30;
+				var startPosition = window.pageYOffset;
+				var distance = targetPosition - startPosition;
+				var duration = 500; // Duration in milliseconds
+				var startTimestamp = null;
+
+				function scrollAnimation(timestamp) {
+					if (!startTimestamp) {
+						startTimestamp = timestamp;
+					}
+
+					var progress = timestamp - startTimestamp;
+					var percentage = Math.min(progress / duration, 1);
+					var easing = function(t) { return t<0.5 ? 2*t*t : -1+(4-2*t)*t; }; // Easing function (quadratic)
+
+					window.scrollTo(0, startPosition + distance * easing(percentage));
+
+					if (progress < duration) {
+						requestAnimationFrame(scrollAnimation);
+					}
+				}
+
+				requestAnimationFrame(scrollAnimation);
+			}
+		});
+	</script>
   </head>
   <body>
 	<div id="navbar"></div>
+	<div class="side-menu">
+        <a href="#AI-Movement">AI Movement</a>
+        <a href="#AI-Scriptable-Object">AI Scriptable Object</a>
+        <a href="#AI-Vision-Cone">AI Vision Cone</a>
+        <a href="#Sound-Barrier">Sound Barrier</a>
+    </div>
+
     <div id="main">
 		<div id="left-column">
+			<div id="AI-Movement">
 			<h1>AI Movement</h1>
+			</div>
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos/AI.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
 			</div>
@@ -160,11 +207,13 @@
 
     <div id="main">
 		<div id="left-column">
+			<div id="AI-Scriptable-Object">
 			<h1>AI Scriptable Object</h1>
+			</div>
 			<h2>
 				<tit>AISO</tit>
 				<br>AISO stands for <br>(Artificial Intelligence Scriptable Object).
-				I created this scriptable object so I can create a variety of different enemies with differen speed and distances.
+				I created this scriptable object so I can create a variety of different enemies with different speed and distances.
 				
 				<br><br>So all information is stored in the scriptable object of the AI and <green>AIMovement</green> can call these variables.
 			</h2>
@@ -196,13 +245,15 @@
 
 	<div id="main">
 		<div id="left-column">
+			<div id="AI-Vision-Cone">
 			<h1>AI Vision Cone</h1>
+			</div>
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos/AI.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
 			</div>
 			<h2>
 				<tit>Vision Cone</tit>
-				<br>With the help of <a href="https://www.youtube.com/watch?v=rQG9aUWarwE"><blue>Sebastion Lague</blue></a> I was able to create a advanced vision cone.
+				<br>With the help of <a href="https://www.youtube.com/watch?v=rQG9aUWarwE" target="_blank"><blue>Sebastion Lague</blue></a> I was able to create a advanced vision cone.
 				This vision Cone works great for visualization on what the AI sees.
 
 				<br><br>What happens in the script is that it uses a mesh and basically cuts it where it's not being seen by the AI.
@@ -480,7 +531,9 @@
 
 	<div id="main">
 		<div id="left-column">
+			<div id="Sound-Barrier">
 			<h1>Sound Barrier</h1>
+			</div>
 			<div class="videoplayer">
 				<video width="615" height="355" src="/Videos//AI Sound barier.mp4" frameborder="0" allow="autoplay; encrypted-media;" muted controls allowfullscreen></video>
 			</div>

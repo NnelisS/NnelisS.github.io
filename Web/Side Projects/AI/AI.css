@@ -1,6 +1,87 @@
 body {
     background-color: #18222d;
   }  
+
+  .side-menu {
+    position: fixed;
+    right: 0%;
+    top: 0;
+    height: 100vh;
+    max-height: calc(100vh - 40px);
+    width: 200px;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  
+  .side-menu:hover{
+    animation: sidebar forwards .4s ease-in-out;
+  }
+  
+  .side-menu:hover a{
+    color: rgba(255, 255, 255, 0.77);
+  }
+  
+  .side-menu a {
+    animation: sidebarenter forwards 1s ease;
+    text-align: justify;
+    text-align: right;
+    margin-right: 2%;
+    margin-top: 30%;
+    display: block;
+    margin-bottom: 10px;
+    text-decoration: none;
+    color: rgba(240, 248, 255, 0.438);
+    transition: transform 0.3s ease;
+  }
+  
+  .side-menu a:hover{
+    animation: sidebartext forwards .05s ease-in;
+  }
+  
+  @keyframes sidebarenter{
+    0%{
+      transform: scale(1);
+      color: rgba(240, 248, 255, 0.438);
+    }
+    25%{
+      color: white;
+      transform: scale(1.2);
+    }
+    50%{
+      transform: scale(1);
+      color: rgba(240, 248, 255, 0.438);
+    }
+    75%{
+      color: white;
+      transform: scale(1.2)
+    }
+    100%{
+      transform: scale(1);
+      color: rgba(240, 248, 255, 0.438);
+    }
+  }
+  
+  @keyframes sidebar{
+    0%{
+      background-color: #04040400;
+    }
+    100%{
+      background-color: #040404;
+    }
+  }
+  
+  @keyframes sidebartext{
+    0%{
+      color: rgba(240, 248, 255, 0.438);
+      font-weight: bold;
+      transform: scale(1);
+    }
+    100%{
+      color: rgb(255, 255, 255);
+      font-weight: 800;
+      transform: scale(1.2);
+    }
+  }
   
   h1 {
     font-family: "Montserrat Medium";
