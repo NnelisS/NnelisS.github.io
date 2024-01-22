@@ -1,30 +1,22 @@
-/* Base styles */
-body {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
+body{
+    background-color: #116d7c;
+        color: white;
+    position: absolute;
+    overflow-y: scroll;
 }
-
-/* Styles for screens larger than 600px */
-@media screen and (min-width: 600px) {
-  body {
-    background-color: lightblue;
-  }
-}
-
-/* Styles for screens smaller than or equal to 600px */
-@media screen and (max-width: 600px) {
-  body {
-    background-color: lightgreen;
-  }
-}
-
 
 .container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 10px;
-}
+    background: linear-gradient(#0095ff, rgb(9, 12, 59));
+    border-radius: 2%;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 5%;
+    margin-bottom: 10%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    box-shadow: 6px 6px 10px #0095ff;
+  }
   
   .video-container {
     display: flex;
@@ -206,9 +198,3 @@ body {
     border-style: solid;
     background-color: rgb(46, 46, 46);
   }
-
-  img {
-    max-width: 100%;
-    height: auto;
-  }
-  
